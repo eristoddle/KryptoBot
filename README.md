@@ -27,7 +27,7 @@ Install Docker.
 
 Run `docker-compose up`
 
-Browse to http://0.0.0.0:8888/lab
+Browse to http://0.0.0.0:8888/lab and use the token given in the docker console
 
 ## More docs to come
 
