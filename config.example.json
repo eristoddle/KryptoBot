@@ -1,0 +1,24 @@
+{
+    "db": {
+        "engine": "postgresql",
+        "name": "postgres",
+        "user": "postgres",
+        "pass": "password",
+        "host": "timescale",
+        "port": "5432"
+    },
+    "apis": {
+        "cryptopia": {
+            "key": "key",
+            "secret": "secret"
+        },
+        "hitbtc": {
+            "key": "key",
+            "secret": "secret"
+        },
+        "bittrex": {
+            "key": "key",
+            "secret": "secret"
+        }
+    }
+}
