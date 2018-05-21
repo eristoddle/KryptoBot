@@ -1,12 +1,4 @@
 jupyterlab
-pypubsub
-requests
-SQLAlchemy
-psycopg2
-pyti
-ccxt
-pandas
-enigma-catalyst
 zipline
 matplotlib
 git+https://github.com/eristoddle/KryptoBot.git

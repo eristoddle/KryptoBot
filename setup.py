@@ -6,7 +6,9 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="kryptobot",
-    packages=['kryptobot'],
+    # packages=['kryptobot'],
+    packages=setuptools.find_packages(),
+    include_package_data=True,
     version="0.0.1",
     author="Stephan Miller",
     author_email="stephanmil@gmail.com",
@@ -16,7 +18,6 @@ setuptools.setup(
     url="https://github.com/eristoddle/KryptoBot",
     zip_safe=False,
     install_requires=[
-          'markdown',
           'pypubsub',
           'requests',
           'SQLAlchemy',
@@ -24,8 +25,7 @@ setuptools.setup(
           'pyti',
           'ccxt',
           'pandas',
-          'enigma-catalyst',
-          'matplotlib'
+          'enigma-catalyst'
       ],
     classifiers=(
         "Programming Language :: Python :: 3",
