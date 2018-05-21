@@ -1,17 +1,18 @@
 from collections import defaultdict
 from threading import Thread
 from queue import Queue
-from core.database import ohlcv_functions
-from core.markets import ticker
-from ccxt import BaseError
-import ccxt
 import logging
 import time
+import datetime
 from pubsub import pub
 from threading import Lock
+from .. import ticker
+from ..ccxt import ccxt
+from ..db.models import Ohlcv, TradingPair
 
 lock = Lock()
 logger = logging.getLogger(__name__)
+
 
 class MarketWatcher:
     """Active object that subscribes to a ticker of a specific interval and keeps track of OHLCV data
@@ -19,7 +20,7 @@ class MarketWatcher:
      It then subscribes to the ticker of that interval and calls for candles each time period
      It is responsible for syncing data with the DB and adding new candles
      Strategies that subscribe to the ticker will be given the new candles"""
-    def __init__(self, exchange, base_currency, quote_currency, interval):
+    def __init__(self, exchange, base_currency, quote_currency, interval, session):
         exchange = getattr(ccxt, exchange)
         ticker.subscribe(self.tick, interval)
         self.analysis_pair = '{}/{}'.format(base_currency, quote_currency)
@@ -33,8 +34,15 @@ class MarketWatcher:
         self.__running = False
         self.historical_synced = False
         self.latest_candle = None
-        self.PairID = ohlcv_functions.write_trade_pairs_to_db(self.exchange.id, self.base_currency, self.quote_currency, self.interval)
+        self.session = session()
+        self.pair_id = self.write_trade_pairs_to_db(self.exchange.id, self.base_currency, self.quote_currency, self.interval)
         self.__thread.start()
+
+    def __del__(self):
+        self.session.close()
+
+    # def add_session(self, session):
+    #     self.session = session()
 
     def __run(self):
         """Start listener queue waiting for ticks"""
@@ -58,29 +66,86 @@ class MarketWatcher:
         if self.historical_synced:
             self._jobs.put(lambda: self.__pull_latest_candle(self.interval))
 
+    def write_trade_pairs_to_db(self, exchange_id, base, quote, interval):
+        """Returns the ID of the trade pair"""
+        logger.info("Writing market data pair to DB")
+        pair = self.session.query(TradingPair).filter(
+            TradingPair.exchange == exchange_id,
+            TradingPair.base_currency == base,
+            TradingPair.quote_currency == quote,
+            TradingPair.interval == interval,
+        ).first()
+        if pair is None:
+            pair = TradingPair(
+                exchange=exchange_id,
+                base_currency=base,
+                quote_currency=quote,
+                interval=interval
+            )
+            self.session.add(pair)
+            self.session.commit()
+        else:
+            logger.info("Market data already available for pair, returning ID for lookups")
+        return pair.id
+
     def sync_historical(self):
         """Queue loading of historical candles"""
         self._jobs.put(lambda: self.__sync_historical())
 
     def get_historical_candles(self):
-        data = ohlcv_functions.get_all_candles(self.PairID)
-        return data
+        data = self.session.query(Ohlcv).filter(
+            Ohlcv.exchange == self.exchange.id,
+            Ohlcv.pair_id == self.pair_id,
+            Ohlcv.interval == self.interval
+        ).all()
+        return [(d.timestamp_raw, d.open, d.high, d.low, d.close, d.volume) for d in data]
 
     def __sync_historical(self):
         """Load all missing historical candles to database"""
         logger.info('Syncing market candles with DB...')
-        latest_db_candle = ohlcv_functions.get_latest_candle(self.exchange.id, self.analysis_pair, self.interval)
+        latest_db_candle = self.session.query(Ohlcv).filter(
+            Ohlcv.exchange == self.exchange.id,
+            Ohlcv.pair_id == self.pair_id,
+            Ohlcv.interval == self.interval
+        ).order_by(Ohlcv.timestamp_raw.desc()).first()
         data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
         if latest_db_candle is None:
             logger.info("No historical data for market, adding all available OHLCV data")
             for entry in data:
-                ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, entry, self.PairID)
+                ohlcv = Ohlcv(
+                    exchange=self.exchange.id,
+                    pair=self.analysis_pair,
+                    interval=self.interval,
+                    pair_id=self.pair_id,
+                    timestamp=convert_timestamp_to_date(entry[0]),
+                    timestamp_raw=entry[0],
+                    open=entry[1],
+                    high=entry[2],
+                    low=entry[3],
+                    close=entry[4],
+                    volume=entry[5]
+                )
+                self.session.add(ohlcv)
                 print('Writing candle ' + str(entry[0]) + ' to database')
         else:
             for entry in data:
-                if not latest_db_candle[10] >= entry[0]:
-                    ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, entry, self.PairID)
+                if not latest_db_candle.timestamp_raw >= entry[0]:
+                    ohlcv = Ohlcv(
+                        exchange=self.exchange.id,
+                        pair=self.analysis_pair,
+                        interval=self.interval,
+                        pair_id=self.pair_id,
+                        timestamp=convert_timestamp_to_date(entry[0]),
+                        timestamp_raw=entry[0],
+                        open=entry[1],
+                        high=entry[2],
+                        low=entry[3],
+                        close=entry[4],
+                        volume=entry[5]
+                    )
+                    self.session.add(ohlcv)
                     print('Writing missing candle ' + str(entry[0]) + ' to database')
+        self.session.commit()
         self.historical_synced = True
         pub.sendMessage(self.topic + "historical")
         logger.info('Market data has been synced.')
@@ -96,7 +161,21 @@ class MarketWatcher:
                 logger.info('Candle already contained in DB, retrying...')
                 time.sleep(self.exchange.rateLimit * 2 / 1000)
                 latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
-            ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, latest_data, self.PairID)
+            ohlcv = Ohlcv(
+                exchange=self.exchange.id,
+                pair=self.analysis_pair,
+                interval=interval,
+                pair_id=self.pair_id,
+                timestamp=convert_timestamp_to_date(latest_data[0]),
+                timestamp_raw=latest_data[0],
+                open=latest_data[1],
+                high=latest_data[2],
+                low=latest_data[3],
+                close=latest_data[4],
+                volume=latest_data[5]
+            )
+            self.session.add(ohlcv)
+            self.session.commit()
         except Exception as e:
             print(e)
             logger.info("Timeout pulling latest candle, trying again")
@@ -110,21 +189,21 @@ class MarketWatcher:
 lookup_list = defaultdict(MarketWatcher)
 
 
-def get_market_watcher(exchange_id, base, quote, interval):
+def get_market_watcher(exchange_id, base, quote, interval, session=None):
     """Return or create market watcher for the given analysis market"""
     topic = str(exchange_id + base + "/" + quote + interval)
     if topic not in lookup_list:
-        lookup_list[topic] = MarketWatcher(exchange_id, base, quote, interval)
+        lookup_list[topic] = MarketWatcher(exchange_id, base, quote, interval, session)
     return lookup_list[topic]
 
 
-def subscribe_historical(exchange_id, base, quote, interval, callable):
+def subscribe_historical(exchange_id, base, quote, interval, callable, session):
     """Subscribe to a notification that is sent when historical data is loaded for the market given"""
     topic = str(exchange_id + base + "/" + quote + interval + "historical")
     pub.subscribe(callable, topic)
 
 
-def subscribe(exchange_id, base, quote, interval, callable):
+def subscribe(exchange_id, base, quote, interval, callable, session):
     """
     Enroll strategy to recieve new candles from a market
     :param exchange_id: string representing exchange i.e. 'bittrex'
@@ -136,6 +215,10 @@ def subscribe(exchange_id, base, quote, interval, callable):
     """
     with lock:
         topic = str(exchange_id + base + "/" + quote + interval)
-        get_market_watcher(exchange_id, base, quote, interval)
+        get_market_watcher(exchange_id, base, quote, interval, session)
         print("Subscribing to " + topic)
         pub.subscribe(callable, topic)
+
+def convert_timestamp_to_date(timestamp):
+    value = datetime.datetime.fromtimestamp(float(str(timestamp)[:-3]))  #this might only work on bittrex candle timestamps
+    return value.strftime('%Y-%m-%d %H:%M:%S')

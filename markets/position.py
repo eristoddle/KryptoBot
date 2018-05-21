@@ -1,10 +1,7 @@
 """Module to create, remove, and manage trades currently in play in running strategies"""
-from core.markets.order import Order
 import logging
 
 logger = logging.getLogger(__name__)
-
-positions = []
 
 
 class Position:
@@ -77,7 +74,7 @@ class ShortPosition(Position):
         self.initial_order = None
 
     def open(self):
-        self.initial_order = Order(self.market, "sell", "limit", self.amount, self.price)
+        self.market.limit_sell(self.amount, self.price)
 
     def confirm_sell_order(self):
         pass
@@ -90,7 +87,7 @@ def open_long_position(market, amount, price, fixed_stoploss_percent, trailing_s
 
 
 def open_short_position(market, amount, price):
-    position = ShortPosition(market, amount, price).open()
+    position = ShortPosition(market, amount, price)
     position.open()
     return position
 
@@ -101,5 +98,3 @@ def calculate_transaction_fee(exchange, pair):
 
 def calculate_drawdown():
     pass
-
-

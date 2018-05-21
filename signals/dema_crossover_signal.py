@@ -1,5 +1,5 @@
-from ta.exponential_moving_average import ExponentialMovingAverage
-from signal_generators.base_signal_generator import BaseSignalGenerator
+from ..ta.exponential_moving_average import ExponentialMovingAverage
+from ..signals.base_signal_generator import BaseSignalGenerator
 
 
 class DEMACrossoverSignal(BaseSignalGenerator):

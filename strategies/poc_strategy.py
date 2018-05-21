@@ -1,5 +1,5 @@
-from strategies.base_strategy import BaseStrategy
-from signal_generators import sma_crossover_signal
+from ..strategies.base_strategy import BaseStrategy
+from ..signals import sma_crossover_signal
 
 
 class PocStrategy(BaseStrategy):

@@ -1,12 +1,9 @@
-from core.markets.market import Market
-from core.database import ohlcv_functions
-from core.markets import position
-from core.markets import order
+from .market import Market
+from . import position
+from ..db.models import TradingOrder
 import logging
 
 logger = logging.getLogger(__name__)
-
-long_positions = 0
 
 
 class MarketSimulator(Market):
@@ -18,11 +15,26 @@ class MarketSimulator(Market):
         self.base_balance = 0
         self.simulating = False
 
+    def __del__(self):
+        self.session.close()
+
+    def add_session(self, session):
+        self.session = session()
+
     def limit_buy(self, quantity, price):
         if self.quote_balance >= quantity * price:
             self.quote_balance = self.quote_balance - quantity * price
             self.base_balance = self.base_balance + quantity
-            order.write_order_to_db(self.exchange.id, self.analysis_pair, "buy", quantity, price, "simulated")
+            order = TradingOrder(
+                exchange=self.exchange.id,
+                pair=self.analysis_pair,
+                position='buy',
+                amount=quantity,
+                price=price,
+                simulated="simulated"
+            )
+            self.session.add(order)
+            self.session.commit()
             logger.info("Executed buy simulation of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
             logger.info(self.quote_currency + " balance: " + str(self.quote_balance))
             logger.info(self.base_currency + " balance: " + str(self.base_balance))
@@ -33,7 +45,16 @@ class MarketSimulator(Market):
         if self.base_balance >= quantity:
             self.base_balance = self.base_balance - quantity
             self.quote_balance = self.quote_balance + quantity * price
-            order.write_order_to_db(self.exchange.id, self.analysis_pair, "sell", quantity, price, "simulated")
+            order = TradingOrder(
+                exchange=self.exchange.id,
+                pair=self.analysis_pair,
+                position='sell',
+                amount=quantity,
+                price=price,
+                simulated="simulated"
+            )
+            self.session.add(order)
+            self.session.commit()
             logger.info("Executed sell simulation of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
             logger.info(self.quote_currency + " balance: " + str(self.quote_balance))
             logger.info(self.base_currency + " balance: " + str(self.base_balance))

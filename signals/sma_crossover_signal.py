@@ -1,6 +1,6 @@
-from ta import simple_moving_average
-from ta import volume_change_monitor
-from signal_generators.base_signal_generator import BaseSignalGenerator
+from ..ta import simple_moving_average
+from ..ta import volume_change_monitor
+from ..signals.base_signal_generator import BaseSignalGenerator
 
 
 class SmaCrossoverSignal(BaseSignalGenerator):

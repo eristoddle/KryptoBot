@@ -1,9 +1,9 @@
-import ccxt
+from ..ccxt import ccxt
 import logging
 import os
-from core.markets import order
+from . import order
 from collections import defaultdict
-from core.markets import market_watcher
+from . import market_watcher
 from ccxt import BaseError
 
 
@@ -18,11 +18,11 @@ class Market:
     This also handles the API key for authentication, as well as methods to place orders"""
 
     def __init__(self, exchange, base_currency, quote_currency, strategy):
+        self.exchange_name = exchange
         exchange = getattr(ccxt, exchange)
         self.strategy = strategy
         self.api_key = None
         self.secret_key = None
-        self.get_exchange_login()
         self.exchange = exchange({'apiKey': self.api_key, 'secret': self.secret_key, })
         self.base_currency = base_currency
         self.quote_currency = quote_currency
@@ -33,6 +33,18 @@ class Market:
         self.candles = defaultdict(list)
         self.latest_candle = defaultdict(list)  # allows for order simulations based on historical ohlcv data
         markets.append(self)
+
+    def add_session(self, session):
+        self.session = session
+
+    def add_keys(self, keys):
+        try:
+            if self.exchange_name in keys:
+                self.api_key = keys[self.exchange_name]['key']
+                self.secret_key = keys[self.exchange_name]['secret']
+                self.exchange = self.exchange({'apiKey': self.api_key, 'secret': self.secret_key, })
+        except:
+            logger.error("Invalid api keys")
 
     def update(self, interval, candle):
         """Notify all indicators subscribed to the interval of a new candle"""
@@ -49,22 +61,11 @@ class Market:
         """Add indicator to list of indicators listening to market's candles"""
         self.indicators[indicator.interval].append(indicator)
 
-    def get_exchange_login(self):
-        """Put API Key and Secret into login-real.txt file on your local machine"""
-        try:
-            login_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'login-real.txt')
-            with open(login_file) as f:
-                data = f.read().splitlines()
-            self.exchange.api_key = data[0]
-            self.exchange.secret_key = data[1]
-        except:
-            logger.error("Invalid login file")
-
     def limit_buy(self, quantity, price):
         """Place a limit buy order"""
         try:
             self.strategy.send_message("Executed buy of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
-            return order.Order(self, "buy", "limit", quantity, price)
+            return order.Order(self, "buy", "limit", quantity, price, self.session)
         except BaseError:
             self.strategy.send_message("Error creating buy order")
             logger.error("Error creating buy order")
@@ -73,7 +74,7 @@ class Market:
         """Place a limit sell order"""
         try:
             self.strategy.send_message("Executed sell of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
-            return order.Order(self, "sell", "limit", quantity, price)
+            return order.Order(self, "sell", "limit", quantity, price, self.session)
         except BaseError:
             self.strategy.send_message("Error creating sell order")
             logger.error("Error creating sell order")

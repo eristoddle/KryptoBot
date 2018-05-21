@@ -1,5 +1,5 @@
 from pyti.simple_moving_average import simple_moving_average as sma
-from ta.base_indicator import BaseIndicator
+from .base_indicator import BaseIndicator
 
 
 class SimpleMovingAverage(BaseIndicator):

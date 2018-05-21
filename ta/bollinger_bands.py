@@ -3,7 +3,7 @@ from pyti.bollinger_bands import lower_bollinger_band as calc_lower_bband
 from pyti.bollinger_bands import middle_bollinger_band as calc_middle_bband
 from pyti.bollinger_bands import bandwidth as calc_bandwidth
 from pyti.bollinger_bands import bb_range as calc_range
-from ta.base_indicator import BaseIndicator
+from .base_indicator import BaseIndicator
 
 
 class BollingerBands(BaseIndicator):

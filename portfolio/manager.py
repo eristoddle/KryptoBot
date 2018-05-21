@@ -1,12 +1,14 @@
-from core.database import database
+from ..db import database
 from sqlalchemy.sql import select, and_, func
 import pandas as pd
+
+# TODO: Use models here
 
 engine = database.engine
 conn = engine.connect()
 
 
-class Portfolio:
+class Manager:
     def __init__(self, market):
         """Mini portfolio object for each exchange/pair that has traded positions"""
         self.market = market

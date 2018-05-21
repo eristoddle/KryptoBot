@@ -1,7 +1,7 @@
-from core.markets import market_watcher
-from core.markets import market_simulator
-from core.markets import market
-from core.markets import position
+from ..markets import market_watcher
+from ..markets import market_simulator
+from ..markets import market
+from ..markets import position
 from threading import Thread
 from queue import Queue
 import logging
@@ -46,21 +46,28 @@ class BaseStrategy:
         self.strategy_id = len(strategies)
         self.ui_messages = Queue()
 
+    def add_session(self, session):
+        self.session = session
+        self.market.add_session(session)
+
+    def add_keys(self, keys):
+        self.market.add_keys(keys)
+
     def start(self):
         """Start thread and subscribe to candle updates"""
-        self.__jobs.put(lambda: market_watcher.subscribe(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.__update))
+        self.__jobs.put(lambda: market_watcher.subscribe(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.__update, self.session))
         self.__thread.start()
 
     def warmup(self):
         """Queue warmup when market data has been synced"""
         market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency,
-                                            self.market.quote_currency, self.interval, self.__warmup)
+                                            self.market.quote_currency, self.interval, self.__warmup, self.session)
 
     def run_simulation(self):
         """Queue simulation when market data has been synced"""
         if self.is_simulated:
             market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency,
-                                            self.market.quote_currency, self.interval, self.__run_simulation)
+                                            self.market.quote_currency, self.interval, self.__run_simulation, self.session)
 
     def __warmup(self, periods=None):
         """Update TA indicators on specified number of historical periods"""
@@ -152,5 +159,3 @@ class BaseStrategy:
         print(str("Strategy " + str(self.strategy_id) + ": " + msg))
         logger.info(msg)
         self.ui_messages.put(msg)
-
-
