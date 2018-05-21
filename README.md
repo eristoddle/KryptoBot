@@ -23,6 +23,11 @@ bot.start()
 
 ## Run with Docker and Jupyter Lab
 
+Install Docker.
+
+Run `docker-compose up`
+
+Browse to http://0.0.0.0:8888/lab
 
 ## More docs to come
 

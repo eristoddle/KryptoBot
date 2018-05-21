@@ -18,6 +18,7 @@ services:
         command: jupyter lab --ip=0.0.0.0 --allow-root
         ports:
             - "8888:8888"
+        working_dir: /usr/src/notebooks
         expose:
             - "8888"
         networks:
