@@ -6,10 +6,8 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="kryptobot",
-    # packages=['kryptobot'],
     package_dir={'': 'kryptobot'},
-    packages=setuptools.find_packages(),
-    include_package_data=True,
+    packages=setuptools.find_packages('kryptobot'),
     version="0.0.1",
     author="Stephan Miller",
     author_email="stephanmil@gmail.com",

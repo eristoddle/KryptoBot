@@ -21,6 +21,8 @@ services:
         working_dir: /usr/src/notebooks
         expose:
             - "8888"
+        volumes:
+            - ./examples:/usr/src/notebooks
         networks:
             - cryptobox
 
