@@ -4,7 +4,7 @@ A fork of Titan: https://github.com/Denton24646/Titan with changes to make it im
 
 ## One way to run
 
-'''
+```python
 from kryptobot import database
 from kryptobot.strategies.poc_strategy import PocStrategy
 
@@ -20,26 +20,34 @@ def start():
 
     except Exception as e:
         print(e)
-
+    
     finally:
         database.engine.dispose()
 
 
 start()
-'''
+```
 
 ## Another way
 
-'''
+```python
 from kryptobot.bot import Bot
+
 from kryptobot.strategies.poc_strategy import PocStrategy
+
 from os import getcwd
 
 config = getcwd() + '/config.json'
+
 strategy = PocStrategy("5m", 'cryptopia', 'ETH', 'BTC', True, 12, 96, sim_balance=10)
+
 bot = Bot(strategy, config=config)
+
 bot.start()
-'''
+
+```
+
+
 
 ## More docs to come
 
