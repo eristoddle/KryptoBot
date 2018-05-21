@@ -1,3 +1,4 @@
+jupyterlab
 pypubsub
 requests
 SQLAlchemy
@@ -8,3 +9,4 @@ pandas
 enigma-catalyst
 zipline
 matplotlib
+git+https://github.com/eristoddle/KryptoBot.git

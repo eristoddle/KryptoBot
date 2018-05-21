@@ -29,7 +29,6 @@ class Bot:
         else:
             conn_str = db['engine'] + '://' + db['user'] + ':' + db['pass'] \
                 + '@' + db['host'] + ':' + db['port'] + '/' + db['name']
-            print(conn_str)
         self.session = sessionmaker(bind=self.engine)
 
     def drop_tables(self):

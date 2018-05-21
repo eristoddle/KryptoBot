@@ -1,0 +1,28 @@
+version: '3.4'
+services:
+
+    # timescale:
+    #     image: timescale/timescaledb
+    #     ports:
+    #         - "5432:5432"
+    #     expose:
+    #         - "5432"
+    #     networks:
+    #         - cryptobox
+    #     environment:
+    #         - POSTGRES_PASSWORD=password
+    #         - POSTGRES_USER=postgres
+
+    jupyter:
+        build: .
+        command: jupyter lab --ip=0.0.0.0 --allow-root
+        ports:
+            - "8888:8888"
+        expose:
+            - "8888"
+        networks:
+            - cryptobox
+
+networks:
+    cryptobox:
+        driver: bridge
