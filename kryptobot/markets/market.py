@@ -1,10 +1,9 @@
-from ..ccxt import ccxt
 import logging
 import os
-from . import order
 from collections import defaultdict
+from . import order
 from . import market_watcher
-from ccxt import BaseError
+from ..ccxt.ccxt import ccxt
 
 
 logger = logging.getLogger(__name__)
@@ -66,7 +65,7 @@ class Market:
         try:
             self.strategy.send_message("Executed buy of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
             return order.Order(self, "buy", "limit", quantity, price, self.session)
-        except BaseError:
+        except:
             self.strategy.send_message("Error creating buy order")
             logger.error("Error creating buy order")
 
@@ -75,7 +74,7 @@ class Market:
         try:
             self.strategy.send_message("Executed sell of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
             return order.Order(self, "sell", "limit", quantity, price, self.session)
-        except BaseError:
+        except:
             self.strategy.send_message("Error creating sell order")
             logger.error("Error creating sell order")
 
@@ -84,7 +83,7 @@ class Market:
         try:
             logger.info(self.exchange.fetch_balance())
             return self.exchange.fetch_balance()
-        except BaseError:
+        except:
             logger.error("Not logged in properly")
 
     def get_best_bid(self):

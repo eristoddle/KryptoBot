@@ -18,11 +18,11 @@ services:
         command: jupyter lab --ip=0.0.0.0 --allow-root
         ports:
             - "8888:8888"
-        working_dir: /usr/src/notebooks
+        working_dir: /usr/src/app/notebooks
         expose:
             - "8888"
         volumes:
-            - ./examples:/usr/src/notebooks
+            - ./:/usr/src/app
         networks:
             - cryptobox
 

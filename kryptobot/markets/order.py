@@ -1,7 +1,6 @@
 import datetime
 import time
 import logging
-from ccxt import OrderNotFound
 from ..db.models import TradingOrder
 
 logger = logging.getLogger(__name__)
@@ -62,7 +61,7 @@ class Order:
     def cancel(self):
         try:
             self.market.exchange.cancel_order(self.get_id())
-        except OrderNotFound:
+        except:
             logger.error("Order cannot be canceled. Has already been filled")
 
     def is_open(self):

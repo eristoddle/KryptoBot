@@ -7,7 +7,7 @@ import datetime
 from pubsub import pub
 from threading import Lock
 from .. import ticker
-from ..ccxt import ccxt
+from ..ccxt.ccxt import ccxt
 from ..db.models import Ohlcv, TradingPair
 
 lock = Lock()

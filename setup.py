@@ -6,14 +6,24 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="kryptobot",
-    package_dir={'': 'kryptobot'},
-    packages=setuptools.find_packages('kryptobot'),
+    # package_dir={'': 'kryptobot'},
+    # packages=setuptools.find_packages('kryptobot'),
+    packages=[
+        'kryptobot',
+        'kryptobot.ccxt',
+        'kryptobot.db',
+        'kryptobot.harvesters',
+        'kryptobot.markets',
+        'kryptobot.portfolio',
+        'kryptobot.signals',
+        'kryptobot.strategies',
+        'kryptobot.ta',
+    ],
     version="0.0.1",
     author="Stephan Miller",
     author_email="stephanmil@gmail.com",
     description="Cryptocurrency trading bot framework",
     long_description=long_description,
-    long_description_content_type="text/markdown",
     url="https://github.com/eristoddle/KryptoBot",
     zip_safe=False,
     install_requires=[
