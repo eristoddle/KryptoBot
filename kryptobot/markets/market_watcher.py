@@ -7,8 +7,11 @@ import datetime
 from pubsub import pub
 from threading import Lock
 from .. import ticker
-from ..ccxt.ccxt import ccxt
+import ccxt
 from ..db.models import Ohlcv, TradingPair
+# TODO: Replace when updated
+from ..ccxt_shim.cryptopia import cryptopia
+ccxt.cryptopia = cryptopia
 
 lock = Lock()
 logger = logging.getLogger(__name__)

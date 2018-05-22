@@ -3,7 +3,10 @@ import os
 from collections import defaultdict
 from . import order
 from . import market_watcher
-from ..ccxt.ccxt import ccxt
+import ccxt
+# TODO: Replace when updated
+from ..ccxt_shim.cryptopia import cryptopia
+ccxt.cryptopia = cryptopia
 
 
 logger = logging.getLogger(__name__)

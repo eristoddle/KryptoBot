@@ -8,7 +8,7 @@ setuptools.setup(
     name="kryptobot",
     packages=[
         'kryptobot',
-        'kryptobot.ccxt',
+        'kryptobot.ccxt_shim',
         'kryptobot.db',
         'kryptobot.harvesters',
         'kryptobot.markets',
@@ -17,7 +17,7 @@ setuptools.setup(
         'kryptobot.strategies',
         'kryptobot.ta',
     ],
-    version="0.0.1",
+    version="0.0.2",
     author="Stephan Miller",
     author_email="stephanmil@gmail.com",
     description="Cryptocurrency trading bot framework",
