@@ -34,13 +34,14 @@ def __start_ticker(interval):
         time.sleep(__convert_interval_to_int(interval))
 
 
-# TODO: make this understand any 1s, 1m, 1h
 def __convert_interval_to_int(interval):
+    if interval == "15s":
+        return 15
+    if interval == "1m":
+        return 60
     if interval == "5m":
         return 300
     if interval == "15m":
         return 900
-    if interval == "1m":
-        return 60
     if interval == "1h":
         return 3600

@@ -41,9 +41,6 @@ class MarketWatcher:
     def __del__(self):
         self.session.close()
 
-    # def add_session(self, session):
-    #     self.session = session()
-
     def __run(self):
         """Start listener queue waiting for ticks"""
         self.__running = True
