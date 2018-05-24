@@ -1,13 +1,15 @@
 from kryptobot.bot import Bot
-from kryptobot import ticker
 
 
+# from kryptobot import ticker
+# listener = Listener(ticker, {'interval':'15s'})
 class Listener(Bot):
 
-    def __init__(self, strategy=None, config=None, interval='1m'):
-        super().__init__(strategy, config)
-        self.interval = interval
-        ticker.subscribe(self.tick, interval)
+    # publisher is a pubsub to subscribe to
+    def __init__(self, publisher, publisher_params, config=None):
+        super().__init__(None, config)
+        publisher.subscribe(self.tick, **publisher_params)
+        self.publisher = publisher
 
     # Extend class and override tick method
     def tick(self):

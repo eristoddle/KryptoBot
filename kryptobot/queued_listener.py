@@ -1,15 +1,17 @@
 from threading import Thread
 from queue import Queue
 import logging
-from kryptobot.listener import Listener
+from .listener import Listener
 
 logger = logging.getLogger(__name__)
 
 
+# from kryptobot import ticker
+# listener = QueuedListener(ticker, {'interval':'15s'})
 class QueuedListener(Listener):
 
-    def __init__(self, strategy=None, config=None, interval='1m'):
-        super().__init__(strategy, config, interval)
+    def __init__(self, publisher, publisher_params, config=None):
+        super().__init__(publisher, publisher_params, config)
         self.__thread = Thread(target=self.__run)  # create thread for listener
         self._jobs = Queue()  # create job queue
         self.__running = False
@@ -30,7 +32,7 @@ class QueuedListener(Listener):
     def tick(self):
         self._jobs.put(lambda: self.job())
 
-    # Or Extend class and override tick method
+    # Or Extend class and override job method
     def job(self):
         print('job tick')
 
