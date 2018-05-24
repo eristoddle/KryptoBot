@@ -6,7 +6,6 @@ import time
 import datetime
 from pubsub import pub
 from threading import Lock
-from ..publishers.ticker import Ticker
 from .market import ccxt
 from ..db.models import Ohlcv, TradingPair
 
@@ -20,9 +19,9 @@ class MarketWatcher:
      It then subscribes to the ticker of that interval and calls for candles each time period
      It is responsible for syncing data with the DB and adding new candles
      Strategies that subscribe to the ticker will be given the new candles"""
-    def __init__(self, exchange, base_currency, quote_currency, interval, session):
+    def __init__(self, exchange, base_currency, quote_currency, interval, session, ticker):
         exchange = getattr(ccxt, exchange)
-        ticker = Ticker()
+        ticker = ticker()
         ticker.subscribe(self.tick, interval)
         self.analysis_pair = '{}/{}'.format(base_currency, quote_currency)
         self.exchange = exchange()
@@ -187,21 +186,21 @@ class MarketWatcher:
 lookup_list = defaultdict(MarketWatcher)
 
 
-def get_market_watcher(exchange_id, base, quote, interval, session=None):
+def get_market_watcher(exchange_id, base, quote, interval, session=None, ticker=None):
     """Return or create market watcher for the given analysis market"""
     topic = str(exchange_id + base + "/" + quote + interval)
     if topic not in lookup_list:
-        lookup_list[topic] = MarketWatcher(exchange_id, base, quote, interval, session)
+        lookup_list[topic] = MarketWatcher(exchange_id, base, quote, interval, session, ticker)
     return lookup_list[topic]
 
 
-def subscribe_historical(exchange_id, base, quote, interval, callable, session):
+def subscribe_historical(exchange_id, base, quote, interval, callable, session, ticker):
     """Subscribe to a notification that is sent when historical data is loaded for the market given"""
     topic = str(exchange_id + base + "/" + quote + interval + "historical")
     pub.subscribe(callable, topic)
 
 
-def subscribe(exchange_id, base, quote, interval, callable, session):
+def subscribe(exchange_id, base, quote, interval, callable, session, ticker):
     """
     Enroll strategy to recieve new candles from a market
     :param exchange_id: string representing exchange i.e. 'bittrex'
@@ -213,7 +212,7 @@ def subscribe(exchange_id, base, quote, interval, callable, session):
     """
     with lock:
         topic = str(exchange_id + base + "/" + quote + interval)
-        get_market_watcher(exchange_id, base, quote, interval, session)
+        get_market_watcher(exchange_id, base, quote, interval, session, ticker)
         print("Subscribing to " + topic)
         pub.subscribe(callable, topic)
 

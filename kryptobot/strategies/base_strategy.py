@@ -5,6 +5,7 @@ from ..markets import position
 from threading import Thread
 from queue import Queue
 import logging
+from ..publishers.ticker import Ticker
 
 strategies = []
 logger = logging.getLogger(__name__)
@@ -45,6 +46,7 @@ class BaseStrategy:
         strategies.append(self)
         self.strategy_id = len(strategies)
         self.ui_messages = Queue()
+        self.ticker = Ticker
 
     def add_session(self, session):
         self.session = session
@@ -53,21 +55,24 @@ class BaseStrategy:
     def add_keys(self, keys):
         self.market.add_keys(keys)
 
+    def add_ticker(self, ticker):
+        self.ticker = ticker
+
     def start(self):
         """Start thread and subscribe to candle updates"""
-        self.__jobs.put(lambda: market_watcher.subscribe(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.__update, self.session))
+        self.__jobs.put(lambda: market_watcher.subscribe(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.__update, self.session, self.ticker))
         self.__thread.start()
 
     def warmup(self):
         """Queue warmup when market data has been synced"""
         market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency,
-                                            self.market.quote_currency, self.interval, self.__warmup, self.session)
+                                            self.market.quote_currency, self.interval, self.__warmup, self.session, self.ticker)
 
     def run_simulation(self):
         """Queue simulation when market data has been synced"""
         if self.is_simulated:
             market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency,
-                                            self.market.quote_currency, self.interval, self.__run_simulation, self.session)
+                                            self.market.quote_currency, self.interval, self.__run_simulation, self.session, self.ticker)
 
     def __warmup(self, periods=None):
         """Update TA indicators on specified number of historical periods"""

@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from .configure import load_config
 from .db.models import Base
+from .publishers.ticker import Ticker
 
 
 class Bot:
@@ -47,6 +48,7 @@ class Bot:
     def start_strategy(self):
         self.strategy.add_session(self.session)
         self.strategy.add_keys(self.config['apis'])
+        self.strategy.add_ticker(Ticker)
         self.strategy.run_simulation()
         self.strategy.start()
 
