@@ -11,8 +11,10 @@ setuptools.setup(
         'kryptobot.ccxt_shim',
         'kryptobot.db',
         'kryptobot.harvesters',
+        'kryptobot.listeners',
         'kryptobot.markets',
         'kryptobot.portfolio',
+        'kryptobot.publishers',
         'kryptobot.signals',
         'kryptobot.strategies',
         'kryptobot.ta',
@@ -32,7 +34,10 @@ setuptools.setup(
           'pyti',
           'ccxt',
           'pandas',
-          'enigma-catalyst'
+          'enigma-catalyst',
+          'redis',
+          'rq',
+          'apscheduler'
       ],
     classifiers=(
         "Programming Language :: Python :: 3",

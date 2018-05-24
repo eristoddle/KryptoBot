@@ -6,7 +6,7 @@ import time
 import datetime
 from pubsub import pub
 from threading import Lock
-from .. import ticker
+from ..publishers.ticker import Ticker
 from .market import ccxt
 from ..db.models import Ohlcv, TradingPair
 
@@ -22,6 +22,7 @@ class MarketWatcher:
      Strategies that subscribe to the ticker will be given the new candles"""
     def __init__(self, exchange, base_currency, quote_currency, interval, session):
         exchange = getattr(ccxt, exchange)
+        ticker = Ticker()
         ticker.subscribe(self.tick, interval)
         self.analysis_pair = '{}/{}'.format(base_currency, quote_currency)
         self.exchange = exchange()

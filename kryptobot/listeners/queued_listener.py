@@ -1,14 +1,14 @@
 from threading import Thread
 from queue import Queue
 import logging
-from .listener import Listener
+from .base_listener import BaseListener
 
 logger = logging.getLogger(__name__)
 
 
 # from kryptobot import ticker
 # listener = QueuedListener(ticker, {'interval':'15s'})
-class QueuedListener(Listener):
+class QueuedListener(BaseListener):
 
     def __init__(self, publisher, publisher_params, config=None):
         super().__init__(publisher, publisher_params, config)
@@ -28,8 +28,8 @@ class QueuedListener(Listener):
                     print(e)
                     logger.error(job.__name__ + " threw error:\n" + str(e))
 
-    # Extend class and override tick method
-    def tick(self):
+    # Extend class and override on_message method
+    def on_message(self):
         self._jobs.put(lambda: self.job())
 
     # Or Extend class and override job method
