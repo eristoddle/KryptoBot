@@ -66,12 +66,3 @@ class Bot:
 
         finally:
             self.engine.dispose()
-
-    # https://stackoverflow.com/questions/25955919/how-to-present-a-class-as-a-function
-    # https://github.com/rq/rq/issues/189
-    # # for rq jobs
-    # @classmethod
-    # def create(self, data):
-    #     Class = self
-    #     self = Class()
-    #     print 'My Blocking Stuff'

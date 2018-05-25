@@ -1,10 +1,10 @@
-from .workers.strategy_worker import add, launch_strategy
+from .workers.strategy.tasks import add, launch_strategy, load_open_strategies
 
 
 class Hydra:
 
     def __init__(self):
-        pass
+        load_open_strategies()
 
     def launch_harvester(self):
         pass

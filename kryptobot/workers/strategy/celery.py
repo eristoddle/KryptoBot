@@ -1,16 +1,11 @@
 from __future__ import absolute_import, unicode_literals
 from celery import Celery
 
-app = Celery('kryptobot.workers',
+app = Celery('kryptobot.workers.strategy',
              broker='redis://redis',
              # backend='amqp://',
              loglevel='info',
-             include=[
-                'kryptobot.workers.catalyst.tasks',
-                'kryptobot.workers.harvester.tasks',
-                'kryptobot.workers.market.tasks',
-                'kryptobot.workers.strategy.tasks',
-                ])
+             include=['kryptobot.workers.strategy.tasks'])
 
 # Optional configuration, see the application user guide.
 app.conf.update(
