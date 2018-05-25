@@ -5,18 +5,11 @@ from ...strategies.poc_strategy import PocStrategy
 
 
 @app.task
-def add(x, y):
-    return x + y
-
-
-@app.task
-def launch_strategy(strategy, exchange, interval, pair, is_simulated):
-    bot = Bot(PocStrategy("5m", 'bittrex', 'SYS', 'BTC', True, 12, 96, sim_balance=10))
-    # bot.start()
+def launch_strategy(strategy, params):
+    bot = Bot(PocStrategy(**params))
     return bot.start()
 
 
 @app.task
 def load_open_strategies():
-    return 'loaded open strategies'
-    pass
+    return 'load_open_strategies not implemented yet'

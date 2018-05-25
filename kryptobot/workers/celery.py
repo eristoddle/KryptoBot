@@ -1,9 +1,11 @@
 from __future__ import absolute_import, unicode_literals
 from celery import Celery
 
+# TODO: Load from configuration
+
 app = Celery('kryptobot.workers',
              broker='redis://redis',
-             # backend='amqp://',
+             backend='redis://redis',
              loglevel='info',
              include=[
                 'kryptobot.workers.catalyst.tasks',

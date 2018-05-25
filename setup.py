@@ -8,6 +8,7 @@ setuptools.setup(
     name="kryptobot",
     packages=[
         'kryptobot',
+        'kryptobot.catalyst_shim',
         'kryptobot.ccxt_shim',
         'kryptobot.db',
         'kryptobot.harvesters',
@@ -34,12 +35,11 @@ setuptools.setup(
           'psycopg2',
           'pyti',
           'ccxt',
-          'pandas',
-          'enigma-catalyst',
           'redis',
           'celery',
-          'apscheduler',
-
+          'enigma-catalyst',
+          'pymarketcap',
+          'pandas'
       ],
     classifiers=(
         "Programming Language :: Python :: 3",

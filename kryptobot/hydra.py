@@ -1,17 +1,14 @@
-from .workers.strategy.tasks import add, launch_strategy, load_open_strategies
-
+from .workers.strategy.tasks import launch_strategy, load_open_strategies
+from .workers.harvester.tasks import launch_harvester, load_open_harvesters
 
 class Hydra:
 
     def __init__(self):
-        load_open_strategies()
+        load_open_strategies.delay()
+        load_open_harvesters.delay()
 
-    def launch_harvester(self):
-        pass
+    def run_harvester(self, harvester_name, params):
+        launch_harvester.delay(harvester_name, params)
 
-    def launch_s(self):
-        add.delay(4, 4)
-        launch_strategy.delay('PocStrategy', '5m', 'bittrex', 'ETH/BTC', True)
-
-    def test(self):
-        self.launch_s()
+    def run_strategy(self, strategy_name, params):
+        launch_strategy.delay(strategy_name, params)

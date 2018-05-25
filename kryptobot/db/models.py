@@ -4,7 +4,9 @@ import datetime
 
 Base = declarative_base()
 
-# TODO: I don't think there should be a ref to tradingpair
+# TODO: Create json function to process params for strategies and harvesters
+
+
 class Ohlcv(Base):
     __tablename__ = 'ohlcv'
 
@@ -43,3 +45,19 @@ class TradingOrder(Base):
     amount = Column('amount', Float)
     price = Column('price', Float)
     simulated = Column('simulated', String)
+
+
+class Strategies(Base):
+    __tablename__ = 'strategies'
+
+    id = Column('id', Integer, primary_key=True)
+    class_name = Column('class_name', String)
+    params = Column('params', String)
+
+
+class Harvesters(Base):
+    __tablename__ = 'harvesters'
+
+    id = Column('id', Integer, primary_key=True)
+    class_name = Column('class_name', String)
+    params = Column('params', String)

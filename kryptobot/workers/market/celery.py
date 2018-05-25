@@ -1,6 +1,8 @@
 from __future__ import absolute_import, unicode_literals
 from celery import Celery
 
+# TODO: Load from configuration
+
 app = Celery('kryptobot.workers.market',
              broker='redis://redis',
              # backend='amqp://',

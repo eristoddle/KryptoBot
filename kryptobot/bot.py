@@ -33,9 +33,6 @@ class Bot:
             self.engine = create_engine(conn_str)
         self.session = sessionmaker(bind=self.engine)
 
-    def set_strategy(self, strategy):
-        self.strategy = strategy
-
     def drop_tables(self):
         print('Dropping tables...')
         Base.metadata.drop_all(self.engine)
