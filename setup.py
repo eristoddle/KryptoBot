@@ -18,6 +18,7 @@ setuptools.setup(
         'kryptobot.signals',
         'kryptobot.strategies',
         'kryptobot.ta',
+        'kryptobot.workers',
     ],
     version="0.0.2",
     author="Stephan Miller",

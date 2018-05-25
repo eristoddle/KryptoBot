@@ -1,11 +1,16 @@
 from rq import Connection, Worker
-from ..bot import Bot
+from redis import Redis
+# from ..bot import Bot
+
+conn = Redis(host='redis', port=6379, db=0)
 
 
-def launch_strategy():
-    bot = Bot()
+# PocStrategy("5m", 'bittrex', 'SYS', 'BTC', True, 12, 96, sim_balance=10)
+def launch_strategy(strategy, exchange, interval, pair, is_simulated):
+    # bot = Bot()
+    print(strategy, exchange, interval, pair, is_simulated)
 
 
-with Connection(host='redis', port=6379, db=0):
+with Connection(connection=conn):
     worker = Worker('strategies')
     worker.work()
