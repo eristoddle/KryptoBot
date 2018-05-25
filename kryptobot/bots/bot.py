@@ -1,5 +1,5 @@
-from .publishers.ticker import Ticker
-from .core import Core
+from ..publishers.ticker import Ticker
+from ..core import Core
 
 
 class Bot(Core):
@@ -10,6 +10,7 @@ class Bot(Core):
         super().__init__(config)
         self.strategy = strategy
 
+    # override this to inherit
     def __start(self):
         # TODO: All these adds are stupid, fix it
         self.strategy.add_session(self.session)

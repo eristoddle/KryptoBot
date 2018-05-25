@@ -1,4 +1,4 @@
-from ..bot import Bot
+from ..core import Core
 import redis
 import time
 

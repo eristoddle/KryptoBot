@@ -1,6 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 from .celery import app
-from ...bot import Bot
+from ...bots.bot import Bot
 from ...strategies.poc_strategy import PocStrategy
 
 

@@ -1,9 +1,9 @@
-from ..bot import Bot
+from ..core import Core
 
 
 # from kryptobot import ticker
 # listener = Listener(ticker, {'interval':'15s'})
-class BaseListener(Bot):
+class BaseListener(Core):
 
     # publisher is a pubsub to subscribe to
     def __init__(self, publisher, publisher_params, config=None):

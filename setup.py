@@ -8,6 +8,7 @@ setuptools.setup(
     name="kryptobot",
     packages=[
         'kryptobot',
+        'kryptobot.bots',
         'kryptobot.catalyst_shim',
         'kryptobot.ccxt_shim',
         'kryptobot.db',
@@ -28,6 +29,7 @@ setuptools.setup(
     long_description=long_description,
     url="https://github.com/eristoddle/KryptoBot",
     zip_safe=False,
+    include_package_data=True,
     install_requires=[
           'pypubsub',
           'requests',
