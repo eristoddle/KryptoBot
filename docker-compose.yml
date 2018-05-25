@@ -13,15 +13,15 @@ services:
     #         - POSTGRES_PASSWORD=password
     #         - POSTGRES_USER=postgres
 
-    # redis:
-    #     image: 'bitnami/redis:latest'
-    #     environment:
-    #         - ALLOW_EMPTY_PASSWORD=yes
-    #         # - REDIS_PASSWORD=password123
-    #     ports:
-    #         - '6379:6379'
-    #     networks:
-    #         - cryptobox
+    redis:
+        image: 'bitnami/redis:latest'
+        environment:
+            - ALLOW_EMPTY_PASSWORD=yes
+            # - REDIS_PASSWORD=password123
+        ports:
+            - '6379:6379'
+        networks:
+            - cryptobox
 
     jupyter:
         build: .

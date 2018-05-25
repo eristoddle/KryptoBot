@@ -33,6 +33,9 @@ class Bot:
             self.engine = create_engine(conn_str)
         self.session = sessionmaker(bind=self.engine)
 
+    def set_strategy(self, strategy):
+        self.strategy = strategy
+
     def drop_tables(self):
         print('Dropping tables...')
         Base.metadata.drop_all(self.engine)
@@ -46,6 +49,7 @@ class Bot:
         self.create_tables()
 
     def start_strategy(self):
+        # TODO: All these adds are stupid, fix it
         self.strategy.add_session(self.session)
         self.strategy.add_keys(self.config['apis'])
         self.strategy.add_ticker(Ticker)
@@ -62,3 +66,9 @@ class Bot:
 
         finally:
             self.engine.dispose()
+
+    @classmethod
+    def create(self, data):
+        Class = self
+        self = Class()
+        print 'My Blocking Stuff'

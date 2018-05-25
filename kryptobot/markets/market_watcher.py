@@ -9,6 +9,10 @@ from threading import Lock
 from .market import ccxt
 from ..db.models import Ohlcv, TradingPair
 
+# TODO Replace Queue with generic queue to plug in rq
+# Problems: https://github.com/rq/rq/issues/189
+# https://stackoverflow.com/questions/25955919/how-to-present-a-class-as-a-function
+
 lock = Lock()
 logger = logging.getLogger(__name__)
 
