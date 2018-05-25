@@ -37,8 +37,9 @@ setuptools.setup(
           'pandas',
           'enigma-catalyst',
           'redis',
-          'rq',
-          'apscheduler'
+          'celery',
+          'apscheduler',
+
       ],
     classifiers=(
         "Programming Language :: Python :: 3",
