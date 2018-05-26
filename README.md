@@ -46,7 +46,7 @@ bot.start()
 
 
 ```python
-from kryptobot.bots.multi_bot import Bot
+from kryptobot.bots.multi_bot import MultiBot
 from kryptobot.strategies.poc_strategy import PocStrategy
 
 strategies = [
