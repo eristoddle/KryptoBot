@@ -70,6 +70,20 @@ Browse to http://0.0.0.0:8888/lab and use the token given in the docker console.
 
 See the notebooks folder for more examples of code. I have been committing my lab work to make up for the sparsity of docs.
 
+## Install with pip
+
+Right now the project is in flux, which is why it is not listed with pip.
+
+`pip install git+https://github.com/eristoddle/KryptoBot.git`
+
+or
+
+Clone the project. Then run:
+
+`pip install -e .`
+
+in the main directory.
+
 ## More docs to come
 
 I will be writing more docs once there is more functionality

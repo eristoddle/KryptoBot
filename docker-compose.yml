@@ -12,6 +12,52 @@ services:
     #     environment:
     #         - POSTGRES_PASSWORD=password
     #         - POSTGRES_USER=postgres
+    #
+
+    # market_worker:
+    #     build: ./kryptobot/workers
+    #     command: pip install -e . && celery -A kryptobot.workers.market worker -l info
+    #     working_dir: /usr/src/app
+    #     volumes:
+    #         - ./:/usr/src/app
+    #     networks:
+    #         - cryptobox
+    #
+    # catalyst_worker:
+    #     build: ./kryptobot/workers
+    #     command: pip install -e . && celery -A kryptobot.workers.catalyst worker -l info
+    #     working_dir: /usr/src/app
+    #     volumes:
+    #         - ./:/usr/src/app
+    #     networks:
+    #         - cryptobox
+    #
+    # strategy_worker:
+    #     build: ./kryptobot/workers
+    #     command: pip install -e . && celery -A kryptobot.workers.strategy worker -l info
+    #     working_dir: /usr/src/app
+    #     volumes:
+    #         - ./:/usr/src/app
+    #     networks:
+    #         - cryptobox
+    #
+    # harvester_worker:
+    #     build: ./kryptobot/workers
+    #     command: pip install -e . && celery -A kryptobot.workers.harvester worker -l info
+    #     working_dir: /usr/src/app
+    #     volumes:
+    #         - ./:/usr/src/app
+    #     networks:
+    #         - cryptobox
+    #
+    # all_workers:
+    #     build: ./kryptobot/workers
+    #     command: pip install -e . && celery -A kryptobot.workers worker -l info
+    #     working_dir: /usr/src/app
+    #     volumes:
+    #         - ./:/usr/src/app
+    #     networks:
+    #         - cryptobox
 
     redis:
         image: 'bitnami/redis:latest'
