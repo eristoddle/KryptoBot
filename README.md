@@ -2,7 +2,7 @@
 
 A fork of Titan: https://github.com/Denton24646/Titan with a lot of changes.
 
-I am writing a crytptocurrency portfolio and trading dashboard maybe for production or maybe just for me. I was working on the read-only wallets when I realised the market was looking better and I better focus on the trading part of the app. I realized that I didn't want to roll my own trading mechanism directly into my dashboard. So I went to look for a library. It was a toss up between the [Titan platform](https://github.com/Denton24646/Titan) and [Enigma Catalyst](https://github.com/enigmampc/catalyst).
+I am writing a cryptocurrency portfolio and trading dashboard maybe for production or maybe just for me. I was working on the read-only wallets when I realized the market was looking better and I better focus on the trading part of the app. I realized that I didn't want to roll my own trading mechanism directly into my dashboard. So I went to look for a library. It was a toss up between the [Titan platform](https://github.com/Denton24646/Titan) and [Enigma Catalyst](https://github.com/enigmampc/catalyst).
 
 What I liked about Titan was the granularity of everything and also almost complete ccxt integration. What I liked about enigma was backtesting although the back testing currently only on 3 crypto exchanges.
 
@@ -13,13 +13,14 @@ In the end, this will be a whole new project. It is in very active development b
 ## Added
 
 - Uses SQL Alchemy models now
-- DB connection and api keys configurable on app launch through json file or programmatically by application for multiple users
+- DB connection and api keys configurable on app launch through json file or programmatically for multi tenant apps
 - Added one way of monkey patching missing ccxt functionality(for Cryptopia candles specifically)
 - Working optional Celery into the app so it can be as distributed as you want it to be
 
 ## Working On
 
 - Harvester jobs that launch strategies
+- Integration of enigma catalyst (Celery made this project so easy, this part is cake)
 - Bot integration (i.e. telegram) for interactive strategy launch decisions
 - Arbitrage strategies
 - Price triangulation for optimal trades
@@ -27,6 +28,7 @@ In the end, this will be a whole new project. It is in very active development b
 - Backtesting
 - Machine learning capabilities
 - Sentiment analysis capabilities
+- Maybe a half-assed dashboard, because I tired of watching workers scrolling to see what is happening and it can't be full-assed if that is what my other app is supposed to do
 
 ## Running from bot classes
 
