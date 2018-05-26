@@ -59,6 +59,15 @@ services:
     #     networks:
     #         - cryptobox
 
+    # rest_api:
+    #     build: ./kryptobot/server
+    #     command: "python ./server/run.py"
+    #     working_dir: /usr/src/app
+    #     volumes:
+    #         - ./kryptobot:/usr/src/app
+    #     networks:
+    #         - cryptobox
+
     redis:
         image: 'bitnami/redis:latest'
         environment:

@@ -17,6 +17,7 @@ setuptools.setup(
         'kryptobot.markets',
         'kryptobot.portfolio',
         'kryptobot.publishers',
+        'kryptobot.server',
         'kryptobot.signals',
         'kryptobot.strategies',
         'kryptobot.ta',
@@ -39,6 +40,7 @@ setuptools.setup(
           'ccxt',
           'redis',
           'celery',
+          'flask',
           'enigma-catalyst',
           'pymarketcap',
           'pandas'
