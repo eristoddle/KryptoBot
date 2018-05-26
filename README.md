@@ -68,7 +68,7 @@ Run `docker-compose up`
 
 Browse to http://0.0.0.0:8888/lab and use the token given in the docker console.
 
-See the notebooks folder for mor examples of code. I have been committing my lab work to make up for the sparsity of docs.
+See the notebooks folder for more examples of code. I have been committing my lab work to make up for the sparsity of docs.
 
 ## More docs to come
 
