@@ -6,8 +6,12 @@ import time
 import datetime
 from pubsub import pub
 from threading import Lock
-from .market import ccxt
 from ..db.models import Ohlcv, TradingPair
+from .market import ccxt
+# import ccxt
+# # TODO: Replace when updated
+# from ..ccxt_shim.cryptopia import cryptopia
+# ccxt.cryptopia = cryptopia
 
 # TODO Replace Queue with generic queue to plug in rq
 # Problems: https://github.com/rq/rq/issues/189

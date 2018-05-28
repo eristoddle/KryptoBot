@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from ..hydra import Hydra
+from kryptobot.hydra import Hydra
 
 app = Flask(__name__)
 hydra = Hydra()

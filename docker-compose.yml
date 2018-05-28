@@ -63,6 +63,10 @@ services:
     #     build: ./kryptobot/server
     #     command: "python ./server/run.py"
     #     working_dir: /usr/src/app
+    #     ports:
+    #         - "5000:5000"
+    #     expose:
+    #         - "5000"
     #     volumes:
     #         - ./kryptobot:/usr/src/app
     #     networks:
@@ -83,9 +87,11 @@ services:
         command: jupyter lab --ip=0.0.0.0 --allow-root
         ports:
             - "8888:8888"
+            - "5000:5000"
         working_dir: /usr/src/app/notebooks
         expose:
             - "8888"
+            - "5000"
         volumes:
             - ./:/usr/src/app
         networks:
