@@ -28,7 +28,7 @@ setuptools.setup(
         'kryptobot.workers.market',
         'kryptobot.workers.strategy',
     ],
-    version="0.0.2",
+    version="0.0.3",
     author="Stephan Miller",
     author_email="stephanmil@gmail.com",
     description="Cryptocurrency trading bot framework",
