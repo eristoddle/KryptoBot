@@ -42,6 +42,7 @@ setuptools.setup(
           'celery',
           'flask',
           'enigma-catalyst',
+          'cython',
           'pymarketcap',
           'pandas'
       ],
