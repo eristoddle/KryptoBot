@@ -22,12 +22,12 @@ class Manager(Core):
     def load_markets(self):
         for name, exchange in self.exchanges.items():
             exchange.load_markets()
-            print(exchange.markets)
+        self.markets_loaded = True
 
     def get_symbols(self):
         if self.markets_loaded is False:
             self.load_markets()
-        return [[{name: exchange.symbols}] for name, exchange in self.exchanges.items()]
+        return [{name: exchange.symbols} for name, exchange in self.exchanges.items()]
 
     # def get_profit_for_trades(self):
     #     self.profit = self.get_profit_for_pair(self.exchange, self.pair)
