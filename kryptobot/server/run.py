@@ -9,16 +9,16 @@ hydra = Hydra()
 def launch_strategy():
     strategy = request.json["strategy"]
     params = request.json["params"]
-    result = hydra.run_strategy(strategy, params)
-    return jsonify(result=result)
+    hydra.run_strategy(strategy, params)
+    return jsonify(result='success')
 
 
 @app.route('/launch_harvester', methods=['POST'])
 def launch_harvester():
     harvester = request.json["harvester"]
     params = request.json["params"]
-    result = hydra.run_harvester(harvester, params)
-    return jsonify(result=result)
+    hydra.run_harvester(harvester, params)
+    return jsonify(result='success')
 
 
 if __name__ == '__main__':

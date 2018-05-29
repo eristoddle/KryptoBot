@@ -8,14 +8,6 @@ from pubsub import pub
 from threading import Lock
 from ..db.models import Ohlcv, TradingPair
 from .market import ccxt
-# import ccxt
-# # TODO: Replace when updated
-# from ..ccxt_shim.cryptopia import cryptopia
-# ccxt.cryptopia = cryptopia
-
-# TODO Replace Queue with generic queue to plug in rq
-# Problems: https://github.com/rq/rq/issues/189
-# https://stackoverflow.com/questions/25955919/how-to-present-a-class-as-a-function
 
 lock = Lock()
 logger = logging.getLogger(__name__)

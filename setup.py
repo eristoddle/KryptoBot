@@ -47,6 +47,7 @@ setuptools.setup(
           'celery',
           'flask',
           'enigma-catalyst',
+          # This breaks because pymarketcap requires cython to be installed first
           'cython',
           'pymarketcap',
           'pandas'

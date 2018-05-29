@@ -61,3 +61,9 @@ class Harvesters(Base):
     id = Column('id', Integer, primary_key=True)
     class_name = Column('class_name', String)
     params = Column('params', String)
+
+
+class Portfolios(Base):
+    __tablename__ = 'portfolios'
+
+    id = Column('id', Integer, primary_key=True)
