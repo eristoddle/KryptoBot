@@ -15,12 +15,8 @@ class CmcNewCoinHarvester(BaseHarvester):
     cryptopia_markets = cryptopia.load_markets()
     cryptopia_pairs = [k for k, v in cryptopia_markets.items()]
 
-    def __init__(self, manager, interval, is_simulated):
-        super().__init__(manager, interval, is_simulated)
-        self.load_symbols()
-
-    def load_symbols(self):
-        self.symbols = self.manager.load_symbols()
+    def __init__(self, interval, is_simulated):
+        super().__init__(interval, is_simulated)
 
     def get_cmc_targets(max_days):
     global cryptopia_pairs

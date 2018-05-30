@@ -37,8 +37,10 @@ class TradingPair(Base):
 class TradingOrder(Base):
     __tablename__ = 'trading_orders'
 
-    timestamp = Column('timestamp', String, default=datetime.datetime.utcnow)
     order_id = Column('order_id', Integer, primary_key=True)
+    strategy_id = Column('strategy_id', Integer)
+    # strategy_id = Column('strategy_id', Integer, ForeignKey('strategies.id'))
+    timestamp = Column('timestamp', String, default=datetime.datetime.utcnow)
     exchange = Column('exchange', String)
     pair = Column('pair', String)
     position = Column('position', String)
@@ -51,6 +53,7 @@ class Strategies(Base):
     __tablename__ = 'strategies'
 
     id = Column('id', Integer, primary_key=True)
+    porfolio_id = Column('porfolio_id', Integer, ForeignKey('portfolio.id'))
     class_name = Column('class_name', String)
     params = Column('params', String)
 
@@ -59,6 +62,7 @@ class Harvesters(Base):
     __tablename__ = 'harvesters'
 
     id = Column('id', Integer, primary_key=True)
+    porfolio_id = Column('porfolio_id', Integer, ForeignKey('portfolio.id'))
     class_name = Column('class_name', String)
     params = Column('params', String)
 
@@ -67,3 +71,4 @@ class Portfolios(Base):
     __tablename__ = 'portfolios'
 
     id = Column('id', Integer, primary_key=True)
+    name = Column('name', String)

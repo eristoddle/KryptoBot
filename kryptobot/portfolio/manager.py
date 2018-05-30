@@ -1,4 +1,6 @@
 from ..core import Core
+from ..workers.strategy.tasks import launch_strategy, load_open_strategies
+from ..workers.harvester.tasks import launch_harvester, load_open_harvesters
 # NOTE: Not importing monkey patched version here
 import ccxt
 
@@ -15,6 +17,12 @@ class Manager(Core):
         if 'apis' in self.config:
             for key, value in self.config['apis'].items():
                 self.add_exchange(key)
+
+    def run_harvester(self, harvester_name, params):
+        launch_harvester.delay(harvester_name, params)
+
+    def run_strategy(self, strategy_name, params):
+        launch_strategy.delay(strategy_name, params)
 
     def add_exchange(self, name):
         exchange = getattr(ccxt, name)
@@ -74,7 +82,18 @@ class Manager(Core):
 
     def get_possible_arbitrage(self):
         pair_matrix = self.get_pair_matrix()
-        return [{sym: names} for sym, names in pair_matrix.items() if len(names) > 1]
+        possible = {}
+        for sym, names in pair_matrix.items():
+            if len(names) > 1:
+                possible[sym] = names
+        return possible
+
+    def get_arbitrage_prices(self):
+        prices = {}
+        possible = self.get_possible_arbitrage()
+        for sym, names in possible.items():
+            prices[sym] = self.get_pair_markets(sym)
+        return prices
 
     # def get_profit_for_trades(self):
     #     self.profit = self.get_profit_for_pair(self.exchange, self.pair)
