@@ -1,15 +1,15 @@
 from flask import Flask, jsonify, request
-from kryptobot.hydra import Hydra
+from kryptobot.portfolio.manager import Manager
 
 app = Flask(__name__)
-hydra = Hydra()
+manager = Manager()
 
 
 @app.route('/launch_strategy', methods=['POST'])
 def launch_strategy():
     strategy = request.json["strategy"]
     params = request.json["params"]
-    hydra.run_strategy(strategy, params)
+    manager.run_strategy(strategy, params)
     return jsonify(result='success')
 
 
@@ -17,7 +17,7 @@ def launch_strategy():
 def launch_harvester():
     harvester = request.json["harvester"]
     params = request.json["params"]
-    hydra.run_harvester(harvester, params)
+    manager.run_harvester(harvester, params)
     return jsonify(result='success')
 
 
