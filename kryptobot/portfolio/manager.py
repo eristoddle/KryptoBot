@@ -58,6 +58,10 @@ class Manager(Core):
     def get_pair_markets(self, pair):
         pair_markets = {}
         pair_matrix = self.get_pair_matrix()
+        highest_bid = 0
+        highest_bid_exchange = None
+        lowest_ask = 0
+        lowest_ask_exchange = None
         if pair in pair_matrix:
             names = pair_matrix[pair]
             for n in names:
@@ -68,6 +72,16 @@ class Manager(Core):
                 ticker = exchange.fetch_ticker(pair)
                 bid = ticker['ask']
                 ask = ticker['bid']
+                # TODO Fix the None/Float comparison issue
+                try:
+                    if highest_bid == 0 or bid > highest_bid:
+                        highest_bid = bid
+                        highest_bid_exchange = n
+                    if lowest_ask == 0 or ask > lowest_ask:
+                        lowest_ask = ask
+                        lowest_ask_exchange = n
+                except:
+                    pass
                 volume = ticker['baseVolume'] if 'baseVolume' in ticker else None
                 spread = (ask - bid) if (bid and ask) else None
                 pair_markets[n] = {
@@ -77,7 +91,16 @@ class Manager(Core):
                     'volume': volume,
                     # 'ticker': ticker
                 }
-            return pair_markets
+            return {
+                'pair_markets': pair_markets,
+                'arbitrage': {
+                    'highest_bid': highest_bid,
+                    'highest_bid_exchange': highest_bid_exchange,
+                    'lowest_ask': lowest_ask,
+                    'lowest_ask_exchange': lowest_ask_exchange,
+                    'spread': highest_bid - lowest_ask
+                }
+            }
         return None
 
     def get_possible_arbitrage(self):

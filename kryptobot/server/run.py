@@ -4,6 +4,9 @@ from kryptobot.portfolio.manager import Manager
 app = Flask(__name__)
 manager = Manager()
 
+# NOTE: This is more an example of how to build a rest server
+# rather than a module to import
+
 
 @app.route('/launch_strategy', methods=['POST'])
 def launch_strategy():
