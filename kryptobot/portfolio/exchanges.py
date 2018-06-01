@@ -1,3 +1,4 @@
+# NOTE: Not importing monkey patched version here
 import ccxt
 
 
@@ -8,13 +9,15 @@ class Exchanges:
     pair_matrix = {}
     markets_loaded = False
 
-    def __init__(self):
-        pass
+    def __init__(self, api_config):
+        self.config = api_config
+        for key, value in self.config.items():
+            self.add_exchange(key)
 
     def add_exchange(self, name):
         exchange = getattr(ccxt, name)
-        key = self.config['apis'][name]['key']
-        secret = self.config['apis'][name]['secret']
+        key = self.config[name]['key']
+        secret = self.config[name]['secret']
         self.exchanges.update(
             {name: exchange({'apiKey': key, 'secret': secret})}
         )

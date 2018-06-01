@@ -1,6 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 from .celery import app
-from ...portfolio.manager import Manager
+from ...portfolio.exchanges import Exchanges
 from ...harvesters.arbitrage_harvester import ArbitrageHarvester
 
 
@@ -34,7 +34,8 @@ config = {
             }
         }
     }
-manager = Manager(config=config)
+
+exchanges = Exchanges(config['apis'])
 
 
 # TODO: get this to work instead of depending on naming conventions and/or importing everything
