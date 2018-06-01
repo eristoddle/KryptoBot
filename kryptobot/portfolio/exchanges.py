@@ -1,37 +1,15 @@
-from ..core import Core
-from ..db.models import Portfolio
-from ..db.utils import get_or_create
-from ..workers.strategy.tasks import launch_strategy, load_open_strategies
-from ..workers.harvester.tasks import launch_harvester, load_open_harvesters
-# NOTE: Not importing monkey patched version here
 import ccxt
 
 
-class Manager(Core):
+class Exchanges:
 
     exchanges = {}
     exchange_names = []
     pair_matrix = {}
     markets_loaded = False
-    portfolio_name = 'default'
-    portfolio = None
 
-    def __init__(self, config=None):
-        super().__init__(config)
-        if 'portfolio' in self.config and 'name' in self.config['portfolio']:
-            self.portfolio_name = self.config['portfolio']['name']
-            self.portfolio = get_or_create(self.session(), Portfolio, name='default')
-        if 'apis' in self.config:
-            for key, value in self.config['apis'].items():
-                self.add_exchange(key)
-
-    def run_harvester(self, harvester_name, params):
-        params['porfolio_id'] = self.portfolio.id
-        launch_harvester.delay(harvester_name, params)
-
-    def run_strategy(self, strategy_name, params):
-        # params['porfolio_id'] = self.portfolio.id
-        launch_strategy.delay(strategy_name, params)
+    def __init__(self):
+        pass
 
     def add_exchange(self, name):
         exchange = getattr(ccxt, name)
@@ -138,44 +116,3 @@ class Manager(Core):
                 if threshold_met and true_arbitrage:
                     prices[sym] = self.get_pair_markets(sym)
         return prices
-
-    # def get_profit_for_trades(self):
-    #     self.profit = self.get_profit_for_pair(self.exchange, self.pair)
-    #     print("The total profit for this pair is {} up to this point in the trading session".format(self.profit))
-    #     return self.profit
-    #
-    # def get_average_profit_per_trades(self):
-    #     average_profit_per_trade = (self.profit / self.get_number_of_trades(self.exchange, self.pair)) / 2
-    #     print("The average profit up to this point in the trading session is {}".format(average_profit_per_trade))
-    #     return average_profit_per_trade
-    #
-    # def get_profit_for_pair(self, exchange, pair):
-    #     """Iterates through all trades for given exchange pair over the course of trading. Starts by subtracting the long positions (the buys) and adding the short positions (the sells) to arrive at the difference (profit"""
-    #     """The buys are always the even rows and the sells are the odd rows (buy always before sell starting from zero)"""
-    #     profit = 0
-    #     counter = 0
-    #     s = select([database.TradingPositions]).where(and_(database.TradingPositions.c.Exchange == exchange, database.TradingPositions.c.Pair == pair))
-    #     result = conn.execute(s)
-    #
-    #     for row in result:
-    #         if counter % 2 == 0:
-    #             profit = profit - row[5]
-    #             counter += 1
-    #         else:
-    #             profit = profit + row[5]
-    #             counter += 1
-    #         return profit
-    #
-    # def get_number_of_trades(self, exchange, pair):
-    #     s = select([func.count()]).where(and_(database.TradingPositions.c.Exchange == exchange, database.TradingPositions.c.Pair == pair)).select_from(database.TradingPositions)
-    #     result = conn.execute(s)
-    #     return int(result)
-    #
-    # def get_trades_for_pair_as_df(self, exchange, pair):
-    #     """Returns all trades for given exchange pair over the course of trading in a dataframe"""
-    #     s = select([database.TradingPositions]).where(and_(database.TradingPositions.c.Exchange == exchange, database.TradingPositions.c.Pair == pair))
-    #     result = conn.execute(s)
-    #     df = pd.DataFrame(result.fetchall())
-    #     df.columns = result.keys()
-    #     result.close()
-    #     return df
