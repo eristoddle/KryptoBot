@@ -49,7 +49,7 @@ class TradingOrder(Base):
     simulated = Column('simulated', String)
 
 
-class Strategies(Base):
+class Strategy(Base):
     __tablename__ = 'strategies'
 
     id = Column('id', Integer, primary_key=True)
@@ -58,7 +58,7 @@ class Strategies(Base):
     params = Column('params', String)
 
 
-class Harvesters(Base):
+class Harvester(Base):
     __tablename__ = 'harvesters'
 
     id = Column('id', Integer, primary_key=True)
@@ -67,7 +67,7 @@ class Harvesters(Base):
     params = Column('params', String)
 
 
-class Portfolios(Base):
+class Portfolio(Base):
     __tablename__ = 'portfolios'
 
     id = Column('id', Integer, primary_key=True)

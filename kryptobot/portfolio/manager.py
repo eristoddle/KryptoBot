@@ -1,4 +1,6 @@
 from ..core import Core
+from ..db.models import Portfolio
+from ..db.utils import get_or_create
 from ..workers.strategy.tasks import launch_strategy, load_open_strategies
 from ..workers.harvester.tasks import launch_harvester, load_open_harvesters
 # NOTE: Not importing monkey patched version here
@@ -11,9 +13,14 @@ class Manager(Core):
     exchange_names = []
     pair_matrix = {}
     markets_loaded = False
+    portfolio_name = 'default'
+    portfolio = None
 
     def __init__(self, config=None):
         super().__init__(config)
+        if 'portfolio' in self.config and 'name' in self.config['portfolio']:
+            self.portfolio_name = self.config['portfolio']['name']
+            self.portfolio = get_or_create(self.session(), Portfolio, name='default')
         if 'apis' in self.config:
             for key, value in self.config['apis'].items():
                 self.add_exchange(key)
@@ -62,6 +69,8 @@ class Manager(Core):
         highest_bid_exchange = None
         lowest_ask = 0
         lowest_ask_exchange = None
+        arbitrage_spread = None
+        arbitrage_percentage = 0
         if pair in pair_matrix:
             names = pair_matrix[pair]
             for n in names:
@@ -91,14 +100,18 @@ class Manager(Core):
                     'volume': volume,
                     # 'ticker': ticker
                 }
+            if highest_bid is not None and lowest_ask is not None:
+                arbitrage_spread = highest_bid - lowest_ask
+                arbitrage_percentage = (arbitrage_spread / lowest_ask) * 100
             return {
-                'pair_markets': pair_markets,
+                'markets': pair_markets,
                 'arbitrage': {
                     'highest_bid': highest_bid,
                     'highest_bid_exchange': highest_bid_exchange,
                     'lowest_ask': lowest_ask,
                     'lowest_ask_exchange': lowest_ask_exchange,
-                    'spread': highest_bid - lowest_ask
+                    'spread': arbitrage_spread,
+                    'percentage': arbitrage_percentage
                 }
             }
         return None
@@ -111,11 +124,17 @@ class Manager(Core):
                 possible[sym] = names
         return possible
 
-    def get_arbitrage_prices(self):
+    def get_arbitrage_prices(self, base_currency, threshold_percentage):
         prices = {}
         possible = self.get_possible_arbitrage()
         for sym, names in possible.items():
-            prices[sym] = self.get_pair_markets(sym)
+            pair = '/' + base_currency
+            if pair in sym:
+                pair_markets = self.get_pair_markets(sym)
+                threshold_met = (pair_markets['arbitrage']['percentage'] > threshold_percentage)
+                true_arbitrage = pair_markets['arbitrage']['highest_bid_exchange'] != pair_markets['arbitrage']['lowest_ask_exchange']
+                if threshold_met and true_arbitrage:
+                    prices[sym] = self.get_pair_markets(sym)
         return prices
 
     # def get_profit_for_trades(self):
