@@ -4,3 +4,4 @@ celery -A workers worker -l info
 # celery -A workers.harvester worker -l info
 # celery -A workers.market worker -l info
 # celery -A workers.strategy worker -l info
+# celery -A kryptobot.workers flower --broker=redis://redis:6379/0

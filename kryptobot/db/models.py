@@ -53,18 +53,21 @@ class Strategy(Base):
     __tablename__ = 'strategies'
 
     id = Column('id', Integer, primary_key=True)
-    porfolio_id = Column('porfolio_id', Integer, ForeignKey('portfolio.id'))
+    porfolio_id = Column('porfolio_id', Integer, ForeignKey('portfolios.id'))
+    harvester_id = Column('harvester_id', Integer, ForeignKey('harvesters.id'))
     class_name = Column('class_name', String)
     params = Column('params', String)
+    status = Column('status', String)
 
 
 class Harvester(Base):
     __tablename__ = 'harvesters'
 
     id = Column('id', Integer, primary_key=True)
-    porfolio_id = Column('porfolio_id', Integer, ForeignKey('portfolio.id'))
+    porfolio_id = Column('porfolio_id', Integer, ForeignKey('portfolios.id'))
     class_name = Column('class_name', String)
     params = Column('params', String)
+    status = Column('status', String)
 
 
 class Portfolio(Base):

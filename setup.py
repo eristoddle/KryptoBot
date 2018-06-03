@@ -45,13 +45,20 @@ setuptools.setup(
           'ccxt',
           'redis',
           'celery',
+          'flower',
+          # 'kombu-fernet-serializers',
+          'kombu-encrypted-serializer',
           'flask',
           'enigma-catalyst',
+          'pandas',
           # This breaks because pymarketcap requires cython to be installed first
           'cython',
           'pymarketcap',
           'pandas'
       ],
+      dependency_links=[
+        'git+https://github.com/roverdotcom/kombu-encrypted-serializer.git'
+        ],
     classifiers=(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

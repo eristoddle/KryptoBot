@@ -1,16 +1,8 @@
-from __future__ import absolute_import, unicode_literals
-from celery import Celery
+from ..app import app
 
-# TODO: Load from configuration
 
-app = Celery('kryptobot.workers.catalyst',
-             broker='redis://redis',
-             # backend='amqp://',
-             include=['kryptobot.workers.catalyst.tasks'])
-
-# Optional configuration, see the application user guide.
 app.conf.update(
-    result_expires=3600,
+    include=['kryptobot.workers.catalyst.tasks'],
 )
 
 if __name__ == '__main__':

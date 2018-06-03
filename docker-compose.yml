@@ -88,10 +88,12 @@ services:
         ports:
             - "8888:8888"
             - "5000:5000"
+            - "5555:5555"
         working_dir: /usr/src/app/notebooks
         expose:
             - "8888"
             - "5000"
+            - "5555"
         volumes:
             - ./:/usr/src/app
         networks:
