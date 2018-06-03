@@ -1,5 +1,5 @@
-from __future__ import absolute_import, unicode_literals
 from .celery import app
+from ..base_task import BaseTask
 from ...portfolio.exchanges import Exchanges
 from ...harvesters.arbitrage_harvester import ArbitrageHarvester
 
@@ -57,13 +57,13 @@ def import_harvester(harvester):
     return globals()[harvester]
 
 
-@app.task
+@app.task(base=BaseTask)
 def launch_harvester(harvester, params):
     harvester = import_harvester(harvester)
     # bot = Bot(harvester(**params))
     # return bot.start()
 
 
-@app.task
+@app.task(base=BaseTask)
 def load_open_harvesters():
     return 'load_open_harvesters not implemented yet'

@@ -1,8 +1,8 @@
-from __future__ import absolute_import, unicode_literals
 # import imp
 from .celery import app
 from ...bots.bot import Bot
 from ...strategies.poc_strategy import PocStrategy
+from ..base_task import BaseTask
 
 
 # TODO: get this to work instead of depending on naming conventions and/or importing everything
@@ -24,13 +24,13 @@ def import_strategy(strategy):
     return globals()[strategy]
 
 
-@app.task
+@app.task(base=BaseTask)
 def launch_strategy(strategy, params):
     strategy = import_strategy(strategy)
     bot = Bot(strategy(**params))
     return bot.start()
 
 
-@app.task
+@app.task(base=BaseTask)
 def load_open_strategies():
     return 'load_open_strategies not implemented yet'
