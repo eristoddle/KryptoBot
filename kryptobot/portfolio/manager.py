@@ -22,8 +22,10 @@ class Manager(Core):
 
     def run_harvester(self, harvester_name, params):
         params['porfolio_id'] = self.portfolio.id
+        params['exchanges'] = self.exchanges
         launch_harvester.delay(harvester_name, params)
 
     def run_strategy(self, strategy_name, params):
         # params['porfolio_id'] = self.portfolio.id
+        # params['exchanges'] = self.exchanges
         launch_strategy.delay(strategy_name, params)
