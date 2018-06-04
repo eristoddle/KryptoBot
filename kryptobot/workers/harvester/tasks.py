@@ -1,3 +1,4 @@
+# from celery.schedules import crontab
 from .celery import app
 from ..base_task import BaseTask
 from ...portfolio.exchanges import Exchanges
@@ -57,6 +58,16 @@ def import_harvester(harvester):
     return globals()[harvester]
 
 
+@app.on_after_configure.connect
+def load_open_periodic_harvesters(sender, **kwargs):
+    # TODO: Use this to load tasks at launch
+    # sender.add_periodic_task(
+    #     crontab(hour=7, minute=30, day_of_week=1),
+    #     task_message.s('load_open_harvesters not implemented yet'),
+    # )
+    pass
+
+
 @app.task(base=BaseTask)
 def launch_harvester(harvester, params):
     harvester = import_harvester(harvester)
@@ -65,5 +76,5 @@ def launch_harvester(harvester, params):
 
 
 @app.task(base=BaseTask)
-def load_open_harvesters():
-    return 'load_open_harvesters not implemented yet'
+def task_message(arg):
+    print(arg)

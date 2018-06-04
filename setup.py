@@ -48,6 +48,7 @@ setuptools.setup(
           'flower',
           # 'kombu-fernet-serializers',
           'kombu-encrypted-serializer',
+          'celery-redbeat',
           'flask',
           'enigma-catalyst',
           'pandas',
