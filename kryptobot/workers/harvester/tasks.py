@@ -1,7 +1,6 @@
 # from celery.schedules import crontab
 from .celery import app
 from ..base_task import BaseTask
-from ...portfolio.exchanges import Exchanges
 from ...harvesters.arbitrage_harvester import ArbitrageHarvester
 
 
@@ -15,29 +14,8 @@ config = {
             "username": "",
             "password": "",
             "host": ""
-        },
-        "apis": {
-            "cryptopia": {
-                "key": "key",
-                "secret": "secret"
-            },
-            "bittrex": {
-                "key": "key",
-                "secret": "secret"
-            },
-            "hitbtc": {
-                "key": "key",
-                "secret": "secret"
-            },
-            "binance": {
-                "key": "key",
-                "secret": "secret"
-            }
         }
     }
-
-exchanges = Exchanges(config['apis'])
-
 
 # TODO: get this to work instead of depending on naming conventions and/or importing everything
 # def import_harvester(class_name):
@@ -69,10 +47,10 @@ def load_open_periodic_harvesters(sender, **kwargs):
 
 
 @app.task(base=BaseTask)
-def launch_harvester(harvester, params):
-    harvester = import_harvester(harvester)
-    # bot = Bot(harvester(**params))
-    # return bot.start()
+def launch_harvester(kwargs):
+    Harvester = import_harvester(kwargs['harvester'])
+    harvester = Harvester(**kwargs)
+    return harvester.get_data()
 
 
 @app.task(base=BaseTask)
