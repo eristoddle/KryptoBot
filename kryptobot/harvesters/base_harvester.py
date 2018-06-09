@@ -31,12 +31,16 @@ class BaseHarvester:
         print('portfolio id', self.portfolio_id)
 
     def create_schedule(self, app):
+        data = {
+            'classname': self.classname,
+            'params': self.kwargs
+        }
         interval = schedules.schedule(run_every=self.interval)
         entry = RedBeatSchedulerEntry(
             self.taskname,
             'kryptobot.workers.harvester.tasks.launch_harvester',
             interval,
-            kwargs=self.kwargs,
+            kwargs=data,
             app=app
         )
         entry.save()
