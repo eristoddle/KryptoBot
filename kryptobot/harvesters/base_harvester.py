@@ -16,24 +16,28 @@ from ..db.models import Harvester, Portfolio
 
 class BaseHarvester:
 
-    def __init__(self, interval, is_simulated, kwargs, portfolio_id=None):
+    def __init__(self, interval, is_simulated, portfolio_id, kwargs):
         self.taskname = 'base-harvester'
-        self.interval = interval
         self.kwargs = kwargs
+        self.interval = interval
+        self.kwargs['interval'] = interval
         self.is_simulated = is_simulated
+        self.kwargs['is_simulated'] = is_simulated
         self.portfolio_id = portfolio_id
-        self.create_record()
+        self.kwargs['portfolio_id'] = portfolio_id
+        # self.create_record()
 
     def create_record(self):
         print('portfolio id', self.portfolio_id)
 
-    def create_schedule(self):
+    def create_schedule(self, app):
         interval = schedules.schedule(run_every=self.interval)
         entry = RedBeatSchedulerEntry(
             self.taskname,
             'kryptobot.workers.harvester.tasks.launch_harvester',
             interval,
-            kwargs=self.kwargs
+            kwargs=self.kwargs,
+            app=app
         )
         entry.save()
 

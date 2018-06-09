@@ -46,7 +46,6 @@ setuptools.setup(
           'redis',
           'celery',
           'flower',
-          # 'kombu-fernet-serializers',
           'kombu-encrypted-serializer',
           'celery-redbeat',
           'flask',

@@ -49,10 +49,14 @@ def load_open_periodic_harvesters(sender, **kwargs):
 @app.task(base=BaseTask)
 def launch_harvester(kwargs):
     Harvester = import_harvester(kwargs['harvester'])
+    kwargs.pop('harvester', None)
     harvester = Harvester(**kwargs)
     return harvester.get_data()
 
 
 @app.task(base=BaseTask)
-def task_message(arg):
-    print(arg)
+def schedule_harvester(kwargs):
+    Harvester = import_harvester(kwargs['harvester'])
+    kwargs.pop('harvester', None)
+    harvester = Harvester(**kwargs)
+    return harvester.create_schedule(app)

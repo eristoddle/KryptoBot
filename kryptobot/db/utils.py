@@ -8,7 +8,7 @@ def get_or_create(session, model, defaults=None, **kwargs):
         instance = query.first()
 
         if instance:
-            return instance, False
+            return instance
         else:
             session.begin(nested=True)
             try:
@@ -24,6 +24,6 @@ def get_or_create(session, model, defaults=None, **kwargs):
                 session.rollback()
                 instance = query.one()
 
-                return instance, False
+                return instance
     except Exception as e:
         raise e

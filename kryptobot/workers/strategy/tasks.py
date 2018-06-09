@@ -25,7 +25,7 @@ def import_strategy(strategy):
 
 
 @app.task(base=BaseTask)
-def launch_strategy(strategy, params):
+def schedule_strategy(strategy, params):
     strategy = import_strategy(strategy)
     bot = Bot(strategy(**params))
     return bot.start()
