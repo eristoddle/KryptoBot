@@ -30,8 +30,9 @@ def load_open_strategies(sender, **kwargs):
 
 
 @app.task(base=BaseTask)
-def schedule_strategy(strategy, params):
+def schedule_strategy(params):
     Strategy = import_strategy(params['strategy'])
     params.pop('strategy', None)
-    bot = Bot(Strategy(**params))
+    config = params.pop('config', None)
+    bot = Bot(Strategy(**params), config=config)
     return bot.start()

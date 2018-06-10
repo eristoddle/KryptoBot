@@ -1,10 +1,10 @@
+from threading import Thread
+from queue import Queue
+import logging
 from ..markets import market_watcher
 from ..markets import market_simulator
 from ..markets import market
 from ..markets import position
-from threading import Thread
-from queue import Queue
-import logging
 from ..publishers.ticker import Ticker
 
 # TODO Replace Queue with generic queue to plug in rq
@@ -35,8 +35,9 @@ class BaseStrategy:
          - simulated_quote_balance - the starting balance of the simulation
      A strategy inheriting from this class is an algorithm running on a specific exchange on a single trading pair
      """
-    def __init__(self, interval, exchange, base_currency, quote_currency, is_simulated, simulated_quote_balance=0):
+    def __init__(self, interval, exchange, base_currency, quote_currency, is_simulated, simulated_quote_balance=0, portfolio_id=None, strategy_id=None):
         self.market = None
+        self.portfolio_id = portfolio_id
         self.__thread = Thread(target=self.__run)
         self.__jobs = Queue()  # create job queue
         self.running = False
@@ -49,7 +50,10 @@ class BaseStrategy:
         else:
             self.market = market.Market(exchange, base_currency, quote_currency, self)
         strategies.append(self)
-        self.strategy_id = len(strategies)
+        if strategy_id is None:
+            self.strategy_id = len(strategies)
+        else:
+            self.strategy_id = strategy_id
         self.ui_messages = Queue()
         self.ticker = Ticker
 

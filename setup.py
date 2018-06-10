@@ -41,7 +41,7 @@ setuptools.setup(
           'pypubsub',
           'requests',
           'SQLAlchemy',
-          'psycopg2',
+          'psycopg2-binary',
           'pyti',
           'ccxt',
           'redis',

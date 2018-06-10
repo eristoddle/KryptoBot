@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, Numeric, String, Float, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 import datetime
+from .utils import JsonValue
 
 Base = declarative_base()
 
@@ -56,7 +57,7 @@ class Strategy(Base):
     porfolio_id = Column('porfolio_id', Integer, ForeignKey('portfolios.id'))
     harvester_id = Column('harvester_id', Integer, ForeignKey('harvesters.id'))
     class_name = Column('class_name', String)
-    params = Column('params', String)
+    params = Column('params', JsonValue)
     status = Column('status', String)
 
 
@@ -66,7 +67,7 @@ class Harvester(Base):
     id = Column('id', Integer, primary_key=True)
     porfolio_id = Column('porfolio_id', Integer, ForeignKey('portfolios.id'))
     class_name = Column('class_name', String)
-    params = Column('params', String)
+    params = Column('params', JsonValue)
     status = Column('status', String)
 
 

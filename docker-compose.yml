@@ -12,6 +12,8 @@ services:
         environment:
             - POSTGRES_PASSWORD=password
             - POSTGRES_USER=postgres
+        volumes:
+            - ./timescale_data:/var/lib/postgresql/data
 
 
     # market_worker:
@@ -62,6 +64,15 @@ services:
     # all_workers:
     #     build: ./kryptobot/workers
     #     command: bash -c "pip install -e . && celery -A kryptobot.workers worker -l info"
+    #     working_dir: /usr/src/app
+    #     volumes:
+    #         - ./:/usr/src/app
+    #     networks:
+    #         - cryptobox
+
+    # flower:
+    #     build: ./kryptobot/workers
+    #     command: bash -c "pip install -e . && celery -A kryptobot.workers flower --broker=redis://redis:6379/0"
     #     working_dir: /usr/src/app
     #     volumes:
     #         - ./:/usr/src/app

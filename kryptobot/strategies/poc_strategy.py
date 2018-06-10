@@ -8,8 +8,8 @@ class PocStrategy(BaseStrategy):
     If the condition returns true, the strategy will open a long position it does not have up to (position_limit) opened
     Each position opened will automatically sell itself off when its price (profit_target_percent*buy price) is met
     """
-    def __init__(self, interval, exchange, base_currency, quote_currency, is_simulated, fma_periods, sma_periods, sim_balance=0):
-        super().__init__(interval, exchange, base_currency, quote_currency, is_simulated, sim_balance)
+    def __init__(self, interval, exchange, base_currency, quote_currency, is_simulated, fma_periods, sma_periods, sim_balance=0, portfolio_id=None, strategy_id=None):
+        super().__init__(interval, exchange, base_currency, quote_currency, is_simulated, sim_balance, portfolio_id, strategy_id)
         self.order_quantity = 10
         self.position_limit = 10
         self.buy_signal = sma_crossover_signal.SmaCrossoverSignal(self.market, self.interval, fma_periods, sma_periods, self)
