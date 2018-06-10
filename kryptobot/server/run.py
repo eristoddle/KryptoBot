@@ -10,17 +10,15 @@ manager = Manager()
 
 @app.route('/launch_strategy', methods=['POST'])
 def launch_strategy():
-    strategy = request.json["strategy"]
     params = request.json["params"]
-    manager.run_strategy(strategy, params)
+    manager.run_strategy(params)
     return jsonify(result='success')
 
 
 @app.route('/launch_harvester', methods=['POST'])
 def launch_harvester():
-    harvester = request.json["harvester"]
     params = request.json["params"]
-    manager.run_harvester(harvester, params)
+    manager.run_harvester(params)
     return jsonify(result='success')
 
 

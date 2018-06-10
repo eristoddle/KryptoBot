@@ -24,13 +24,14 @@ def import_strategy(strategy):
     return globals()[strategy]
 
 
+@app.on_after_configure.connect
+def load_open_strategies(sender, **kwargs):
+    return 'load_open_strategies not implemented yet'
+
+
 @app.task(base=BaseTask)
 def schedule_strategy(strategy, params):
-    strategy = import_strategy(strategy)
-    bot = Bot(strategy(**params))
+    Strategy = import_strategy(params['strategy'])
+    params.pop('strategy', None)
+    bot = Bot(Strategy(**params))
     return bot.start()
-
-
-@app.task(base=BaseTask)
-def load_open_strategies():
-    return 'load_open_strategies not implemented yet'

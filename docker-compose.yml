@@ -1,18 +1,18 @@
 version: '3.4'
 services:
 
-    # timescale:
-    #     image: timescale/timescaledb
-    #     ports:
-    #         - "5432:5432"
-    #     expose:
-    #         - "5432"
-    #     networks:
-    #         - cryptobox
-    #     environment:
-    #         - POSTGRES_PASSWORD=password
-    #         - POSTGRES_USER=postgres
-    #
+    timescale:
+        image: timescale/timescaledb
+        ports:
+            - "5432:5432"
+        expose:
+            - "5432"
+        networks:
+            - cryptobox
+        environment:
+            - POSTGRES_PASSWORD=password
+            - POSTGRES_USER=postgres
+
 
     # market_worker:
     #     build: ./kryptobot/workers
@@ -59,14 +59,14 @@ services:
     #     networks:
     #         - cryptobox
 
-    # all_workers:
-    #     build: ./kryptobot/workers
-    #     command: pip install -e . && celery -A kryptobot.workers worker -l info
-    #     working_dir: /usr/src/app
-    #     volumes:
-    #         - ./:/usr/src/app
-    #     networks:
-    #         - cryptobox
+    all_workers:
+        build: ./kryptobot/workers
+        command: pip install -e . && celery -A kryptobot.workers worker -l info
+        working_dir: /usr/src/app
+        volumes:
+            - ./:/usr/src/app
+        networks:
+            - cryptobox
 
     # rest_api:
     #     build: ./kryptobot/server

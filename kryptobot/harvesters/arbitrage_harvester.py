@@ -20,5 +20,4 @@ class ArbitrageHarvester(BaseHarvester):
     def get_data(self):
         apis = Exchanges(self.exchanges)
         prices = apis.get_arbitrage_prices(self.base_currency, self.threshold_percentage)
-        print('ArbitrageHarvester get_data')
         return prices

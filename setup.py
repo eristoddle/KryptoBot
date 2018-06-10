@@ -15,6 +15,7 @@ setuptools.setup(
         'kryptobot.harvesters',
         'kryptobot.listeners',
         'kryptobot.markets',
+        'kryptobot.notifiers',
         'kryptobot.portfolio',
         'kryptobot.publishers',
         'kryptobot.server',
@@ -51,14 +52,14 @@ setuptools.setup(
           'flask',
           'enigma-catalyst',
           'pandas',
-          # This breaks because pymarketcap requires cython to be installed first
+          # This breaks, pymarketcap requires cython to be installed first
           'cython',
           'pymarketcap',
           'pandas'
-      ],
-      dependency_links=[
+    ],
+    dependency_links=[
         'git+https://github.com/roverdotcom/kombu-encrypted-serializer.git'
-        ],
+    ],
     classifiers=(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",

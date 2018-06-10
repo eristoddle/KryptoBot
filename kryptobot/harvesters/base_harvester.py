@@ -12,6 +12,8 @@ from ..db.models import Harvester, Portfolio
 #
 # NOTE: Look into
 # https://github.com/NetAngels/celery-tasktree
+#
+# NOTE: Redbeat jobs aren't encrypted but none have required api keys yet
 
 
 class BaseHarvester:

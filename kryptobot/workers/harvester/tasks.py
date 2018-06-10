@@ -2,6 +2,7 @@
 from .celery import app
 from ..base_task import BaseTask
 from ...harvesters.arbitrage_harvester import ArbitrageHarvester
+from ...harvesters.cmc_new_coin_harvester import CmcNewCoinHarvester
 
 
 # TODO: Find a way to load configs for celery jobs

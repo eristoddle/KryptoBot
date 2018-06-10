@@ -20,10 +20,13 @@ class Manager(Core):
     def run_harvester(self, params):
         params['portfolio_id'] = self.portfolio.id
         params['exchanges'] = self.config['apis']
+        if 'db' in self.config:
+            params['db'] = self.config['db']
         schedule_harvester.delay(params)
 
-
-    def run_strategy(self, strategy_name, params):
-        # params['porfolio_id'] = self.portfolio.id
-        # params['exchanges'] = self.config['apis']
-        schedule_strategy.delay(strategy_name, params)
+    def run_strategy(self, params):
+        params['portfolio_id'] = self.portfolio.id
+        params['exchanges'] = self.config['apis']
+        if 'db' in self.config:
+            params['db'] = self.config['db']
+        schedule_strategy.delay(params)

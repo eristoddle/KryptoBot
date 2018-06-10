@@ -7,7 +7,7 @@ celery -A kryptobot.workers worker -l info
 #
 ###### ALL WORKERS WITH CELERY BEAT
 # NOTE: This will only work again if I uninstall redbeat
-# 
+#
 # celery -A kryptobot.workers worker -l info -B
 #
 ###### ALL WORKERS WITH REDBEAT
@@ -24,7 +24,7 @@ celery -A kryptobot.workers worker -l info
 ###### WITH CELERY REDBEAT
 # NOTE: Bare Minimum 2
 #
-# celery -A kryptobot.workers beat -S redbeat.RedBeatScheduler
+celery -A kryptobot.workers beat -S redbeat.RedBeatScheduler
 #
 ###### SEPERATE WORKERS
 #
