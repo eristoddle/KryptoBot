@@ -58,7 +58,8 @@ setuptools.setup(
           'pandas'
     ],
     dependency_links=[
-        'git+https://github.com/roverdotcom/kombu-encrypted-serializer.git'
+        'git@github.com:roverdotcom/kombu-encrypted-serializer.git'
+        # 'git+https://github.com/roverdotcom/kombu-encrypted-serializer.git'
     ],
     classifiers=(
         "Programming Language :: Python :: 3",
