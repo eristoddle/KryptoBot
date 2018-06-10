@@ -10,19 +10,17 @@ class CmcNewCoinHarvester(BaseHarvester):
     taskname = 'cmc-new-coin-harvester'
     classname = 'CmcNewCoinHarvester'
 
-    def __init__(self, interval, is_simulated, base_currency, portfolio_id, exchanges):
+    def __init__(self, interval, is_simulated, base_currency, portfolio_id, harvester_id, config):
         kwargs = {
-            'base_currency': base_currency,
-            'exchanges': exchanges
+            'base_currency': base_currency
         }
-        super().__init__(interval, is_simulated, portfolio_id, kwargs)
+        super().__init__(interval, is_simulated, portfolio_id, config, harvester_id, kwargs)
         self.base_currency = base_currency
-        self.exchanges = exchanges
 
     def get_data(self):
         targets = self.get_cmc_targets(1)
         target_pairs = [i['symbol'] + '/' + self.base_currency for i in targets]
-        apis = Exchanges(self.exchanges)
+        apis = Exchanges(self.config['apis'])
         markets = []
         for pr in target_pairs:
             markets.append({'pr': apis.get_pair_markets(pr)})

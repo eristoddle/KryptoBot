@@ -18,19 +18,19 @@ from ..db.models import Harvester, Portfolio
 
 class BaseHarvester:
 
-    def __init__(self, interval, is_simulated, portfolio_id, kwargs):
+    def __init__(self, interval, is_simulated, portfolio_id, harvester_id, config, kwargs):
         self.taskname = 'base-harvester'
         self.kwargs = kwargs
+        self.harvester_id = harvester_id
+        self.kwargs['harvester_id'] = harvester_id
+        self.config = config
+        self.kwargs['config'] = config
         self.interval = interval
         self.kwargs['interval'] = interval
         self.is_simulated = is_simulated
         self.kwargs['is_simulated'] = is_simulated
         self.portfolio_id = portfolio_id
         self.kwargs['portfolio_id'] = portfolio_id
-        # self.create_record()
-
-    def create_record(self):
-        print('portfolio id', self.portfolio_id)
 
     def create_schedule(self, app):
         data = {

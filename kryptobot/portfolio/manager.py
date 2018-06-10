@@ -15,8 +15,7 @@ class Manager(Core):
         if 'portfolio' in self.config and 'name' in self.config['portfolio']:
             self._session = self.session()
             self.portfolio_name = self.config['portfolio']['name']
-            self.portfolio = get_or_create(
-                self._session,
+            self.portfolio = self.add_record(
                 Portfolio,
                 name=self.portfolio_name
             )
@@ -24,28 +23,37 @@ class Manager(Core):
     def __del__(self):
         self._session.close()
 
-    def add_record(self, model):
-        self._session.add(model)
-        self._session.commit()
+    def add_record(self, model, **kwargs):
+        return get_or_create(
+            self._session,
+            model,
+            **kwargs
+        )
 
     def run_harvester(self, params):
         if self.portfolio is not None:
             params['portfolio_id'] = self.portfolio.id
-        # TODO: Change this to use a config attribute like below
-        params['exchanges'] = self.config['apis']
-        if 'db' in self.config:
-            params['db'] = self.config['db']
+            harvester = self.add_record(
+                Harvester,
+                porfolio_id=self.portfolio.id,
+                class_name=params['harvester'],
+                params=params,
+                status='active'
+            )
+            params['harvester_id'] = harvester.id
+        params['config'] = self.config
         schedule_harvester.delay(params)
 
     def run_strategy(self, params):
         if self.portfolio is not None:
             params['portfolio_id'] = self.portfolio.id
-            strategy = Strategy(
+            strategy = self.add_record(
+                Strategy,
                 porfolio_id=self.portfolio.id,
                 class_name=params['strategy'],
                 params=params,
                 status='active'
             )
-        self.add_record(strategy)
+            params['strategy_id'] = strategy.id
         params['config'] = self.config
         schedule_strategy.delay(params)
