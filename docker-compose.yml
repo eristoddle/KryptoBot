@@ -16,7 +16,7 @@ services:
 
     # market_worker:
     #     build: ./kryptobot/workers
-    #     command: pip install -e . && celery -A kryptobot.workers.market worker -l info
+    #     command: bash -c "pip install -e . && celery -A kryptobot.workers.market worker -l info"
     #     working_dir: /usr/src/app
     #     volumes:
     #         - ./:/usr/src/app
@@ -25,7 +25,7 @@ services:
 
     # catalyst_worker:
     #     build: ./kryptobot/workers
-    #     command: pip install -e . && celery -A kryptobot.workers.catalyst worker -l info
+    #     command: bash -c "pip install -e . && celery -A kryptobot.workers.catalyst worker -l info"
     #     working_dir: /usr/src/app
     #     volumes:
     #         - ./:/usr/src/app
@@ -34,7 +34,7 @@ services:
 
     # strategy_worker:
     #     build: ./kryptobot/workers
-    #     command: pip install -e . && celery -A kryptobot.workers.strategy worker -l info
+    #     command: bash -c "pip install -e . && celery -A kryptobot.workers.strategy worker -l info"
     #     working_dir: /usr/src/app
     #     volumes:
     #         - ./:/usr/src/app
@@ -43,7 +43,7 @@ services:
 
     # harvester_worker:
     #     build: ./kryptobot/workers
-    #     command: pip install -e . && celery -A kryptobot.workers.harvester worker -l info
+    #     command: bash -c "pip install -e . && celery -A kryptobot.workers.harvester worker -l info"
     #     working_dir: /usr/src/app
     #     volumes:
     #         - ./:/usr/src/app
@@ -52,21 +52,21 @@ services:
 
     # redbeat:
     #     build: ./kryptobot/workers
-    #     command: pip install -e . && celery -A kryptobot.workers beat -S redbeat.RedBeatScheduler
+    #     command: bash -c "pip install -e . && celery -A kryptobot.workers beat -S redbeat.RedBeatScheduler"
     #     working_dir: /usr/src/app
     #     volumes:
     #         - ./:/usr/src/app
     #     networks:
     #         - cryptobox
 
-    all_workers:
-        build: ./kryptobot/workers
-        command: pip install -e . && celery -A kryptobot.workers worker -l info
-        working_dir: /usr/src/app
-        volumes:
-            - ./:/usr/src/app
-        networks:
-            - cryptobox
+    # all_workers:
+    #     build: ./kryptobot/workers
+    #     command: bash -c "pip install -e . && celery -A kryptobot.workers worker -l info"
+    #     working_dir: /usr/src/app
+    #     volumes:
+    #         - ./:/usr/src/app
+    #     networks:
+    #         - cryptobox
 
     # rest_api:
     #     build: ./kryptobot/server
