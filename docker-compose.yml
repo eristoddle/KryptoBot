@@ -57,16 +57,20 @@ services:
     #     command: bash -c "pip install -e . && celery -A kryptobot.workers beat -S redbeat.RedBeatScheduler"
     #     working_dir: /usr/src/app
     #     volumes:
-    #         - app:/usr/src/app
+    #         # - app:/usr/src/app
+    #         - ./:/usr/src/app
     #     networks:
     #         - cryptobox
 
     # all_workers:
     #     build: ./kryptobot/workers
     #     command: bash -c "pip install -e . && celery -A kryptobot.workers worker -l info"
+    #     # Can't get Procfile to work
+    #     # command: honcho start
     #     working_dir: /usr/src/app
     #     volumes:
-    #         - app:/usr/src/app
+    #         # - app:/usr/src/app
+    #         - ./:/usr/src/app
     #     networks:
     #         - cryptobox
 
@@ -74,6 +78,10 @@ services:
     #     build: ./kryptobot/workers
     #     command: bash -c "pip install -e . && celery -A kryptobot.workers flower --broker=redis://redis:6379/0"
     #     working_dir: /usr/src/app
+    #     ports:
+    #         - "5555:5555"
+    #     expose:
+    #         - "5555"
     #     volumes:
     #         - ./:/usr/src/app
     #     networks:
@@ -108,12 +116,12 @@ services:
         ports:
             - "8888:8888"
             - "5000:5000"
-            - "5555:5555"
+            # - "5555:5555"
         working_dir: /usr/src/app/notebooks
         expose:
             - "8888"
             - "5000"
-            - "5555"
+            # - "5555"
         volumes:
             - ./:/usr/src/app
         networks:

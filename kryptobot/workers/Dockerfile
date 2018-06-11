@@ -5,3 +5,4 @@ FROM eristoddle/kryptobot
 # RUN pip install --upgrade pip
 # RUN pip install cython
 # RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install honcho
