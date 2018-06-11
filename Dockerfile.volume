@@ -1,0 +1,7 @@
+FROM alpine:latest
+
+ADD ./ /usr/src/app
+
+VOLUME /usr/src/app
+
+CMD ["/bin/true"]

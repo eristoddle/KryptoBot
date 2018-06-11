@@ -57,7 +57,7 @@ services:
     #     command: bash -c "pip install -e . && celery -A kryptobot.workers beat -S redbeat.RedBeatScheduler"
     #     working_dir: /usr/src/app
     #     volumes:
-    #         - ./:/usr/src/app
+    #         - app:/usr/src/app
     #     networks:
     #         - cryptobox
 
@@ -66,7 +66,7 @@ services:
     #     command: bash -c "pip install -e . && celery -A kryptobot.workers worker -l info"
     #     working_dir: /usr/src/app
     #     volumes:
-    #         - ./:/usr/src/app
+    #         - app:/usr/src/app
     #     networks:
     #         - cryptobox
 
@@ -119,6 +119,18 @@ services:
         networks:
             - cryptobox
 
+    # source:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile.volume
+    #     command:
+    #         - /bin/true
+    #     volumes:
+    #         - app:/usr/src/app
+
 networks:
     cryptobox:
         driver: bridge
+
+# volumes:
+#     app:
