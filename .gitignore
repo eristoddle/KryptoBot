@@ -11,3 +11,4 @@ __pycache__
 celerybeat-schedule
 celerybeat.pid
 redbeat.RedBeatScheduler
+timescale_data
