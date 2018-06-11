@@ -21,6 +21,7 @@ setuptools.setup(
         'kryptobot.server',
         'kryptobot.signals',
         'kryptobot.strategies',
+        'kryptobot.strategies.catalyst',
         'kryptobot.strategies.mixins',
         'kryptobot.ta',
         'kryptobot.workers',
