@@ -124,6 +124,7 @@ services:
             # - "5555"
         volumes:
             - ./:/usr/src/app
+            - ./.catalyst:/root/.catalyst
         networks:
             - cryptobox
 

@@ -57,3 +57,17 @@ class Manager(Core):
             params['strategy_id'] = strategy.id
         params['config'] = self.config
         schedule_strategy.delay(params)
+
+    def run_catalyst_strategy(self, params):
+        if self.portfolio is not None:
+            params['portfolio_id'] = self.portfolio.id
+            strategy = self.add_record(
+                Strategy,
+                porfolio_id=self.portfolio.id,
+                class_name=params['strategy'],
+                params=params,
+                status='active'
+            )
+            params['strategy_id'] = strategy.id
+        params['config'] = self.config
+        schedule_strategy.delay(params)
