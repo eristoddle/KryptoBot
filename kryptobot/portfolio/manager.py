@@ -3,6 +3,7 @@ from ..db.models import Portfolio, Strategy, Harvester
 from ..db.utils import get_or_create
 from ..workers.strategy.tasks import schedule_strategy
 from ..workers.harvester.tasks import schedule_harvester
+from ..workers.catalyst.tasks import schedule_catalyst_strategy
 
 
 class Manager(Core):
@@ -70,4 +71,4 @@ class Manager(Core):
             )
             params['strategy_id'] = strategy.id
         params['config'] = self.config
-        schedule_strategy.delay(params)
+        schedule_catalyst_strategy.delay(params)

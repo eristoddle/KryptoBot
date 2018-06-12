@@ -19,7 +19,6 @@ from ..db.models import Harvester, Portfolio
 class BaseHarvester:
 
     def __init__(self, interval, is_simulated, portfolio_id, harvester_id, config, kwargs):
-        self.taskname = 'base-harvester'
         self.kwargs = kwargs
         self.harvester_id = harvester_id
         self.kwargs['harvester_id'] = harvester_id
