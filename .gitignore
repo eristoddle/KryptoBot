@@ -12,3 +12,5 @@ celerybeat-schedule
 celerybeat.pid
 redbeat.RedBeatScheduler
 timescale_data
+/.catalyst/
+*.pickle
