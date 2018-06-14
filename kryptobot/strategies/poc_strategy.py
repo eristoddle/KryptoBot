@@ -10,10 +10,10 @@ class PocStrategy(BaseStrategy):
     """
     def __init__(self, interval, exchange, base_currency, quote_currency, is_simulated, fma_periods, sma_periods, sim_balance=0, portfolio_id=None, strategy_id=None):
         super().__init__(interval, exchange, base_currency, quote_currency, is_simulated, sim_balance, portfolio_id, strategy_id)
-        self.order_quantity = 10
-        self.position_limit = 10
+        self.order_quantity = 100
+        self.position_limit = 1000
         self.buy_signal = sma_crossover_signal.SmaCrossoverSignal(self.market, self.interval, fma_periods, sma_periods, self)
-        self.profit_target_percent = 1.05
+        self.profit_target_percent = 1.10
         self.fixed_stoploss_percent = .90
         self.trailing_stoploss_percent = .95
 

@@ -54,10 +54,12 @@ class Strategy(Base):
     __tablename__ = 'strategies'
 
     id = Column('id', Integer, primary_key=True)
+    type = Column('type', String, default='default')
     porfolio_id = Column('porfolio_id', Integer, ForeignKey('portfolios.id'))
     harvester_id = Column('harvester_id', Integer, ForeignKey('harvesters.id'))
     class_name = Column('class_name', String)
     params = Column('params', JsonValue)
+    ingest = Column('ingest', JsonValue)
     status = Column('status', String)
 
 
