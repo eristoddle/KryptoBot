@@ -62,7 +62,7 @@ class Manager(Core):
     def run_catalyst_strategy(self, params):
         if self.portfolio is not None:
             params['portfolio_id'] = self.portfolio.id
-            ingest = {}
+            ingest = params.pop('ingest', None)
             strategy = self.add_record(
                 Strategy,
                 porfolio_id=self.portfolio.id,

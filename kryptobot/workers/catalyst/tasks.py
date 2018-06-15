@@ -19,6 +19,7 @@ def schedule_catalyst_strategy(params):
     params.pop('portfolio_id', None)
     params.pop('config', None)
     params.pop('type', None)
+    ingest = params.pop('ingest', None)
     strategy = params.pop('strategy', None)
     mod = importlib.import_module('kryptobot.strategies.catalyst.' + strategy)
     params['start'] = pd.to_datetime(params['start'], utc=True)
@@ -26,19 +27,13 @@ def schedule_catalyst_strategy(params):
     params['handle_data'] = mod.handle_data
     params['initialize'] = mod.initialize
     # params['analyze'] = mod.analyze
-    # if has_data_bundle():
     try:
         run_algorithm(**params)
-    # else:
     except:
-        # TODO: Replace these hard coded values
-        ingest = {
-            'data_frequency': 'daily',
-            # 'start': params['start'],
-            # 'end': params['end'],
-            'include_symbols': 'btc_usdt',
-            'exchange_name': 'poloniex'
-        }
+        ingest['data_frequency'] = params['data_frequency']
+        ingest['include_symbols'] = ingest['purchase_currency'] + '_' + params['base_currency']
+        ingest['exchange_name'] = params['exchange_name']
+        ingest.pop('purchase_currency', None)
         chain(schedule_catalyst_ingest(**ingest) | run_algorithm(**params))()
     # _run(
     #     initialize=None,
