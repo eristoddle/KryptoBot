@@ -23,15 +23,17 @@ def schedule_catalyst_strategy(params):
     ingest = params.pop('ingest', None)
     strategy = params.pop('strategy', None)
     mod = importlib.import_module('kryptobot.strategies.catalyst.' + strategy)
-    params['start'] = pd.to_datetime(params['start'], utc=True)
-    params['end'] = pd.to_datetime(params['end'], utc=True)
+    if 'start' in params:
+        params['start'] = pd.to_datetime(params['start'], utc=True)
+    if 'end' in params:
+        params['end'] = pd.to_datetime(params['end'], utc=True)
     params['handle_data'] = mod.handle_data
     params['initialize'] = mod.initialize
     params['output'] = output
     # params['analyze'] = mod.analyze
     try:
         run_algorithm(**params)
-    except:
+    except TypeError:
         if ingest is not None and 'data_frequency' not in ingest:
             ingest['data_frequency'] = params['data_frequency']
         if ingest is not None and 'purchase_currency' in ingest and 'include_symbols' not in ingest:

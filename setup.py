@@ -56,7 +56,8 @@ setuptools.setup(
           # This breaks, pymarketcap requires cython to be installed first
           'cython',
           'pymarketcap',
-          'pandas'
+          'pandas',
+          'ta-lib'
     ],
     classifiers=(
         "Programming Language :: Python :: 3",
