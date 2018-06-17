@@ -34,7 +34,6 @@ def schedule_strategy(params):
     Strategy = import_strategy(params['strategy'])
     params.pop('strategy', None)
     params.pop('type', None)
-    params.pop('ingest', None)
     config = params.pop('config', None)
     bot = Bot(Strategy(**params), config=config)
     return bot.start()

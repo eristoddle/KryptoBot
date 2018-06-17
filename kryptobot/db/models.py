@@ -59,7 +59,6 @@ class Strategy(Base):
     harvester_id = Column('harvester_id', Integer, ForeignKey('harvesters.id'))
     class_name = Column('class_name', String)
     params = Column('params', JsonValue)
-    ingest = Column('ingest', JsonValue)
     status = Column('status', String)
 
 

@@ -33,7 +33,7 @@ def schedule_catalyst_strategy(params):
     # params['analyze'] = mod.analyze
     try:
         run_algorithm(**params)
-    except TypeError:
+    except:
         if ingest is not None and 'data_frequency' not in ingest:
             ingest['data_frequency'] = params['data_frequency']
         if ingest is not None and 'purchase_currency' in ingest and 'include_symbols' not in ingest:
