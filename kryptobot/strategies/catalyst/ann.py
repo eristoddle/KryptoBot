@@ -256,7 +256,7 @@ if __name__ == '__main__':
             exchange_name='poloniex',
             live=True,
             algo_namespace='hedge',
-            base_currency='usdt',
+            quote_currency='usdt',
             simulate_orders=True,
         )
     else:
@@ -268,7 +268,7 @@ if __name__ == '__main__':
             analyze=analyze,
             exchange_name='poloniex',
             algo_namespace='ANN',
-            base_currency='usdt',
+            quote_currency='usdt',
             start=pd.to_datetime('2018-04-01', utc=True),
             end=pd.to_datetime('2018-04-02', utc=True),
         )

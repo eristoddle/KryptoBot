@@ -125,6 +125,7 @@ services:
         volumes:
             - ./:/usr/src/app
             - ./.catalyst:/root/.catalyst
+            - ./.catalyst_pickles:/root/.catalyst_pickles
         networks:
             - cryptobox
 

@@ -15,7 +15,8 @@ def load_open_strategies(sender, **kwargs):
 
 @app.task(base=BaseTask)
 def schedule_catalyst_strategy(params):
-    params.pop('strategy_id', None)
+    strategy_id = params.pop('strategy_id', None)
+    output = '/root/.catalyst_pickles/' + str(strategy_id) + '.pickle'
     params.pop('portfolio_id', None)
     params.pop('config', None)
     params.pop('type', None)
@@ -26,14 +27,18 @@ def schedule_catalyst_strategy(params):
     params['end'] = pd.to_datetime(params['end'], utc=True)
     params['handle_data'] = mod.handle_data
     params['initialize'] = mod.initialize
+    params['output'] = output
     # params['analyze'] = mod.analyze
     try:
         run_algorithm(**params)
     except:
-        ingest['data_frequency'] = params['data_frequency']
-        ingest['include_symbols'] = ingest['purchase_currency'] + '_' + params['base_currency']
-        ingest['exchange_name'] = params['exchange_name']
-        ingest.pop('purchase_currency', None)
+        if ingest is not None and 'data_frequency' not in ingest:
+            ingest['data_frequency'] = params['data_frequency']
+        if ingest is not None and 'purchase_currency' in ingest and 'include_symbols' not in ingest:
+            ingest['include_symbols'] = ingest['purchase_currency'] + '_' + params['quote_currency']
+            ingest.pop('purchase_currency', None)
+        if ingest is not None and 'exchange_name' not in ingest:
+            ingest['exchange_name'] = params['exchange_name']
         chain(schedule_catalyst_ingest(**ingest) | run_algorithm(**params))()
     # _run(
     #     initialize=None,
@@ -67,14 +72,14 @@ def schedule_catalyst_strategy(params):
 
 
 @app.task(base=BaseTask)
-def schedule_catalyst_ingest(exchange_name, include_symbols, data_frequency):
+def schedule_catalyst_ingest(exchange_name, data_frequency, include_symbols=None, start=None, end=None):
     exchange_bundle = ExchangeBundle(exchange_name)
     exchange_bundle.ingest(
         data_frequency=data_frequency,
         include_symbols=include_symbols,
         # exclude_symbols=params['exclude_symbols'],
-        # start=start,
-        # end=end,
+        start=start,
+        end=end,
         # show_progress=params['show_progress'],
         # show_breakdown=params['show_breakdown'],
         # show_report=params['show_report'],
