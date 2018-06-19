@@ -51,6 +51,7 @@ class Manager(Core):
             strategy = self.add_record(
                 Strategy,
                 porfolio_id=self.portfolio.id,
+                type='titan',
                 class_name=params['strategy'],
                 params=params,
                 status='active'

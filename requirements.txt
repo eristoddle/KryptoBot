@@ -1,5 +1,4 @@
 jupyterlab
 zipline
-matplotlib
 cython
 git+https://github.com/eristoddle/KryptoBot.git

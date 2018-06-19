@@ -22,7 +22,7 @@ setuptools.setup(
         'kryptobot.signals',
         'kryptobot.strategies',
         'kryptobot.strategies.catalyst',
-        'kryptobot.strategies.mixins',
+        'kryptobot.strategies.core',
         'kryptobot.ta',
         'kryptobot.workers',
         'kryptobot.workers.catalyst',
@@ -57,7 +57,9 @@ setuptools.setup(
           'cython',
           'pymarketcap',
           'pandas',
-          'ta-lib'
+          'ta-lib',
+          'matplotlib',
+          'mpl-finance'
     ],
     classifiers=(
         "Programming Language :: Python :: 3",
