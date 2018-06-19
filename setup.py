@@ -26,6 +26,7 @@ setuptools.setup(
         'kryptobot.ta',
         'kryptobot.workers',
         'kryptobot.workers.catalyst',
+        'kryptobot.workers.core',
         'kryptobot.workers.harvester',
         'kryptobot.workers.market',
         'kryptobot.workers.strategy',

@@ -45,7 +45,7 @@ def _handle_data(context, data):
 
     analysis = pd.DataFrame(index=prices.index)
     """
-    MACD Calculation and Signal Creation. 
+    MACD Calculation and Signal Creation.
     input: analysis panda DataFrame
     output: bool
     """
@@ -220,7 +220,7 @@ run_algorithm(initialize=initialize,
               analyze=analyze,
               capital_base=10000,
               live=False,
-              base_currency='usd',
+              quote_currency='usd',
               exchange_name='bitfinex',
               algo_namespace='STC',
               data_frequency='daily',

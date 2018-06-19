@@ -6,6 +6,7 @@ app.conf.update(
        'kryptobot.workers.harvester.tasks',
        'kryptobot.workers.market.tasks',
        'kryptobot.workers.strategy.tasks',
+       'kryptobot.workers.core.tasks',
        ],
 )
 

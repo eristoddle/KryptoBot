@@ -4,6 +4,7 @@ from ..db.utils import get_or_create
 from ..workers.strategy.tasks import schedule_strategy
 from ..workers.harvester.tasks import schedule_harvester
 from ..workers.catalyst.tasks import schedule_catalyst_strategy
+from ..workers.core.tasks import schedule_core_strategy
 
 
 class Manager(Core):
@@ -58,19 +59,9 @@ class Manager(Core):
             )
             params['strategy_id'] = strategy.id
         params['config'] = self.config
-        schedule_strategy.delay(params)
-
-    def run_catalyst_strategy(self, params):
-        if self.portfolio is not None:
-            params['portfolio_id'] = self.portfolio.id
-            strategy = self.add_record(
-                Strategy,
-                porfolio_id=self.portfolio.id,
-                type='catalyst',
-                class_name=params['strategy'],
-                params=params,
-                status='active'
-            )
-            params['strategy_id'] = strategy.id
-        params['config'] = self.config
-        schedule_catalyst_strategy.delay(params)
+        if params['type'] == 'core':
+            schedule_core_strategy.delay(params)
+        if params['type'] == 'catalyst':
+            schedule_catalyst_strategy.delay(params)
+        else:
+            schedule_strategy.delay(params)

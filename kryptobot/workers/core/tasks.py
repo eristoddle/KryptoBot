@@ -14,7 +14,7 @@ def load_open_strategies(sender, **kwargs):
 
 
 @app.task(base=BaseTask)
-def schedule_core_strategy(params):
+def schedule_catalyst_strategy(params):
     strategy_id = params.pop('strategy_id', None)
     output = '/root/.catalyst_pickles/' + str(strategy_id) + '.pickle'
     params.pop('portfolio_id', None)
@@ -41,7 +41,7 @@ def schedule_core_strategy(params):
             ingest.pop('purchase_currency', None)
         if ingest is not None and 'exchange_name' not in ingest:
             ingest['exchange_name'] = params['exchange_name']
-        chain(schedule_core_ingest(**ingest) | run_algorithm(**params))()
+        chain(schedule_catalyst_ingest(**ingest) | run_algorithm(**params))()
     # _run(
     #     initialize=None,
     #     handle_data=None,
@@ -74,7 +74,7 @@ def schedule_core_strategy(params):
 
 
 @app.task(base=BaseTask)
-def schedule_core_ingest(exchange_name, data_frequency, include_symbols=None, start=None, end=None):
+def schedule_catalyst_ingest(exchange_name, data_frequency, include_symbols=None, start=None, end=None):
     exchange_bundle = ExchangeBundle(exchange_name)
     exchange_bundle.ingest(
         data_frequency=data_frequency,
