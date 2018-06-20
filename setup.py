@@ -9,7 +9,8 @@ setuptools.setup(
     packages=[
         'kryptobot',
         'kryptobot.bots',
-        'kryptobot.catalyst_shim',
+        'kryptobot.catalyst_extensions',
+        'kryptobot.catalyst_extensions.bundles',
         'kryptobot.ccxt_shim',
         'kryptobot.db',
         'kryptobot.harvesters',
