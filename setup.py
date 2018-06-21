@@ -63,6 +63,11 @@ setuptools.setup(
           'matplotlib',
           'mpl-finance'
     ],
+    entry_points={
+        'console_scripts': [
+            'kryptobot = kryptobot.__main__:main',
+        ],
+    },
     classifiers=(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
