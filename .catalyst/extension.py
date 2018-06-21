@@ -1,6 +1,4 @@
 from catalyst.data.bundles.core import register_bundle
-from catalyst.data.bundles.poloniex import PoloniexBundle
-# from kryptobot.catalyst_extensions.bundles.bittrex import BittrexBundle
+from kryptobot.catalyst_extensions.bundles.binance import BinanceBundle
 
-register_bundle(PoloniexBundle)
-# register_bundle(BittrexBundle)
+register_bundle(BinanceBundle)

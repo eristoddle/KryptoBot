@@ -1,5 +1,6 @@
 # NOTE: Not importing monkey patched version here
 import ccxt
+import time
 
 
 class Exchanges:
@@ -58,6 +59,8 @@ class Exchanges:
             names = pair_matrix[pair]
             for n in names:
                 exchange = self.exchanges[n]
+                #  TODO: Not sure where to put this
+                time.sleep(exchange.rateLimit / 1000)
                 # orderbook = exchange.fetch_order_book(pair)
                 # bid = orderbook['bids'][0][0] if len (orderbook['bids']) > 0 else None
                 # ask = orderbook['asks'][0][0] if len (orderbook['asks']) > 0 else None
