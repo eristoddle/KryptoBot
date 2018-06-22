@@ -14,14 +14,15 @@ def load_open_strategies(sender, **kwargs):
 
 
 @app.task(base=BaseTask)
-def schedule_core_strategy(params):
+def schedule_catalyst_strategy(params):
     strategy_id = params.pop('strategy_id', None)
     output = '/root/.catalyst_pickles/' + str(strategy_id) + '.pickle'
     params.pop('portfolio_id', None)
     params.pop('config', None)
     params.pop('type', None)
+    ingest = params.pop('ingest', None)
     strategy = params.pop('strategy', None)
-    mod = importlib.import_module('kryptobot.strategies.core.' + strategy)
+    mod = importlib.import_module('kryptobot.strategies.catalyst.' + strategy)
     if 'start' in params:
         params['start'] = pd.to_datetime(params['start'], utc=True)
     if 'end' in params:
@@ -29,15 +30,18 @@ def schedule_core_strategy(params):
     params['handle_data'] = mod.handle_data
     params['initialize'] = mod.initialize
     params['output'] = output
+    # params['analyze'] = mod.analyze
     try:
         run_algorithm(**params)
     except:
-        ingest = {
-            'data_frequency': params['data_frequency'],
-            'include_symbols': params['pair'],
-            'exchange_name': params['exchange_name']
-        }
-        chain(schedule_core_ingest(**ingest) | run_algorithm(**params))()
+        if ingest is not None and 'data_frequency' not in ingest:
+            ingest['data_frequency'] = params['data_frequency']
+        if ingest is not None and 'purchase_currency' in ingest and 'include_symbols' not in ingest:
+            ingest['include_symbols'] = ingest['purchase_currency'] + '_' + params['quote_currency']
+            ingest.pop('purchase_currency', None)
+        if ingest is not None and 'exchange_name' not in ingest:
+            ingest['exchange_name'] = params['exchange_name']
+        chain(schedule_catalyst_ingest(**ingest) | run_algorithm(**params))()
     # _run(
     #     initialize=None,
     #     handle_data=None,
@@ -70,7 +74,7 @@ def schedule_core_strategy(params):
 
 
 @app.task(base=BaseTask)
-def schedule_core_ingest(exchange_name, data_frequency, include_symbols=None, start=None, end=None):
+def schedule_catalyst_ingest(exchange_name, data_frequency, include_symbols=None, start=None, end=None):
     exchange_bundle = ExchangeBundle(exchange_name)
     exchange_bundle.ingest(
         data_frequency=data_frequency,

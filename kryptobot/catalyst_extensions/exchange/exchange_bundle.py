@@ -27,9 +27,8 @@ from catalyst.exchange.utils.datetime_utils import get_start_dt, \
 from catalyst.exchange.utils.exchange_utils import get_exchange_folder, \
     save_exchange_symbols, mixin_market_params, get_catalyst_symbol
 from catalyst.utils.cli import maybe_show_progress
-from catalyst.utils.paths import ensure_directory
+from catalyst.utils.paths import ensure_directory, data_root
 from catalyst.exchange.utils.exchange_utils import get_exchange_bundles_folder
-from catalyst.utils.paths import data_root, ensure_directory
 from logbook import Logger
 from pytz import UTC
 from six import itervalues
@@ -355,7 +354,6 @@ class ExchangeBundle:
         ohlcv = json.dumps(ccxt_exchange.fetch_ohlcv(ccxt_symbol, timeframe))
         raw = pd.read_json(ohlcv)
         raw.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
-        # NOTE This may have to be different depending on day or minute
         raw['date'] = pd.to_datetime(raw['date'], unit='ms')
         raw.set_index('date', inplace=True)
         scale = 1
@@ -366,6 +364,26 @@ class ExchangeBundle:
         raw.loc[:, 'volume'] *= scale
         print(raw)
         return raw
+
+    # TODO: Add start, end, other params
+    # TODO: Figure out period
+    def create_csv_from_ccxt(self, symbol, data_frequency, start=None, end=None):
+        raw = self.get_ccxt_data(data_frequency, symbol)
+        raw.reset_index(level=0, inplace=True)
+        raw.columns = ['last_traded', 'open', 'high', 'low', 'close', 'volume']
+        raw.insert(0, 'symbol', symbol)
+        root = data_root()
+        csv_folder = os.path.join(root, 'csv', self.exchange_name)
+        ensure_directory(csv_folder)
+        name = '{exchange}-{frequency}-{symbol}'.format(
+            exchange=self.exchange_name,
+            frequency=data_frequency,
+            symbol=symbol,
+            # period=period
+        )
+        csv = os.path.join(csv_folder, name + '.csv')
+        raw.to_csv(path_or_buf=csv, index=False)
+        return csv
 
     def ingest_ctable(self, asset, data_frequency, period,
                       writer, empty_rows_behavior='strip',
@@ -770,6 +788,10 @@ class ExchangeBundle:
                 params['start_date'] = asset_def['start_date'] \
                     if asset_def['start_date'] < start_dt else start_dt
 
+                # Breaks here if running daily and symbols_local.json end_daily is 'N/A'
+                if asset_def[end_dt_key] == 'N/A':
+                    asset_def[end_dt_key] = asset_def['start_date']
+
                 params['end_date'] = asset_def[end_dt_key] \
                     if asset_def[end_dt_key] > end_dt else end_dt
 
@@ -854,23 +876,18 @@ class ExchangeBundle:
         # TODO: Move this to a better place and call ingest_csv
         # TODO: Figure out period : 2017-10
         if csv is not None:
-            symbol = include_symbols
-            raw = self.get_ccxt_data(data_frequency, symbol)
-            raw.reset_index(level=0, inplace=True)
-            raw.columns = ['last_traded', 'open', 'high', 'low', 'close', 'volume']
-            raw.insert(0, 'symbol', symbol)
-            root = data_root()
-            csv_folder = os.path.join(root, 'csv', self.exchange_name)
-            ensure_directory(csv_folder)
-            name = '{exchange}-{frequency}-{symbol}'.format(
-                exchange=self.exchange_name,
-                frequency=data_frequency,
-                symbol=symbol,
-                # period=period
-            )
-            csv = os.path.join(csv_folder, name)
-            raw.to_csv(path_or_buf=csv, index=False)
-            self.ingest_csv(csv, data_frequency)
+            print('csv', csv)
+            if csv == 'create':
+                symbol = include_symbols
+                csv = self.create_csv_from_ccxt(
+                    symbol,
+                    data_frequency,
+                    None,
+                    None
+                )
+                self.ingest_csv(csv, data_frequency)
+            else:
+                self.ingest_csv(csv, data_frequency)
 
         else:
             if self.exchange is None:
