@@ -10,7 +10,7 @@ from catalyst.marketplace.marketplace import Marketplace
 from six import text_type
 
 from catalyst.data import bundles as bundles_module
-from catalyst.exchange.exchange_bundle import ExchangeBundle
+from kryptobot.catalyst_extensions.exchange.exchange_bundle import ExchangeBundle
 from catalyst.exchange.utils.exchange_utils import delete_algo_folder
 from catalyst.utils.cli import Date, Timestamp
 from catalyst.utils.run_algo import _run, load_extensions

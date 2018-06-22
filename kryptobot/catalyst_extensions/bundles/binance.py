@@ -3,6 +3,7 @@ import ccxt
 import json
 from .base_pricing import BaseCryptoPricingBundle
 from catalyst.utils.memoize import lazyval
+# NOTE: Somehow this kind of works for zipline format bundles though
 
 
 class BinanceBundle(BaseCryptoPricingBundle):
