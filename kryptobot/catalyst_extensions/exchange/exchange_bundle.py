@@ -345,10 +345,10 @@ class ExchangeBundle:
         )
         path = os.path.join(root, name)
         if not os.path.isdir(path):
-            raw = self.get_ccxt_data(data_frequency, symbol, period)
+            raw = self.get_ccxt_data(data_frequency, symbol, False, period)
         return path
 
-    def get_ccxt_data(self, data_frequency, symbol, period=None):
+    def get_ccxt_data(self, data_frequency, symbol, csv, period=None):
         timeframe = '1m' if data_frequency == 'minute' else '1d'
         ccxt_symbol = symbol.replace('_', '/').upper()
         ohlcv = json.dumps(self.ccxt_exchange.fetch_ohlcv(ccxt_symbol, timeframe))
@@ -362,10 +362,10 @@ class ExchangeBundle:
         raw.loc[:, 'low'] /= scale
         raw.loc[:, 'close'] /= scale
         raw.loc[:, 'volume'] *= scale
-        # NOTE: The following 3 lines are for csv results only
-        raw.reset_index(level=0, inplace=True)
-        raw.columns = ['last_traded', 'open', 'high', 'low', 'close', 'volume']
-        raw.insert(0, 'symbol', symbol)
+        if csv:
+            raw.reset_index(level=0, inplace=True)
+            raw.columns = ['last_traded', 'open', 'high', 'low', 'close', 'volume']
+            raw.insert(0, 'symbol', symbol)
         return raw
 
     # TODO: Figure out how to keep old data around maybe in ingest csv
@@ -386,9 +386,9 @@ class ExchangeBundle:
             time.sleep (self.ccxt_exchange.rateLimit / 1000)
             print('Getting ' + data_frequency + ' ' + symbol + ' data from ' + self.exchange_name)
             if raw is None:
-                raw = self.get_ccxt_data(data_frequency, symbol)
+                raw = self.get_ccxt_data(data_frequency, symbol, True)
             else:
-                raw.append(self.get_ccxt_data(data_frequency, symbol))
+                raw = raw.append(self.get_ccxt_data(data_frequency, symbol, True))
         root = data_root()
         csv_folder = os.path.join(root, 'csv')
         ensure_directory(csv_folder)
@@ -800,7 +800,8 @@ class ExchangeBundle:
                 params['start_date'] = asset_def['start_date'] \
                     if asset_def['start_date'] < start_dt else start_dt
 
-                # Breaks here if running daily and symbols_local.json end_daily is 'N/A'
+                # Breaks here if running daily and
+                # symbols_local.json end_daily is 'N/A'
                 if asset_def[end_dt_key] == 'N/A':
                     asset_def[end_dt_key] = asset_def['start_date']
 
