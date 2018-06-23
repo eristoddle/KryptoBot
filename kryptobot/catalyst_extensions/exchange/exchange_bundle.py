@@ -362,24 +362,39 @@ class ExchangeBundle:
         raw.loc[:, 'low'] /= scale
         raw.loc[:, 'close'] /= scale
         raw.loc[:, 'volume'] *= scale
-        print(raw)
-        return raw
-
-    # TODO: Add start, end, other params
-    # TODO: Figure out period
-    def create_csv_from_ccxt(self, symbol, data_frequency, start=None, end=None):
-        raw = self.get_ccxt_data(data_frequency, symbol)
+        # NOTE: The following 3 lines are for csv results only
         raw.reset_index(level=0, inplace=True)
         raw.columns = ['last_traded', 'open', 'high', 'low', 'close', 'volume']
         raw.insert(0, 'symbol', symbol)
+        return raw
+
+    # TODO: Figure out how to keep old data around maybe in ingest csv
+    def create_csv_from_ccxt(self, data_frequency, include_symbols=None,
+                                exclude_symbols=None, start=None, end=None):
+        from catalyst.exchange.utils.factory import get_exchange
+        self.exchange = get_exchange(self.exchange_name)
+        self.ccxt_exchange = getattr(ccxt, self.exchange_name)()
+        raw = None
+        if include_symbols is not None:
+            active_symbols = include_symbols.split(',')
+        else:
+            active_symbols = [m['symbol'].replace('/', '_').lower() for m in self.exchange.markets]
+            if exclude_symbols is not None:
+                exclude_symbols = exclude_symbols.split(',')
+                active_symbols = [s for s in active_symbols if s not in exclude_symbols]
+        for symbol in active_symbols:
+            time.sleep (self.ccxt_exchange.rateLimit / 1000)
+            print('Getting ' + data_frequency + ' ' + symbol + ' data from ' + self.exchange_name)
+            if raw is None:
+                raw = self.get_ccxt_data(data_frequency, symbol)
+            else:
+                raw.append(self.get_ccxt_data(data_frequency, symbol))
         root = data_root()
-        csv_folder = os.path.join(root, 'csv', self.exchange_name)
+        csv_folder = os.path.join(root, 'csv')
         ensure_directory(csv_folder)
-        name = '{exchange}-{frequency}-{symbol}'.format(
+        name = '{exchange}-{frequency}'.format(
             exchange=self.exchange_name,
             frequency=data_frequency,
-            symbol=symbol,
-            # period=period
         )
         csv = os.path.join(csv_folder, name + '.csv')
         raw.to_csv(path_or_buf=csv, index=False)
@@ -657,8 +672,6 @@ class ExchangeBundle:
             end_dt=end_dt
         )
 
-        print('chunks', chunks, show_breakdown)
-
         problems = []
         # This is the common writer for the entire exchange bundle
         # we want to give an end_date far in time
@@ -686,7 +699,6 @@ class ExchangeBundle:
                             )
         else:
             all_chunks = list(chain.from_iterable(itervalues(chunks)))
-            print('all_chunks', all_chunks)
             # We sort the chunks by end date to ingest most recent data first
             if all_chunks:
                 all_chunks.sort(
@@ -872,31 +884,17 @@ class ExchangeBundle:
         environ:
 
         """
-        # TODO: Figure out period : 2017-10
-        # TODO: start and end
-        # NOTE: Seems to be an overwrite all process, so must append
-        #  with multiple files
+        # NOTE: Seems to be an overwrite all process, so must append to csv
+        #  with multiple files or only imports last one
         if csv is not None:
-            print('csv', csv)
             if csv == 'create':
-                from catalyst.exchange.utils.factory import get_exchange
-                self.exchange = get_exchange(self.exchange_name)
-                self.ccxt_exchange = getattr(ccxt, self.exchange_name)()
-                if include_symbols is not None:
-                    active_symbols = include_symbols.split(',')
-                else:
-                    active_symbols = [m['symbol'].replace('/', '_').lower() for m in self.exchange.markets]
-                    if exclude_symbols is not None:
-                        exclude_symbols = exclude_symbols.split(',')
-                        active_symbols = [s for s in active_symbols if s not in exclude_symbols]
-                for symbol in active_symbols:
-                    time.sleep (self.ccxt_exchange.rateLimit / 1000)
-                    csv = self.create_csv_from_ccxt(
-                        symbol,
-                        data_frequency,
-                        None,
-                        None
-                    )
+                csv = self.create_csv_from_ccxt(
+                    data_frequency,
+                    include_symbols=include_symbols,
+                    exclude_symbols=exclude_symbols,
+                    start=start,
+                    end=end
+                )
                 self.ingest_csv(csv, data_frequency)
             else:
                 self.ingest_csv(csv, data_frequency)
