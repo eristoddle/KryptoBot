@@ -589,15 +589,6 @@ def ingest_exchange(ctx, exchange_name, data_frequency, start, end,
     Ingest data for the given exchange.
     """
 
-    if exchange_name is None:
-        ctx.fail("must specify an exchange name '-x'")
-    if exchange_name in CATALYST_EXCHANGE_NAMES:
-        ctx.fail(
-            "ingest-exchange does not support {}, "
-            "please use catalyst command for: {}".format(
-                exchange_name,
-                CATALYST_EXCHANGE_NAMES))
-
     exchange_bundle = ExchangeBundle(exchange_name)
 
     click.echo('Trying to ingest exchange bundle {}...'.format(exchange_name),

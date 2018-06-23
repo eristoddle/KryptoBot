@@ -34,6 +34,7 @@ from pytz import UTC
 from six import itervalues
 import ccxt
 # TODO: Replace when updated
+# Has been updated, but has id number in place of symbol and breaks things
 from ...ccxt_shim.cryptopia import cryptopia
 ccxt.cryptopia = cryptopia
 import time
@@ -820,7 +821,8 @@ class ExchangeBundle:
         #  with multiple files or only imports last one
         if csv is not None:
             if csv == 'create':
-                if self.check_ohlcv_data(data_frequency, start, end) is None:
+                cached_data = self.check_ohlcv_data(data_frequency, start, end)
+                if cached_data is None:
                     csv = self.create_csv_from_ccxt(
                         data_frequency,
                         include_symbols=include_symbols,
@@ -828,8 +830,10 @@ class ExchangeBundle:
                         start=start,
                         end=end
                     )
-                    self.ingest_csv(csv, data_frequency)
-                    self.store_ohlcv_data(csv)
+                else:
+                    csv = cached_data
+                self.ingest_csv(csv, data_frequency)
+                self.store_ohlcv_data(csv)
             else:
                 self.ingest_csv(csv, data_frequency)
 
@@ -1116,11 +1120,10 @@ class ExchangeBundle:
                 shutil.rmtree(frequency_bundle)
                 log.debug('{} removed'.format(frequency_bundle))
 
-    # TODO: Figure out how to get the longest range of data from all exchanges
-    def get_ccxt_data(self, data_frequency, symbol, start=None, end=None):
+    def get_ccxt_data(self, data_frequency, symbol, since=None, limit=None):
         timeframe = '1m' if data_frequency == 'minute' else '1d'
         ccxt_symbol = symbol.replace('_', '/').upper()
-        data = self.ccxt_exchange.fetch_ohlcv(ccxt_symbol, timeframe)
+        data = self.ccxt_exchange.fetch_ohlcv(ccxt_symbol, timeframe, since, limit)
         ohlcv = json.dumps(data)
         raw = pd.read_json(ohlcv)
         raw.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
@@ -1137,20 +1140,33 @@ class ExchangeBundle:
         raw.insert(0, 'symbol', symbol)
         return raw
 
-    # TODO: Figure out how to keep old data around maybe in ingest csv
-    # NOTE: Ccxt hasn't really normalized the candlestick data
-    # Each exchange returns a different amount and date range when
-    # start and end aren't specified
     def create_csv_from_ccxt(self, data_frequency, include_symbols=None, exclude_symbols=None, start=None, end=None):
         from catalyst.exchange.utils.factory import get_exchange
         self.exchange = get_exchange(self.exchange_name)
         self.ccxt_exchange = getattr(ccxt, self.exchange_name)()
         raw = None
 
+        # TODO: Convert start and end to since and limit
+        # May have to loop rest calls
+        # since I think is a date in the past
+        # and limit is the amount of records
+        # I think many have a limit of 1000
+        # hence needing a loop
         if start is None:
-            pass
+            if data_frequency == 'daily':
+                since = None
+            else:
+                since = None
+        else:
+            since = None
+
         if end is None:
-            pass
+            if data_frequency == 'daily':
+                limit = None
+            else:
+                limit = None
+        else:
+            limit = None
 
         if include_symbols is not None:
             active_symbols = include_symbols.split(',')
@@ -1161,12 +1177,12 @@ class ExchangeBundle:
                 active_symbols = [s for s in active_symbols if s not in exclude_symbols]
 
         for symbol in active_symbols:
-            time.sleep (self.ccxt_exchange.rateLimit / 1000)
+            time.sleep(self.ccxt_exchange.rateLimit / 1000)
             print('Getting ' + data_frequency + ' ' + symbol + ' data from ' + self.exchange_name)
             if raw is None:
-                raw = self.get_ccxt_data(data_frequency, symbol, start, end)
+                raw = self.get_ccxt_data(data_frequency, symbol, since, limit)
             else:
-                raw = raw.append(self.get_ccxt_data(data_frequency, symbol, start, end))
+                raw = raw.append(self.get_ccxt_data(data_frequency, symbol, since, limit))
 
         return self.store_csv(data_frequency, raw)
 

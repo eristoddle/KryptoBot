@@ -5,6 +5,7 @@ from . import order
 from . import market_watcher
 import ccxt
 # TODO: Replace when updated
+# Has been updated but need to test
 from ..ccxt_shim.cryptopia import cryptopia
 ccxt.cryptopia = cryptopia
 
