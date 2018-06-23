@@ -33,6 +33,9 @@ from logbook import Logger
 from pytz import UTC
 from six import itervalues
 import ccxt
+# TODO: Replace when updated
+from ...ccxt_shim.cryptopia import cryptopia
+ccxt.cryptopia = cryptopia
 import time
 
 log = Logger('exchange_bundle', level=LOG_LEVEL)
@@ -334,72 +337,6 @@ class ExchangeBundle:
 
         return problems
 
-    # NOTE: Not is use because not sure how to use bcolz
-    def get_ccxt_bcolz_chunk(self, data_frequency, symbol, period):
-        root = get_exchange_bundles_folder(self.exchange_name)
-        name = '{exchange}-{frequency}-{symbol}-{period}'.format(
-            exchange=self.exchange_name,
-            frequency=data_frequency,
-            symbol=symbol,
-            period=period
-        )
-        path = os.path.join(root, name)
-        if not os.path.isdir(path):
-            raw = self.get_ccxt_data(data_frequency, symbol, False, period)
-        return path
-
-    def get_ccxt_data(self, data_frequency, symbol, csv, period=None):
-        timeframe = '1m' if data_frequency == 'minute' else '1d'
-        ccxt_symbol = symbol.replace('_', '/').upper()
-        ohlcv = json.dumps(self.ccxt_exchange.fetch_ohlcv(ccxt_symbol, timeframe))
-        raw = pd.read_json(ohlcv)
-        raw.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
-        raw['date'] = pd.to_datetime(raw['date'], unit='ms')
-        raw.set_index('date', inplace=True)
-        scale = 1
-        raw.loc[:, 'open'] /= scale
-        raw.loc[:, 'high'] /= scale
-        raw.loc[:, 'low'] /= scale
-        raw.loc[:, 'close'] /= scale
-        raw.loc[:, 'volume'] *= scale
-        if csv:
-            raw.reset_index(level=0, inplace=True)
-            raw.columns = ['last_traded', 'open', 'high', 'low', 'close', 'volume']
-            raw.insert(0, 'symbol', symbol)
-        return raw
-
-    # TODO: Figure out how to keep old data around maybe in ingest csv
-    def create_csv_from_ccxt(self, data_frequency, include_symbols=None,
-                                exclude_symbols=None, start=None, end=None):
-        from catalyst.exchange.utils.factory import get_exchange
-        self.exchange = get_exchange(self.exchange_name)
-        self.ccxt_exchange = getattr(ccxt, self.exchange_name)()
-        raw = None
-        if include_symbols is not None:
-            active_symbols = include_symbols.split(',')
-        else:
-            active_symbols = [m['symbol'].replace('/', '_').lower() for m in self.exchange.markets]
-            if exclude_symbols is not None:
-                exclude_symbols = exclude_symbols.split(',')
-                active_symbols = [s for s in active_symbols if s not in exclude_symbols]
-        for symbol in active_symbols:
-            time.sleep (self.ccxt_exchange.rateLimit / 1000)
-            print('Getting ' + data_frequency + ' ' + symbol + ' data from ' + self.exchange_name)
-            if raw is None:
-                raw = self.get_ccxt_data(data_frequency, symbol, True)
-            else:
-                raw = raw.append(self.get_ccxt_data(data_frequency, symbol, True))
-        root = data_root()
-        csv_folder = os.path.join(root, 'csv')
-        ensure_directory(csv_folder)
-        name = '{exchange}-{frequency}'.format(
-            exchange=self.exchange_name,
-            frequency=data_frequency,
-        )
-        csv = os.path.join(csv_folder, name + '.csv')
-        raw.to_csv(path_or_buf=csv, index=False)
-        return csv
-
     def ingest_ctable(self, asset, data_frequency, period,
                       writer, empty_rows_behavior='strip',
                       duplicates_threshold=100, cleanup=False):
@@ -426,7 +363,6 @@ class ExchangeBundle:
         """
         problems = []
 
-        log.info('trying to download')
         # NOTE: get_bcolz_chunk does the download
         if self.exchange_name in ['bitfinex', 'bittrex','poloniex']:
             # Download and extract the bundle
@@ -437,12 +373,7 @@ class ExchangeBundle:
                 period=period
             )
         else:
-            path = self.get_ccxt_bcolz_chunk(
-                symbol=asset.symbol,
-                data_frequency=data_frequency,
-                period=period
-            )
-        # Exception("check failed").throw()
+            log.warn('please add `--csv create` to ingest this data')
 
         reader = self.get_reader(data_frequency, path=path)
         if reader is None:
@@ -889,14 +820,16 @@ class ExchangeBundle:
         #  with multiple files or only imports last one
         if csv is not None:
             if csv == 'create':
-                csv = self.create_csv_from_ccxt(
-                    data_frequency,
-                    include_symbols=include_symbols,
-                    exclude_symbols=exclude_symbols,
-                    start=start,
-                    end=end
-                )
-                self.ingest_csv(csv, data_frequency)
+                if self.check_ohlcv_data(data_frequency, start, end) is None:
+                    csv = self.create_csv_from_ccxt(
+                        data_frequency,
+                        include_symbols=include_symbols,
+                        exclude_symbols=exclude_symbols,
+                        start=start,
+                        end=end
+                    )
+                    self.ingest_csv(csv, data_frequency)
+                    self.store_ohlcv_data(csv)
             else:
                 self.ingest_csv(csv, data_frequency)
 
@@ -1182,3 +1115,78 @@ class ExchangeBundle:
                 )
                 shutil.rmtree(frequency_bundle)
                 log.debug('{} removed'.format(frequency_bundle))
+
+    # TODO: Figure out how to get the longest range of data from all exchanges
+    def get_ccxt_data(self, data_frequency, symbol, start=None, end=None):
+        timeframe = '1m' if data_frequency == 'minute' else '1d'
+        ccxt_symbol = symbol.replace('_', '/').upper()
+        data = self.ccxt_exchange.fetch_ohlcv(ccxt_symbol, timeframe)
+        ohlcv = json.dumps(data)
+        raw = pd.read_json(ohlcv)
+        raw.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
+        raw['date'] = pd.to_datetime(raw['date'], unit='ms')
+        raw.set_index('date', inplace=True)
+        scale = 1
+        raw.loc[:, 'open'] /= scale
+        raw.loc[:, 'high'] /= scale
+        raw.loc[:, 'low'] /= scale
+        raw.loc[:, 'close'] /= scale
+        raw.loc[:, 'volume'] *= scale
+        raw.reset_index(level=0, inplace=True)
+        raw.columns = ['last_traded', 'open', 'high', 'low', 'close', 'volume']
+        raw.insert(0, 'symbol', symbol)
+        return raw
+
+    # TODO: Figure out how to keep old data around maybe in ingest csv
+    # NOTE: Ccxt hasn't really normalized the candlestick data
+    # Each exchange returns a different amount and date range when
+    # start and end aren't specified
+    def create_csv_from_ccxt(self, data_frequency, include_symbols=None, exclude_symbols=None, start=None, end=None):
+        from catalyst.exchange.utils.factory import get_exchange
+        self.exchange = get_exchange(self.exchange_name)
+        self.ccxt_exchange = getattr(ccxt, self.exchange_name)()
+        raw = None
+
+        if start is None:
+            pass
+        if end is None:
+            pass
+
+        if include_symbols is not None:
+            active_symbols = include_symbols.split(',')
+        else:
+            active_symbols = [m['symbol'].replace('/', '_').lower() for m in self.exchange.markets]
+            if exclude_symbols is not None:
+                exclude_symbols = exclude_symbols.split(',')
+                active_symbols = [s for s in active_symbols if s not in exclude_symbols]
+
+        for symbol in active_symbols:
+            time.sleep (self.ccxt_exchange.rateLimit / 1000)
+            print('Getting ' + data_frequency + ' ' + symbol + ' data from ' + self.exchange_name)
+            if raw is None:
+                raw = self.get_ccxt_data(data_frequency, symbol, start, end)
+            else:
+                raw = raw.append(self.get_ccxt_data(data_frequency, symbol, start, end))
+
+        return self.store_csv(data_frequency, raw)
+
+    # TODO: Cache data in database
+    def store_ohlcv_data(self, csv):
+        pass
+
+    # TODO: Check for cached data in database and dump to csv and import if so
+    def check_ohlcv_data(self, data_frequency, start, end):
+        # return self.store_csv(data_frequency, df)
+        return None
+
+    def store_csv(self, data_frequency, df):
+        root = data_root()
+        csv_folder = os.path.join(root, 'csv')
+        ensure_directory(csv_folder)
+        name = '{exchange}-{frequency}'.format(
+            exchange=self.exchange_name,
+            frequency=data_frequency,
+        )
+        csv = os.path.join(csv_folder, name + '.csv')
+        df.to_csv(path_or_buf=csv, index=False)
+        return csv

@@ -15,11 +15,10 @@ from catalyst.exchange.utils.exchange_utils import delete_algo_folder
 from catalyst.utils.cli import Date, Timestamp
 from catalyst.utils.run_algo import _run, load_extensions
 
-EXCHANGE_NAMES = [
+CATALYST_EXCHANGE_NAMES = [
     'bitfinex',
     'bittrex',
-    'poloniex',
-    'binance'
+    'poloniex'
 ]
 
 try:
@@ -592,12 +591,12 @@ def ingest_exchange(ctx, exchange_name, data_frequency, start, end,
 
     if exchange_name is None:
         ctx.fail("must specify an exchange name '-x'")
-    if exchange_name not in EXCHANGE_NAMES:
+    if exchange_name in CATALYST_EXCHANGE_NAMES:
         ctx.fail(
             "ingest-exchange does not support {}, "
-            "please choose exchange from: {}".format(
+            "please use catalyst command for: {}".format(
                 exchange_name,
-                EXCHANGE_NAMES))
+                CATALYST_EXCHANGE_NAMES))
 
     exchange_bundle = ExchangeBundle(exchange_name)
 
