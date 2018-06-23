@@ -33,6 +33,7 @@ from logbook import Logger
 from pytz import UTC
 from six import itervalues
 import ccxt
+import time
 
 log = Logger('exchange_bundle', level=LOG_LEVEL)
 
@@ -348,10 +349,9 @@ class ExchangeBundle:
         return path
 
     def get_ccxt_data(self, data_frequency, symbol, period=None):
-        ccxt_exchange = getattr(ccxt, self.exchange_name)()
         timeframe = '1m' if data_frequency == 'minute' else '1d'
         ccxt_symbol = symbol.replace('_', '/').upper()
-        ohlcv = json.dumps(ccxt_exchange.fetch_ohlcv(ccxt_symbol, timeframe))
+        ohlcv = json.dumps(self.ccxt_exchange.fetch_ohlcv(ccxt_symbol, timeframe))
         raw = pd.read_json(ohlcv)
         raw.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
         raw['date'] = pd.to_datetime(raw['date'], unit='ms')
@@ -872,19 +872,31 @@ class ExchangeBundle:
         environ:
 
         """
-        # TODO: Allow looping for multiple assets
-        # TODO: Move this to a better place and call ingest_csv
         # TODO: Figure out period : 2017-10
+        # TODO: start and end
+        # NOTE: Seems to be an overwrite all process, so must append
+        #  with multiple files
         if csv is not None:
             print('csv', csv)
             if csv == 'create':
-                symbol = include_symbols
-                csv = self.create_csv_from_ccxt(
-                    symbol,
-                    data_frequency,
-                    None,
-                    None
-                )
+                from catalyst.exchange.utils.factory import get_exchange
+                self.exchange = get_exchange(self.exchange_name)
+                self.ccxt_exchange = getattr(ccxt, self.exchange_name)()
+                if include_symbols is not None:
+                    active_symbols = include_symbols.split(',')
+                else:
+                    active_symbols = [m['symbol'].replace('/', '_').lower() for m in self.exchange.markets]
+                    if exclude_symbols is not None:
+                        exclude_symbols = exclude_symbols.split(',')
+                        active_symbols = [s for s in active_symbols if s not in exclude_symbols]
+                for symbol in active_symbols:
+                    time.sleep (self.ccxt_exchange.rateLimit / 1000)
+                    csv = self.create_csv_from_ccxt(
+                        symbol,
+                        data_frequency,
+                        None,
+                        None
+                    )
                 self.ingest_csv(csv, data_frequency)
             else:
                 self.ingest_csv(csv, data_frequency)
