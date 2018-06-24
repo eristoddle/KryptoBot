@@ -1,4 +1,3 @@
-from catalyst.api import symbol
 from catalyst.exchange.utils.bundle_utils import EXCHANGE_NAMES
 import pandas as pd
 
@@ -25,7 +24,7 @@ class BaseStrategy():
         else:
             csv = 'create'
         return {
-            'data_frequency': self.defaul['data_frequency'],
+            'data_frequency': self.default['data_frequency'],
             'include_symbols': self.default['pair'],
             'exchange_name': self.default['exchange_name'],
             'start': self.default['start'],
