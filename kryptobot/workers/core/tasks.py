@@ -4,6 +4,7 @@ import importlib
 from celery import chain
 from .celery import app
 from ..base_task import BaseTask
+from pathlib import Path
 
 
 def title_case(snake_str):
@@ -30,8 +31,8 @@ def schedule_core_strategy(params):
     )
     strategy = Strategy(params['default'], params['custom'])
     run_params = strategy.get_run_params()
-    # TODO: Fix this
-    run_params['output'] = '/root/.catalyst_pickles/' + str(params['strategy_id']) + '.pickle'
+    home = str(Path.home())
+    run_params['output'] = home + '/.catalyst_pickles/' + str(params['strategy_id']) + '.pickle'
     try:
         run_algorithm(**run_params)
     except:

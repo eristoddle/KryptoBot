@@ -13,7 +13,7 @@ log = Logger()
 
 class SimpleMovingAverage(BaseStrategy):
 
-    def __init__(self, default, custom):
+    def __init__(self, default=None, custom=None):
         super().__init__(default, custom)
 
     def get_initialize(self):
@@ -92,15 +92,11 @@ class SimpleMovingAverage(BaseStrategy):
 
     def get_analyze(self):
         def analyze(context, perf):
-            # Get the quote_currency that was passed as a parameter to the simulation
-            exchange = list(context.exchanges.values())[0]
-            quote_currency = exchange.quote_currency.upper()
-
             # First chart: Plot portfolio value using quote_currency
             ax1 = plt.subplot(411)
             perf.loc[:, ['portfolio_value']].plot(ax=ax1)
             ax1.legend_.remove()
-            ax1.set_ylabel('Portfolio Value\n({})'.format(quote_currency))
+            ax1.set_ylabel('Portfolio Value')
             start, end = ax1.get_ylim()
             ax1.yaxis.set_ticks(np.arange(start, end, (end - start) / 5))
 
@@ -110,10 +106,7 @@ class SimpleMovingAverage(BaseStrategy):
                 ax=ax2,
                 label='Price')
             ax2.legend_.remove()
-            ax2.set_ylabel('{asset}\n({quote})'.format(
-                asset=context.asset.symbol,
-                quote=quote_currency
-            ))
+            ax2.set_ylabel('(Asset)\n(Quote)')
             start, end = ax2.get_ylim()
             ax2.yaxis.set_ticks(np.arange(start, end, (end - start) / 5))
 
@@ -150,7 +143,7 @@ class SimpleMovingAverage(BaseStrategy):
             # Fourth chart: Plot our cash
             ax4 = plt.subplot(414, sharex=ax1)
             perf.cash.plot(ax=ax4)
-            ax4.set_ylabel('Cash\n({})'.format(quote_currency))
+            ax4.set_ylabel('Cash\n({})'.format(self.quote_currency))
             start, end = ax4.get_ylim()
             ax4.yaxis.set_ticks(np.arange(0, end, end / 5))
 

@@ -5,21 +5,19 @@ import pandas as pd
 
 class BaseStrategy():
 
-    def __init__(self, default, custom):
+    def __init__(self, default=None, custom=None):
         self.default = default
         self.custom = custom
-        # self.asset = symbol(self.default['pair'])
-        self.default['quote_currency'] = self.default['pair'].split('_')[1]
-        if 'start' not in self.default:
-            self.default['start'] = None
-        else:
-            self.default['start'] = pd.to_datetime(self.default['start'], utc=True)
-        if 'end' not in self.default:
-            self.default['end'] = None
-        else:
-            self.default['end'] = pd.to_datetime(self.default['start'], utc=True)
-        # if 'output' not in self.default:
-        #     self.default['output'] = '/root/.catalyst_pickles/' + str(strategy_id) + '.pickle'
+        if self.default is not None:
+            self.default['quote_currency'] = self.default['pair'].split('_')[1]
+            if 'start' not in self.default:
+                self.default['start'] = None
+            else:
+                self.default['start'] = pd.to_datetime(self.default['start'], utc=True)
+            if 'end' not in self.default:
+                self.default['end'] = None
+            else:
+                self.default['end'] = pd.to_datetime(self.default['end'], utc=True)
 
     def get_ingest_params(self):
         if self.default['exchange_name'] in EXCHANGE_NAMES:
@@ -93,7 +91,4 @@ class BaseStrategy():
         raise NotImplementedError()
 
     def get_handle_data(self):
-        raise NotImplementedError()
-
-    def get_analyze(self):
         raise NotImplementedError()
