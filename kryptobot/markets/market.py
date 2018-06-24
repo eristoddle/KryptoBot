@@ -6,8 +6,8 @@ from . import market_watcher
 import ccxt
 # TODO: Replace when updated
 # Has been updated but need to test
-from ..ccxt_shim.cryptopia import cryptopia
-ccxt.cryptopia = cryptopia
+# from ..ccxt_shim.cryptopia import cryptopia
+# ccxt.cryptopia = cryptopia
 
 
 logger = logging.getLogger(__name__)

@@ -32,10 +32,6 @@ from logbook import Logger
 from pytz import UTC
 from six import itervalues
 import ccxt
-# TODO: Replace when updated
-# Has been updated, but has id number in place of symbol and breaks things
-# from ...ccxt_shim.cryptopia import cryptopia
-# ccxt.cryptopia = cryptopia
 import time
 
 log = Logger('exchange_bundle', level=LOG_LEVEL)

@@ -542,6 +542,7 @@ class CCXT(Exchange):
         symbol_map = self._fetch_symbol_map(is_local)
         if symbol_map is not None:
             # NOTE: Breaks here with cryptopia because key is int
+            # This still may not work, search file for lower
             # assets_lower = {k.lower(): v for k, v in symbol_map.items()}
             assets_lower = {}
             for k, v in symbol_map.items():
