@@ -13,21 +13,21 @@ log = Logger()
 
 class SimpleMovingAverage(BaseStrategy):
 
-    def __init__(self, default, extra):
-        super.__init__(default, extra)
+    def __init__(self, default, custom):
+        super().__init__(default, custom)
 
     def get_initialize(self):
         def initialize(context):
             context.i = 0
-            context.asset = self.asset
+            context.asset = symbol(self.default['pair'])
             context.base_price = None
 
         return initialize
 
     def get_handle_data(self):
         def handle_data(context, data):
-            short_window = self.extra['long_window']
-            long_window = self.extra['short_window']
+            short_window = self.custom['long_window']
+            long_window = self.custom['short_window']
 
             # Skip as many bars as long_window to properly compute the average
             context.i += 1

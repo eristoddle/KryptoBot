@@ -14,13 +14,14 @@ class Manager(Core):
 
     def __init__(self, config=None):
         super().__init__(config)
-        if 'portfolio' in self.config and 'name' in self.config['portfolio']:
-            self._session = self.session()
-            self.portfolio_name = self.config['portfolio']['name']
-            self.portfolio = self.add_record(
-                Portfolio,
-                name=self.portfolio_name
-            )
+        if 'portfolio' not in self.config:
+            self.config['portfolio']['name'] = 'default'
+        self._session = self.session()
+        self.portfolio_name = self.config['portfolio']['name']
+        self.portfolio = self.add_record(
+            Portfolio,
+            name=self.portfolio_name
+        )
 
     def __del__(self):
         self._session.close()
@@ -52,7 +53,7 @@ class Manager(Core):
             strategy = self.add_record(
                 Strategy,
                 porfolio_id=self.portfolio.id,
-                type='titan',
+                type=params['type'],
                 class_name=params['strategy'],
                 params=params,
                 status='active'
@@ -61,7 +62,7 @@ class Manager(Core):
         params['config'] = self.config
         if params['type'] == 'core':
             schedule_core_strategy.delay(params)
-        if params['type'] == 'catalyst':
+        elif params['type'] == 'catalyst':
             schedule_catalyst_strategy.delay(params)
         else:
             schedule_strategy.delay(params)
