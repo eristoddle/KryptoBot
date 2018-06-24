@@ -28,15 +28,14 @@ from catalyst.exchange.utils.exchange_utils import get_exchange_folder, \
     save_exchange_symbols, mixin_market_params, get_catalyst_symbol
 from catalyst.utils.cli import maybe_show_progress
 from catalyst.utils.paths import ensure_directory, data_root
-from catalyst.exchange.utils.exchange_utils import get_exchange_bundles_folder
 from logbook import Logger
 from pytz import UTC
 from six import itervalues
 import ccxt
 # TODO: Replace when updated
 # Has been updated, but has id number in place of symbol and breaks things
-from ...ccxt_shim.cryptopia import cryptopia
-ccxt.cryptopia = cryptopia
+# from ...ccxt_shim.cryptopia import cryptopia
+# ccxt.cryptopia = cryptopia
 import time
 
 log = Logger('exchange_bundle', level=LOG_LEVEL)
@@ -679,7 +678,7 @@ class ExchangeBundle:
 
         if self.exchange is None:
             # Avoid circular dependencies
-            from catalyst.exchange.utils.factory import get_exchange
+            from .factory import get_exchange
             self.exchange = get_exchange(self.exchange_name)
 
         problems = []
@@ -717,6 +716,8 @@ class ExchangeBundle:
             market = self.exchange.get_market(symbol)
             if market is None:
                 raise ValueError('symbol not available in the exchange.')
+
+            print('market', market)
 
             params = dict(
                 exchange=self.exchange.name,
@@ -832,6 +833,7 @@ class ExchangeBundle:
                     )
                 else:
                     csv = cached_data
+                # csv = '/root/.catalyst/data/csv/cryptopia-minute.csv'
                 self.ingest_csv(csv, data_frequency)
                 self.store_ohlcv_data(csv)
             else:
@@ -840,7 +842,7 @@ class ExchangeBundle:
         else:
             if self.exchange is None:
                 # Avoid circular dependencies
-                from catalyst.exchange.utils.factory import get_exchange
+                from .factory import get_exchange
                 self.exchange = get_exchange(self.exchange_name)
 
             assets = get_assets(
@@ -1141,7 +1143,7 @@ class ExchangeBundle:
         return raw
 
     def create_csv_from_ccxt(self, data_frequency, include_symbols=None, exclude_symbols=None, start=None, end=None):
-        from catalyst.exchange.utils.factory import get_exchange
+        from .factory import get_exchange
         self.exchange = get_exchange(self.exchange_name)
         self.ccxt_exchange = getattr(ccxt, self.exchange_name)()
         raw = None
