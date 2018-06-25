@@ -7,6 +7,7 @@ app.conf.update(
        'kryptobot.workers.strategy.tasks',
        'kryptobot.workers.core.tasks',
        'kryptobot.workers.t2.tasks',
+       'kryptobot.workers.tasks'
        ],
 )
 
