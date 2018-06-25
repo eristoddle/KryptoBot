@@ -20,11 +20,17 @@ def dynamic_import(abs_module_path, class_name):
 
 @worker_ready.connect
 def load_open_strategies(sender, **kwargs):
-    session = core.session()
-    for job in session.query(Strategy).filter(Strategy.status == 'active'):
-        print('job', job.class_name)
-        # schedule_t2_strategy(job.params)
-    session.close()
+    # This works, just not in use yet
+    # session = core.session()
+    # for job in session.query(Strategy).filter(Strategy.status == 'active'):
+    #     job.params['config'] = core.config
+    #     schedule_t2_strategy.apply_async(
+    #         None,
+    #         {'params': job.params},
+    #         task_id=job.celery_id
+    #     )
+    # session.close()
+    pass
 
 
 @app.task(base=BaseTask)
