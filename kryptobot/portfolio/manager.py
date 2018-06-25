@@ -1,3 +1,4 @@
+from celery import uuid
 from ..core import Core
 from ..db.models import Portfolio, Strategy, Harvester
 from ..db.utils import get_or_create
@@ -27,6 +28,7 @@ class Manager(Core):
     def __del__(self):
         self._session.close()
 
+    # TODO: This should not check celery_id for uniqueness
     def add_record(self, model, **kwargs):
         return get_or_create(
             self._session,
@@ -35,6 +37,7 @@ class Manager(Core):
         )
 
     def run_harvester(self, params):
+        task_id = uuid()
         if self.portfolio is not None:
             params['portfolio_id'] = self.portfolio.id
             harvester = self.add_record(
@@ -42,13 +45,19 @@ class Manager(Core):
                 porfolio_id=self.portfolio.id,
                 class_name=params['harvester'],
                 params=params,
-                status='active'
+                status='active',
+                celery_id=task_id
             )
             params['harvester_id'] = harvester.id
         params['config'] = self.config
-        schedule_harvester.delay(params)
+        schedule_harvester.apply_async(
+            None,
+            {'params': params},
+            task_id=task_id
+        )
 
     def run_strategy(self, params):
+        task_id = uuid()
         if self.portfolio is not None:
             params['portfolio_id'] = self.portfolio.id
             strategy = self.add_record(
@@ -57,15 +66,32 @@ class Manager(Core):
                 type=params['type'],
                 class_name=params['strategy'],
                 params=params,
-                status='active'
+                status='active',
+                celery_id=task_id
             )
             params['strategy_id'] = strategy.id
         params['config'] = self.config
         if params['type'] == 'core':
-            schedule_core_strategy.delay(params)
+            schedule_core_strategy.apply_async(
+                None,
+                {'params': params},
+                task_id=task_id
+            )
         elif params['type'] == 'catalyst':
-            schedule_catalyst_strategy.delay(params)
+            schedule_catalyst_strategy.apply_async(
+                None,
+                {'params': params},
+                task_id=task_id
+            )
         elif params['type'] == 't2':
-            schedule_t2_strategy.delay(params)
+            schedule_t2_strategy.apply_async(
+                None,
+                {'params': params},
+                task_id=task_id
+            )
         else:
-            schedule_strategy.delay(params)
+            schedule_strategy.apply_async(
+                None,
+                {'params': params},
+                task_id=task_id
+            )

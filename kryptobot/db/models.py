@@ -60,6 +60,7 @@ class Strategy(Base):
     class_name = Column('class_name', String)
     params = Column('params', JsonValue)
     status = Column('status', String)
+    celery_id = Column('celery_id', String)
 
 
 class Harvester(Base):
@@ -70,6 +71,7 @@ class Harvester(Base):
     class_name = Column('class_name', String)
     params = Column('params', JsonValue)
     status = Column('status', String)
+    celery_id = Column('celery_id', String)
 
 
 class Portfolio(Base):
