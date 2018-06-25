@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, Numeric, String, Float, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects.postgresql import UUID
 import datetime
-from .utils import JsonValue
+from .utils import JsonValue, generate_uuid
 
 Base = declarative_base()
 
@@ -60,7 +61,7 @@ class Strategy(Base):
     class_name = Column('class_name', String)
     params = Column('params', JsonValue)
     status = Column('status', String)
-    celery_id = Column('celery_id', String)
+    celery_id = Column('celery_id', UUID, unique=True, nullable=False, default=generate_uuid)
 
 
 class Harvester(Base):
@@ -71,7 +72,7 @@ class Harvester(Base):
     class_name = Column('class_name', String)
     params = Column('params', JsonValue)
     status = Column('status', String)
-    celery_id = Column('celery_id', String)
+    celery_id = Column('celery_id', UUID, unique=True, nullable=False, default=generate_uuid)
 
 
 class Portfolio(Base):

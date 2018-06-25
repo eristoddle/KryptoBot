@@ -1,4 +1,4 @@
-from celery import uuid
+# from celery import uuid
 from ..core import Core
 from ..db.models import Portfolio, Strategy, Harvester
 from ..db.utils import get_or_create
@@ -6,7 +6,7 @@ from ..workers.strategy.tasks import schedule_strategy
 from ..workers.harvester.tasks import schedule_harvester
 from ..workers.catalyst.tasks import schedule_catalyst_strategy
 from ..workers.core.tasks import schedule_core_strategy
-from ..workers.t2.tasks import schedule_t2_strategy
+from ..workers.t2.tasks import schedule_t2_strategy, stop_strategy
 
 
 class Manager(Core):
@@ -28,16 +28,15 @@ class Manager(Core):
     def __del__(self):
         self._session.close()
 
-    # TODO: This should not check celery_id for uniqueness
     def add_record(self, model, **kwargs):
         return get_or_create(
             self._session,
             model,
+            {},
             **kwargs
         )
 
     def run_harvester(self, params):
-        task_id = uuid()
         if self.portfolio is not None:
             params['portfolio_id'] = self.portfolio.id
             harvester = self.add_record(
@@ -45,19 +44,17 @@ class Manager(Core):
                 porfolio_id=self.portfolio.id,
                 class_name=params['harvester'],
                 params=params,
-                status='active',
-                celery_id=task_id
+                status='active'
             )
             params['harvester_id'] = harvester.id
         params['config'] = self.config
         schedule_harvester.apply_async(
             None,
             {'params': params},
-            task_id=task_id
+            task_id=harvester.celery_id
         )
 
     def run_strategy(self, params):
-        task_id = uuid()
         if self.portfolio is not None:
             params['portfolio_id'] = self.portfolio.id
             strategy = self.add_record(
@@ -66,8 +63,7 @@ class Manager(Core):
                 type=params['type'],
                 class_name=params['strategy'],
                 params=params,
-                status='active',
-                celery_id=task_id
+                status='active'
             )
             params['strategy_id'] = strategy.id
         params['config'] = self.config
@@ -75,23 +71,26 @@ class Manager(Core):
             schedule_core_strategy.apply_async(
                 None,
                 {'params': params},
-                task_id=task_id
+                task_id=strategy.celery_id
             )
         elif params['type'] == 'catalyst':
             schedule_catalyst_strategy.apply_async(
                 None,
                 {'params': params},
-                task_id=task_id
+                task_id=strategy.celery_id
             )
         elif params['type'] == 't2':
             schedule_t2_strategy.apply_async(
                 None,
                 {'params': params},
-                task_id=task_id
+                task_id=strategy.celery_id
             )
         else:
             schedule_strategy.apply_async(
                 None,
                 {'params': params},
-                task_id=task_id
+                task_id=strategy.celery_id
             )
+
+    def stop_strategy(self, celery_id):
+        stop_strategy.delay(celery_id)

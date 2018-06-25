@@ -38,3 +38,8 @@ def schedule_t2_strategy(params):
         config=params['config']
     )
     return bot.start()
+
+
+@app.task(base=BaseTask)
+def stop_strategy(id):
+    app.control.revoke(id)

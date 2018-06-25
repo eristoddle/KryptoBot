@@ -19,7 +19,7 @@ def generate_uuid():
     return str(uuid.uuid4())
 
 
-def get_or_create(session, model, **kwargs):
+def get_or_create(session, model, defaults=None, **kwargs):
     try:
         query = session.query(model).filter_by(**kwargs)
         instance = query.first()
@@ -30,6 +30,7 @@ def get_or_create(session, model, **kwargs):
         else:
             try:
                 params = dict((k, v) for k, v in kwargs.items() if not isinstance(v, ClauseElement))
+                params.update(defaults)
                 instance = model(**params)
                 session.add(instance)
                 session.commit()
