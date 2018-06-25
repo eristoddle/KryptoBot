@@ -36,7 +36,6 @@ class BaseStrategy:
      A strategy inheriting from this class is an algorithm running on a specific exchange on a single trading pair
      """
     def __init__(self, default, limits, portfolio_id=None, strategy_id=None):
-    # def __init__(self, interval, exchange, base_currency, quote_currency, is_simulated, simulated_quote_balance=0, portfolio_id=None, strategy_id=None):
         self.market = None
         self.portfolio_id = portfolio_id
         self.__thread = Thread(target=self.__run)
