@@ -63,7 +63,12 @@ setuptools.setup(
           'pandas',
           'ta-lib',
           'matplotlib',
-          'mpl-finance'
+          'mpl-finance',
+          'structlog',
+          'telegram',
+          'tenacity',
+          'slackweb',
+          'webcord'
     ],
     entry_points={
         'console_scripts': [
