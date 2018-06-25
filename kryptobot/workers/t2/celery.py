@@ -2,7 +2,7 @@ from ..app import app
 
 
 app.conf.update(
-    include=['kryptobot.workers.market.tasks'],
+    include=['kryptobot.workers.catalyst.tasks'],
 )
 
 if __name__ == '__main__':

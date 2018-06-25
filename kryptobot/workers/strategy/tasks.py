@@ -1,4 +1,3 @@
-# import imp
 from .celery import app
 from ...bots.bot import Bot
 from ...strategies.poc_strategy import PocStrategy

@@ -5,6 +5,7 @@ from ..workers.strategy.tasks import schedule_strategy
 from ..workers.harvester.tasks import schedule_harvester
 from ..workers.catalyst.tasks import schedule_catalyst_strategy
 from ..workers.core.tasks import schedule_core_strategy
+from ..workers.t2.tasks import schedule_t2_strategy
 
 
 class Manager(Core):
@@ -64,5 +65,7 @@ class Manager(Core):
             schedule_core_strategy.delay(params)
         elif params['type'] == 'catalyst':
             schedule_catalyst_strategy.delay(params)
+        elif params['type'] == 't2':
+            schedule_t2_strategy.delay(params)
         else:
             schedule_strategy.delay(params)
