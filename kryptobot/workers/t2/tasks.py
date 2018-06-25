@@ -1,8 +1,10 @@
+from celery.signals import worker_ready
 from .celery import app
+from ..config import core
 from ...bots.bot import Bot
 from ..base_task import BaseTask
+from ...db.models import Strategy
 import importlib
-from pathlib import Path
 
 
 def title_case(snake_str):
@@ -16,19 +18,28 @@ def dynamic_import(abs_module_path, class_name):
     return target_class
 
 
-@app.on_after_configure.connect
+@worker_ready.connect
 def load_open_strategies(sender, **kwargs):
-    return 'load_open_strategies not implemented yet'
+    session = core.session()
+    for job in session.query(Strategy).filter(Strategy.status == 'active'):
+        print('job', job.class_name)
+        # schedule_t2_strategy(job.params)
+    session.close()
 
 
 @app.task(base=BaseTask)
 def schedule_t2_strategy(params):
-    Strategy = dynamic_import(
+    Strat = dynamic_import(
         'kryptobot.strategies.t2.' + params['strategy'],
         title_case(params['strategy'])
     )
     bot = Bot(
-        Strategy(params['default'], params['limits'], params['custom'], params['portfolio']),
+        Strat(params['default'], params['limits'], params['custom'], params['portfolio']),
         config=params['config']
     )
     return bot.start()
+
+
+@app.task(base=BaseTask)
+def stop_task(id):
+    app.control.revoke(id)

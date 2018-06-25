@@ -13,8 +13,8 @@ class DualSimpleMovingAverage(PortfolioBase):
         self.buy_signal = sma_crossover_signal.SmaCrossoverSignal(
             self.market,
             self.interval,
-            custom['long_window'],
             custom['short_window'],
+            custom['long_window'],
             self
         )
 
@@ -23,4 +23,4 @@ class DualSimpleMovingAverage(PortfolioBase):
         if self.get_open_position_count() >= self.position_limit:
             pass
         elif buy_condition:
-            self.long(self.order_quantity, self.fixed_stoploss_percent, self.trailing_stoploss_percent, self.profit_target_percent)
+            self.long(self.order_quantity, self.fixed_stoploss_percentage, self.trailing_stoploss_percentage, self.profit_target_percentage)
