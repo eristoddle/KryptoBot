@@ -2,8 +2,9 @@ from .base_strategy import BaseStrategy
 
 class PortfolioBase(BaseStrategy):
 
-    def __init__(self, default, limits, portfolio_id=None, strategy_id=None):
+    def __init__(self, default, limits, portfolio, portfolio_id=None, strategy_id=None):
         super().__init__(default, limits, portfolio_id, strategy_id)
+        self.name = portfolio['name']
 
     def process_limits(self, limits):
         self.capital_base = limits['capital_base']

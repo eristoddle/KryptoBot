@@ -8,8 +8,8 @@ class DualSimpleMovingAverage(PortfolioBase):
     If the condition returns true, the strategy will open a long position it does not have up to (position_limit) opened
     Each position opened will automatically sell itself off when its price (profit_target_percent*buy price) is met
     """
-    def __init__(self, default, limits, custom, portfolio_id=None, strategy_id=None):
-        super().__init__(default, limits, portfolio_id, strategy_id)
+    def __init__(self, default, limits, custom, portfolio, portfolio_id=None, strategy_id=None):
+        super().__init__(default, limits, portfolio, portfolio_id, strategy_id)
         self.buy_signal = sma_crossover_signal.SmaCrossoverSignal(
             self.market,
             self.interval,

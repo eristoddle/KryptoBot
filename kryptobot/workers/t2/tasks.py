@@ -2,7 +2,6 @@ from .celery import app
 from ...bots.bot import Bot
 from ..base_task import BaseTask
 import importlib
-# from celery import chain
 from pathlib import Path
 
 
@@ -29,7 +28,7 @@ def schedule_t2_strategy(params):
         title_case(params['strategy'])
     )
     bot = Bot(
-        Strategy(params['default'], params['limits'], params['custom']), 
+        Strategy(params['default'], params['limits'], params['custom'], params['portfolio']),
         config=params['config']
     )
     return bot.start()
