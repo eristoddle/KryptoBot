@@ -1,6 +1,8 @@
 # from celery import uuid
+import pandas as pd
+import datetime
 from ..core import Core
-from ..db.models import Portfolio, Strategy, Harvester
+from ..db.models import Portfolio, Strategy, Harvester, Result, Backtest
 from ..db.utils import get_or_create
 from ..workers.strategy.tasks import schedule_strategy
 from ..workers.harvester.tasks import schedule_harvester
@@ -94,3 +96,19 @@ class Manager(Core):
 
     def stop_strategy(self, celery_id):
         stop_strategy.delay(celery_id)
+
+    def get_results(self, run_key, simulated=True):
+        if simulated:
+            Model = Backtest
+        else:
+            Model = Result
+        results = self._session.query(Model).filter(Model.run_key == run_key).all()
+        final = []
+        for r in results:
+            r.data['timestamp'] = self.convert_timestamp_to_date(r.data['timestamp'])
+            final.append(r.data)
+        return pd.DataFrame(final)
+
+    def convert_timestamp_to_date(self, timestamp):
+        value = datetime.datetime.fromtimestamp(float(str(timestamp)[:-3]))
+        return value.strftime('%Y-%m-%d %H:%M:%S')
