@@ -1,7 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.expression import ClauseElement
 from sqlalchemy import TypeDecorator, String
-import json
+import simplejson as json
 import uuid
 
 

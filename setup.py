@@ -68,7 +68,8 @@ setuptools.setup(
           'telegram',
           'tenacity',
           'slackweb',
-          'webcord'
+          'webcord',
+          'simplejson'
     ],
     entry_points={
         'console_scripts': [

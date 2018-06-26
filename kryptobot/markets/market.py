@@ -23,6 +23,7 @@ class Market:
     def __init__(self, exchange, base_currency, quote_currency, strategy):
         self.exchange_name = exchange
         exchange = getattr(ccxt, exchange)
+        self.base_balance = None
         self.strategy = strategy
         self.api_key = None
         self.secret_key = None

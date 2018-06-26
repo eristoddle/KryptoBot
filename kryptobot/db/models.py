@@ -6,8 +6,6 @@ from .utils import JsonValue, generate_uuid
 
 Base = declarative_base()
 
-# TODO: Create json function to process params for strategies and harvesters
-
 
 class Ohlcv(Base):
     __tablename__ = 'ohlcv'
@@ -80,3 +78,23 @@ class Portfolio(Base):
 
     id = Column('id', Integer, primary_key=True)
     name = Column('name', String)
+
+
+class Result(Base):
+    __tablename__ = 'results'
+
+    id = Column('id', Integer, primary_key=True)
+    strategy_id = Column('strategy_id', Integer, ForeignKey('strategies.id'))
+    run_key = Column('run_key', UUID, nullable=False)
+    timestamp = Column('timestamp', String, default=datetime.datetime.utcnow)
+    data = Column('data', JsonValue)
+
+
+class Backtest(Base):
+    __tablename__ = 'backtest'
+
+    id = Column('id', Integer, primary_key=True)
+    strategy_id = Column('strategy_id', Integer, ForeignKey('strategies.id'))
+    run_key = Column('run_key', UUID, nullable=False)
+    timestamp = Column('timestamp', String, default=datetime.datetime.utcnow)
+    data = Column('data', JsonValue)

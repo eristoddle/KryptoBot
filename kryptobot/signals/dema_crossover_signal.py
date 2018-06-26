@@ -14,11 +14,11 @@ class DEMACrossoverSignal(BaseSignalGenerator):
 
     def check_condition(self, new_candle):
         """will run every time a new candle is pulled"""
-        self.strategy.print_message("GETTING DEMA CROSSOVER SIGNAL")
+        self.strategy.add_message("GETTING DEMA CROSSOVER SIGNAL")
         if (self.sma.value is not None) & (self.fma.value is not None):
-            self.strategy.print_message("SMA: " + str(self.sma.value))
-            self.strategy.print_message("FMA: " + str(self.fma.value))
+            self.strategy.add_message("SMA: " + str(self.sma.value))
+            self.strategy.add_message("FMA: " + str(self.fma.value))
             if (self.fma.value - self.sma.value) > self.threshold:
-                self.strategy.print_message("Currently in up-trend. Buy signal TRUE")
+                self.strategy.add_message("Currently in up-trend. Buy signal TRUE")
                 return True
         return False
