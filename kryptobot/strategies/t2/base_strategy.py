@@ -46,19 +46,22 @@ class BaseStrategy:
         self.is_simulated = default['is_simulated']
         self.name = None
         self.process_limits(limits)
+        self.exchange = default['exchange']
+        self.base_currency = default['base_currency']
+        self.quote_currency = default['quote_currency']
         if self.is_simulated:
             self.market = market_simulator.MarketSimulator(
-                default['exchange'],
-                default['base_currency'],
-                default['quote_currency'],
+                self.exchange,
+                self.base_currency ,
+                self.quote_currency,
                 self.capital_base,
                 self
             )
         else:
             self.market = market.Market(
-                default['exchange'],
-                default['base_currency'],
-                default['quote_currency'],
+                self.exchange,
+                self.base_currency ,
+                self.quote_currency,
                 self
             )
         strategies.append(self)

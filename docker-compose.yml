@@ -62,17 +62,17 @@ services:
     #     networks:
     #         - cryptobox
 
-    # all_workers:
-    #     build: ./kryptobot/workers
-    #     command: bash -c "pip install -e . && celery -A kryptobot.workers worker -l info"
-    #     # Can't get Procfile to work
-    #     # command: honcho start
-    #     working_dir: /usr/src/app
-    #     volumes:
-    #         # - app:/usr/src/app
-    #         - ./:/usr/src/app
-    #     networks:
-    #         - cryptobox
+    all_workers:
+        build: ./kryptobot/workers
+        command: bash -c "pip install -e . && celery -A kryptobot.workers worker -l info"
+        # Can't get Procfile to work
+        # command: honcho start
+        working_dir: /usr/src/app
+        volumes:
+            # - app:/usr/src/app
+            - ./:/usr/src/app
+        networks:
+            - cryptobox
 
     # flower:
     #     build: ./kryptobot/workers

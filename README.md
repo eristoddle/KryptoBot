@@ -66,15 +66,19 @@ bot.start()
 
 Install Docker.
 
-Run `docker-compose up`
-
-Browse to http://0.0.0.0:8888/lab and use the token given in the docker console.
-
-See the notebooks folder for more examples of code. I have been committing my lab work to make up for the sparsity of docs.
+- Run `docker-compose up` to bring up the network with these images
+    - jupyter
+    - redis
+    - timescale
+    - all workers
+- Go to http://0.0.0.0:8888/lab
 
 ## Install with pip
 
 Right now the project is in flux, which is why it is not listed with pip.
+I also have yet to figure out how to import workers once they are installed with pip.
+So for now the best way to work with it is directly by cloning or forking and cloning
+if you want to contribute.
 
 `pip install git+https://github.com/eristoddle/KryptoBot.git`
 
@@ -88,4 +92,5 @@ in the main directory.
 
 ## More docs to come
 
-I will be writing more docs once there is more functionality
+I will be writing more docs once there is more functionality. For now, I have
+embedded a lot of docs and notes in the Jupyter notebooks in the notebooks folder.
