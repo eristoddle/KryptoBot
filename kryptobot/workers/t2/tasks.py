@@ -40,7 +40,14 @@ def schedule_t2_strategy(params):
         title_case(params['strategy'])
     )
     bot = Bot(
-        Strat(params['default'], params['limits'], params['custom'], params['portfolio']),
+        Strat(
+            params['default'],
+            params['limits'],
+            params['custom'],
+            params['portfolio'],
+            strategy_id=params['strategy_id'],
+            portfolio_id=params['portfolio_id']
+        ),
         config=params['config']
     )
     return bot.start()

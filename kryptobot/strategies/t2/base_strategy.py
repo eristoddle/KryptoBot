@@ -62,10 +62,7 @@ class BaseStrategy:
                 self
             )
         strategies.append(self)
-        if strategy_id is None:
-            self.strategy_id = len(strategies)
-        else:
-            self.strategy_id = strategy_id
+        self.strategy_id = strategy_id
         self.ui_messages = Queue()
         self.ticker = Ticker
 

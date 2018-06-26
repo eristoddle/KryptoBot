@@ -32,7 +32,9 @@ class SmaCrossoverSignal(BaseSignalGenerator):
                 'volume_change': self.vol_change.value,
                 'positions': self.strategy.get_open_position_count(),
                 'quote_balance': self.market.get_wallet_balance(),
-                'base_balance': self.market.base_balance
+                'base_balance': self.market.base_balance,
+                'sell_all_balance': self.market.get_wallet_balance()
+                    + (self.market.base_balance * ((new_candle[2] + new_candle[3])/ 2))
             }, 'db')
             # if we already have a closing high saved, we need to check whether were still crossed over, and if we need to open a trade
             if self.cached_high is not None:
