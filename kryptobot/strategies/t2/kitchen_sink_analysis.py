@@ -1,17 +1,24 @@
 from .portfolio_base import PortfolioBase
-from ...signals.generic_signal import GenericSignal
+# from ...signals.generic_signal import GenericSignal
+from ...signals.test_signal import TestSignal
 
 
 class KitchenSinkAnalysis(PortfolioBase):
 
     def __init__(self, default, limits, custom, portfolio, portfolio_id=None, strategy_id=None):
         super().__init__(default, limits, portfolio, portfolio_id, strategy_id)
-        self.buy_signal = GenericSignal(
+        # self.buy_signal = GenericSignal(
+        #     self.market,
+        #     self.interval,
+        #     custom['lib'],
+        #     custom['indicator'],
+        #     custom['params'],
+        #     self
+        # )
+        self.buy_signal = TestSignal(
             self.market,
             self.interval,
-            custom['lib'],
-            custom['indicator'],
-            custom['params'],
+            custom,
             self
         )
 

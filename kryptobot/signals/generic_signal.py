@@ -2,7 +2,12 @@ from ..signals.base_signal_generator import BaseSignalGenerator
 import importlib
 from talib import abstract
 import numpy as np
-import pandas as pd
+
+# NOTE This is wrong, this is a signal
+# All inicators should be imported and instantiated in a signal
+# So they can be applied to the market
+# And updated with a the stream of candles
+# So just for testing
 
 
 class GenericSignal(BaseSignalGenerator):
@@ -17,11 +22,9 @@ class GenericSignal(BaseSignalGenerator):
                 'pyti.' + indicator,
                 indicator
             )
-            self.data_key = 'data'
             print(self.indicator)
         elif lib == 'talib':
             self.indicator = abstract.Function(indicator)
-            self.data_key = 'real'
         self.params = params
 
     def dynamic_import(self, abs_module_path, class_name):
@@ -30,7 +33,6 @@ class GenericSignal(BaseSignalGenerator):
         return target_class
 
     def get_analysis(self, data):
-        # self.params[self.data_key] = data
         return self.indicator(data, **self.params)
 
     # Inherit and then override this
