@@ -1,6 +1,8 @@
 from ..signals.base_signal_generator import BaseSignalGenerator
 import importlib
 from talib import abstract
+import numpy as np
+import pandas as pd
 
 
 class GenericSignal(BaseSignalGenerator):
@@ -12,12 +14,14 @@ class GenericSignal(BaseSignalGenerator):
         if lib == 'pyti':
             self.indicator_name = indicator
             self.indicator = self.dynamic_import(
-                lib + '.' + indicator,
+                'pyti.' + indicator,
                 indicator
             )
+            self.data_key = 'data'
             print(self.indicator)
         elif lib == 'talib':
             self.indicator = abstract.Function(indicator)
+            self.data_key = 'real'
         self.params = params
 
     def dynamic_import(self, abs_module_path, class_name):
@@ -25,10 +29,21 @@ class GenericSignal(BaseSignalGenerator):
         target_class = getattr(module_object, class_name)
         return target_class
 
+    def get_analysis(self, data):
+        # self.params[self.data_key] = data
+        return self.indicator(data, **self.params)
+
     # Inherit and then override this
     def check_condition(self, new_candle):
-        self.params['data'] = [6, 7, 3, 6, 3, 9, 5]
-        self.analysis = self.indicator(**self.params)
+        # data = np.random.random(100)
+        data = {
+            'open': np.random.random(100),
+            'high': np.random.random(100),
+            'low': np.random.random(100),
+            'close': np.random.random(100),
+            'volume': np.random.random(100)
+        }
+        self.analysis = self.get_analysis(data)
         print(self.analysis)
         self.strategy.add_message({
             'timestamp': new_candle[0],
