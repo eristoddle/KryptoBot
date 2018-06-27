@@ -5,6 +5,7 @@ from .base_indicator import BaseIndicator
 
 class GenericIndicator(BaseIndicator):
 
+    #Sometimes to Inherit all you need to do is have an init that sets this init up
     def __init__(self, market, interval, periods, lib, indicator, params=None):
         super().__init__(market, interval, periods)
         self.indicator_lib = lib
@@ -18,6 +19,7 @@ class GenericIndicator(BaseIndicator):
         elif lib == 'talib':
             self.indicator = abstract.Function(indicator)
         self.params = params
+        # Set this up to be the type you need when inherited
         self.value = None
 
     def dynamic_import(self, abs_module_path, class_name):
@@ -50,7 +52,7 @@ class GenericIndicator(BaseIndicator):
     def get_volume(self):
         return list(c[5] for c in self.data_window)
 
-    # Inherit from and override this
+    # Inherit from and override this if the data is more complex
     def get_analysis(self, data):
         return self.indicator(data, **self.params)
 
