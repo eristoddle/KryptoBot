@@ -12,12 +12,9 @@ class TalibMacd(GenericIndicator):
             'macd',
             params
         )
-        self.value = {}
 
     def get_analysis(self, data):
-        self.value['macd'],
-        self.value['macdSignal'],
-        self.value['macdHist'] = self.indicator(
+        self.value = self.indicator(
             data,
             fastperiod=self.params['fast'],
             slowperiod=self.params['slow'],

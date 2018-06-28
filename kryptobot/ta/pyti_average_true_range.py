@@ -5,7 +5,7 @@ from .generic_indicator import GenericIndicator
 # https://github.com/kylejusticemagnuson/pyti/blob/master/pyti/average_true_range.py
 class PytiAverageTrueRange(GenericIndicator):
 
-    def __init__(self, market, interval, periods, params):
+    def __init__(self, market, interval, periods, params=None):
         super().__init__(
             market,
             interval,
