@@ -10,7 +10,7 @@ class TalibRsi(GenericIndicator):
         super().__init__(market, interval, periods, None, None, params)
 
     def get_analysis(self, data):
-        return RSI(self.prep_talib_data(data), self.params['rsi_period'])
+        return RSI(self.prep_talib_data(data), self.params['rsi_period'])[-1]
 
     def next_calculation(self, candle):
         if self.get_datawindow() is not None:

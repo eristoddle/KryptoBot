@@ -1,4 +1,5 @@
 from .generic_indicator import GenericIndicator
+from pyti.average_true_range import average_true_range as atr
 
 
 # params: period
@@ -6,14 +7,10 @@ from .generic_indicator import GenericIndicator
 class PytiAverageTrueRange(GenericIndicator):
 
     def __init__(self, market, interval, periods, params=None):
-        super().__init__(
-            market,
-            interval,
-            periods,
-            'pyti',
-            'average_true_range',
-            params
-        )
+        super().__init__(market, interval, periods, None, None, params)
+
+    def get_analysis(self, data):
+        return atr(data, self.params['atr_period'])[-1]
 
     def next_calculation(self, candle):
         if self.get_datawindow() is not None:
