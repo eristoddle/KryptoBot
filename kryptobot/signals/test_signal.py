@@ -10,6 +10,10 @@ from ..ta.pyti_chande_momentum_oscillator import PytiChandeMomentumOscillator
 from ..ta.pyti_commodity_channel_index import PytiCommodityChannelIndex
 from ..ta.pyti_detrended_price_oscillator import PytiDetrendedPriceOscillator
 from ..ta.pyti_directional_indicators import PytiDirectionalIndicators
+from ..ta.pyti_double_exponential_moving_average import PytiDema
+from ..ta.pyti_double_smoothed_stochastic import PytiDoubleSmoothedStochastic
+from ..ta.pyti_exponential_moving_average import PytiEma
+from ..ta.pyti_hull_moving_average import PytiHullMovingAverage
 from ..signals.base_signal_generator import BaseSignalGenerator
 
 
@@ -50,6 +54,13 @@ class TestSignal(BaseSignalGenerator):
         self.cci = PytiCommodityChannelIndex(**pyti_params)
         self.dpo = PytiDetrendedPriceOscillator(**pyti_params)
         self.directional = PytiDirectionalIndicators(**pyti_params)
+        # TODO: Not working?
+        self.dema = PytiDema(**pyti_params)
+        # TODO: Not sure of the parameters
+        # self.dss = PytiDoubleSmoothedStochastic(**pyti_params)
+        self.ema = PytiEma(**pyti_params)
+        # TODO: Not working?
+        self.hma = PytiHullMovingAverage(**pyti_params)
 
     def check_condition(self, new_candle):
         self.strategy.add_message("TestSignal")
@@ -65,6 +76,10 @@ class TestSignal(BaseSignalGenerator):
         print('cci', self.cci.value)
         print('dpo', self.dpo.value)
         print('directional', self.directional.value)
+        print('dema', self.dema.value)
+        # print('dss', self.dss.value)
+        print('ema', self.ema.value)
+        print('hma', self.hma.value)
 
         self.strategy.add_message({
             'timestamp': new_candle[0],
@@ -91,6 +106,10 @@ class TestSignal(BaseSignalGenerator):
             'cci': self.cci.value,
             'dpo': self.dpo.value,
             'directional': self.directional.value,
+            'dema': self.dema.value,
+            # 'dss': self.dss.value,
+            'ema': self.ema.value,
+            'hma': self.hma.value,
         }, 'db')
 
         return False
