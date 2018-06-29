@@ -11,9 +11,21 @@ from ..ta.pyti_commodity_channel_index import PytiCommodityChannelIndex
 from ..ta.pyti_detrended_price_oscillator import PytiDetrendedPriceOscillator
 from ..ta.pyti_directional_indicators import PytiDirectionalIndicators
 from ..ta.pyti_double_exponential_moving_average import PytiDema
-from ..ta.pyti_double_smoothed_stochastic import PytiDoubleSmoothedStochastic
+# from ..ta.pyti_double_smoothed_stochastic import PytiDoubleSmoothedStochastic
 from ..ta.pyti_exponential_moving_average import PytiEma
 from ..ta.pyti_hull_moving_average import PytiHullMovingAverage
+# TODO: Special case with multiple periods
+# from ..ta.pyti_ichimoku_cloud import PytiIchimokuCloud
+# TODO: Special case with multiple periods
+# from ..ta.pyti_keltner_bands import PytiIKeitnerBands
+from ..ta.pyti_linear_weighted_moving_average import PytiLwma
+from ..ta.pyti_momentum import PytiMomentum
+from ..ta.pyti_money_flow import PytiMoneyFlow
+from ..ta.pyti_money_flow_index import PytiMoneyFlowIndex
+# TODO: Special case with multiple periods
+# from ..ta.pyti_moving_average_convergence_divergence import PytiMacd
+# TODO: pyti lib won't import?
+# from ..ta.pyti_moving_average_envelope import PytiMovingAverageEnvelope
 from ..signals.base_signal_generator import BaseSignalGenerator
 
 
@@ -61,6 +73,12 @@ class TestSignal(BaseSignalGenerator):
         self.ema = PytiEma(**pyti_params)
         # TODO: Not working?
         self.hma = PytiHullMovingAverage(**pyti_params)
+        self.lwma = PytiLwma(**pyti_params)
+        self.momentum = PytiMomentum(**pyti_params)
+        self.mf = PytiMoneyFlow(**pyti_params)
+        # TODO: Not working?
+        self.mfi = PytiMoneyFlowIndex(**pyti_params)
+        # self.mae = PytiMovingAverageEnvelope(**pyti_params)
 
     def check_condition(self, new_candle):
         self.strategy.add_message("TestSignal")
@@ -80,6 +98,11 @@ class TestSignal(BaseSignalGenerator):
         # print('dss', self.dss.value)
         print('ema', self.ema.value)
         print('hma', self.hma.value)
+        print('lwma', self.lwma.value)
+        print('momentum', self.momentum.value)
+        print('mf', self.mf.value)
+        print('mfi', self.mfi.value)
+        print('mae', self.mae.value)
 
         self.strategy.add_message({
             'timestamp': new_candle[0],
@@ -110,6 +133,11 @@ class TestSignal(BaseSignalGenerator):
             # 'dss': self.dss.value,
             'ema': self.ema.value,
             'hma': self.hma.value,
+            'lwma': self.lwma.value,
+            'momentum': self.momentum.value,
+            'mf': self.mf.value,
+            'mfi': self.mfi.value,
+            # 'mae': self.mae.value,
         }, 'db')
 
         return False
