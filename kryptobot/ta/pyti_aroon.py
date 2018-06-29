@@ -11,8 +11,8 @@ class PytiAroon(GenericIndicator):
 
     def get_analysis(self, data):
         if self.params['aroon_direction'] == 'up':
-            return aroon_up(data, self.params['aroon_period'])[-1]
-        return aroon_down(data, self.params['aroon_period'])[-1]
+            return aroon_up(data, self.params['period'])[-1]
+        return aroon_down(data, self.params['period'])[-1]
 
     def next_calculation(self, candle):
         if self.get_datawindow() is not None:

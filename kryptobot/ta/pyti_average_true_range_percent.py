@@ -1,16 +1,16 @@
 from .generic_indicator import GenericIndicator
-from pyti.relative_strength_index import relative_strength_index as rsi
+from pyti.average_true_range_percent import average_true_range_percent as atrp
 
 
 # params: period
-# https://github.com/kylejusticemagnuson/pyti/blob/master/pyti/relative_strength_index.py
-class PytiRsi(GenericIndicator):
+# https://github.com/kylejusticemagnuson/pyti/blob/master/pyti/average_true_range_percent.py
+class PytiAverageTrueRangePercent(GenericIndicator):
 
     def __init__(self, market, interval, periods, params=None):
         super().__init__(market, interval, periods, None, None, params)
 
     def get_analysis(self, data):
-        return rsi(data, self.params['period'])[-1]
+        return atrp(data, self.params['period'])[-1]
 
     def next_calculation(self, candle):
         if self.get_datawindow() is not None:

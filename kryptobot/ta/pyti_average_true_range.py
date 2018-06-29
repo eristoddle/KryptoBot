@@ -10,7 +10,7 @@ class PytiAverageTrueRange(GenericIndicator):
         super().__init__(market, interval, periods, None, None, params)
 
     def get_analysis(self, data):
-        return atr(data, self.params['atr_period'])[-1]
+        return atr(data, self.params['period'])[-1]
 
     def next_calculation(self, candle):
         if self.get_datawindow() is not None:
