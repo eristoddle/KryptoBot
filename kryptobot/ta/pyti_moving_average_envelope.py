@@ -1,5 +1,5 @@
 from .generic_indicator import GenericIndicator
-from pyti.moving_average_envelope import moving_average_envelope as indicator
+from pyti import moving_average_envelope as indicator
 
 
 # params: period env_percentage
@@ -16,12 +16,12 @@ class PytiMovingAverageEnvelope(GenericIndicator):
                 self.get_close(),
                 self.params['period']
             )[-1]
-            self.value['center'] = indicator.upper_band(
+            self.value['upper'] = indicator.upper_band(
                 self.get_close(),
                 self.params['period'],
                 self.params['env_percentage']
             )[-1]
-            self.value['lower'] = indicator.upper_band(
+            self.value['lower'] = indicator.lower_band(
                 self.get_close(),
                 self.params['period'],
                 self.params['env_percentage']

@@ -1,3 +1,4 @@
+# NOTE: Indicators with more than one period must be a standalone signal
 # from ..ta.talib_rsi import TalibRsi
 from ..ta.pyti_average_true_range import PytiAverageTrueRange
 from ..ta.pyti_average_true_range_percent import PytiAverageTrueRangePercent
@@ -24,8 +25,16 @@ from ..ta.pyti_money_flow import PytiMoneyFlow
 from ..ta.pyti_money_flow_index import PytiMoneyFlowIndex
 # TODO: Special case with multiple periods
 # from ..ta.pyti_moving_average_convergence_divergence import PytiMacd
-# TODO: pyti lib won't import?
-# from ..ta.pyti_moving_average_envelope import PytiMovingAverageEnvelope
+from ..ta.pyti_moving_average_envelope import PytiMovingAverageEnvelope
+from ..ta.pyti_on_balance_volume import PytiOnBalanceVolume
+from ..ta.pyti_price_channels import PytiPriceChannels
+# TODO: Special case with multiple periods
+# from ..ta.pyti_price_oscillator import PytiPriceOscillator
+from ..ta.pyti_rate_of_change import PytiRateOfChange
+from ..ta.pyti_simple_moving_average import PytiSimpleMovingAverage
+from ..ta.pyti_smoothed_moving_average import PytiSmoothedMovingAverage
+from ..ta.pyti_standard_deviation import PytiStandardDeviation
+from ..ta.pyti_standard_variance import PytiStandardVariance
 from ..signals.base_signal_generator import BaseSignalGenerator
 
 
@@ -78,7 +87,14 @@ class TestSignal(BaseSignalGenerator):
         self.mf = PytiMoneyFlow(**pyti_params)
         # TODO: Not working?
         self.mfi = PytiMoneyFlowIndex(**pyti_params)
-        # self.mae = PytiMovingAverageEnvelope(**pyti_params)
+        self.mae = PytiMovingAverageEnvelope(**pyti_params)
+        self.obv = PytiOnBalanceVolume(**pyti_params)
+        self.pc = PytiPriceChannels(**pyti_params)
+        self.roc = PytiRateOfChange(**pyti_params)
+        self.sma = PytiSimpleMovingAverage(**pyti_params)
+        self.smma = PytiSmoothedMovingAverage(**pyti_params)
+        self.sd = PytiStandardDeviation(**pyti_params)
+        self.sv = PytiStandardVariance(**pyti_params)
 
     def check_condition(self, new_candle):
         self.strategy.add_message("TestSignal")
@@ -103,6 +119,13 @@ class TestSignal(BaseSignalGenerator):
         print('mf', self.mf.value)
         print('mfi', self.mfi.value)
         print('mae', self.mae.value)
+        print('obv', self.obv.value)
+        print('pc', self.pc.value)
+        print('roc', self.roc.value)
+        print('sma', self.sma.value)
+        print('smma', self.smma.value)
+        print('sd', self.sd.value)
+        print('sv', self.sv.value)
 
         self.strategy.add_message({
             'timestamp': new_candle[0],
@@ -137,7 +160,14 @@ class TestSignal(BaseSignalGenerator):
             'momentum': self.momentum.value,
             'mf': self.mf.value,
             'mfi': self.mfi.value,
-            # 'mae': self.mae.value,
+            'mae': self.mae.value,
+            'obv': self.obv.value,
+            'pc': self.pc.value,
+            'roc': self.roc.value,
+            'sma': self.sma.value,
+            'smma': self.smma.value,
+            'sd': self.sd.value,
+            'sv': self.sv.value,
         }, 'db')
 
         return False
