@@ -5,7 +5,8 @@ from ..ta.pyti_rsi import PytiRsi
 from ..ta.pyti_accumulation_distribution import PytiAccumulationDistribution
 from ..ta.pyti_aroon import PytiAroon
 from ..ta.pyti_bollinger_bands import PytiBollingerBands
-from ..ta.pyti_chaikin_money_flow import PytiChaikinMoneyFlow
+# TODO: Works but random invalid value encountered in true_divide
+# from ..ta.pyti_chaikin_money_flow import PytiChaikinMoneyFlow
 from ..ta.pyti_chande_momentum_oscillator import PytiChandeMomentumOscillator
 from ..ta.pyti_commodity_channel_index import PytiCommodityChannelIndex
 from ..ta.pyti_detrended_price_oscillator import PytiDetrendedPriceOscillator
@@ -55,6 +56,9 @@ from ..ta.talib_mesa_adaptive_moving_average import TalibMesaAdaptiveMovingAvera
 # TODO: Special case with multiple periods
 # from ..ta.talib_moving_average_variable_period import TalibMovingAverageVariablePeriod
 from ..ta.talib_midpoint import TalibMidpoint
+from ..ta.talib_midprice import TalibMidprice
+from ..ta.talib_sar import TalibSar
+from ..ta.talib_sar_ext import TalibSarExt
 from ..signals.base_signal_generator import BaseSignalGenerator
 
 
@@ -90,7 +94,7 @@ class TestSignal(BaseSignalGenerator):
         self.rsi = PytiRsi(**pyti_params)
         self.ad = PytiAccumulationDistribution(market, interval, None, None)
         self.bb = PytiBollingerBands(**pyti_params)
-        self.chaikin = PytiChaikinMoneyFlow(**pyti_params)
+        # self.chaikin = PytiChaikinMoneyFlow(**pyti_params)
         self.chande = PytiChandeMomentumOscillator(**pyti_params)
         self.cci = PytiCommodityChannelIndex(**pyti_params)
         self.dpo = PytiDetrendedPriceOscillator(**pyti_params)
@@ -141,7 +145,11 @@ class TestSignal(BaseSignalGenerator):
         self.kama = TalibKaufmanAdaptiveMovingAverage(**talib_params)
         # TODO: All nans
         # self.mama = TalibMesaAdaptiveMovingAverage(**talib_params)
-        self.mid = TalibMidpoint(**talib_params)
+        # TODO: Throws halting lambda errors randomly but works
+        # self.mid = TalibMidpoint(**talib_params)
+        self.midprice = TalibMidprice(**talib_params)
+        self.sar = TalibSar(**talib_params)
+        self.sarext = TalibSarExt(**talib_params)
 
     def check_condition(self, new_candle):
         self.strategy.add_message("TestSignal")
@@ -152,7 +160,7 @@ class TestSignal(BaseSignalGenerator):
         print('aroon_up', self.aroon_up.value)
         print('aroon_down', self.aroon_down.value)
         print('bb', self.bb.value)
-        print('chaikin', self.chaikin.value)
+        # print('chaikin', self.chaikin.value)
         print('chande', self.chande.value)
         print('cci', self.cci.value)
         print('dpo', self.dpo.value)
@@ -187,7 +195,10 @@ class TestSignal(BaseSignalGenerator):
         # print('ht', self.ht.value)
         print('kama', self.kama.value)
         # print('mama', self.mama.value)
-        print('mid', self.mid.value)
+        # print('mid', self.mid.value)
+        print('midprice', self.midprice.value)
+        print('sar', self.sar.value)
+        print('sarext', self.sarext.value)
 
         self.strategy.add_message({
             'timestamp': new_candle[0],
@@ -209,7 +220,7 @@ class TestSignal(BaseSignalGenerator):
             'aroon_up': self.aroon_up.value,
             'aroon_down': self.aroon_down.value,
             'bb': self.bb.value,
-            'chaikin': self.chaikin.value,
+            # 'chaikin': self.chaikin.value,
             'chande': self.chande.value,
             'cci': self.cci.value,
             'dpo': self.dpo.value,
@@ -244,7 +255,10 @@ class TestSignal(BaseSignalGenerator):
             # 'ht': self.ht.value,
             'kama': self.kama.value,
             # 'mama': self.mama.value,
-            'mid': self.mid.value,
+            # 'mid': self.mid.value,
+            'midprice': self.midprice.value,
+            'sar': self.sar.value,
+            'sarext': self.sarext.value,
         }, 'db')
 
         return False
