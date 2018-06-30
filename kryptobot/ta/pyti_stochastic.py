@@ -12,12 +12,12 @@ class PytiStochastic(GenericIndicator):
 
     def next_calculation(self, candle):
         if self.get_datawindow() is not None:
-            self.value['percent_k'] = indicator.percent_k(
+            self.value['stochastic_percent_k'] = indicator.percent_k(
                 self.get_close(),
                 self.params['period']
             )[-1]
         if self.get_datawindow() is not None:
-            self.value['percent_d'] = indicator.percent_k(
+            self.value['stochastic_percent_d'] = indicator.percent_k(
                 self.get_close(),
                 self.params['period']
             )[-1]

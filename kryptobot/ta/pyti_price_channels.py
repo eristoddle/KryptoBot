@@ -12,12 +12,12 @@ class PytiPriceChannels(GenericIndicator):
 
     def next_calculation(self, candle):
         if self.get_datawindow() is not None:
-            self.value['upper'] = indicator.upper_price_channel(
+            self.value['price_channel_upper'] = indicator.upper_price_channel(
                 self.get_close(),
                 self.params['period'],
                 self.params['upper_percent'],
             )[-1]
-            self.value['lower'] = indicator.lower_price_channel(
+            self.value['price_channel_lower'] = indicator.lower_price_channel(
                 self.get_close(),
                 self.params['period'],
                 self.params['lower_percent'],

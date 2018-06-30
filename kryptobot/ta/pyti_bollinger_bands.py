@@ -50,10 +50,10 @@ class PytiBollingerBands(GenericIndicator):
     def next_calculation(self, candle):
         if self.get_datawindow() is not None:
             data = self.get_open()
-            self.value['upper'] = self.get_analysis(data, 'upper')[-1]
-            self.value['middle'] = self.get_analysis(data, 'middle')[-1]
-            self.value['lower'] = self.get_analysis(data, 'lower')[-1]
-            self.value['bandwidth'] = self.get_analysis(data, 'bandwidth')[-1]
-            self.value['range'] = self.get_analysis(data, 'range')[-1]
-            self.value['percent_bandwidth'] = self.get_analysis(data, 'percent_bandwidth')[-1]
-            self.value['percent_b'] = self.get_analysis(data, 'percent_b')[-1]
+            self.value['bb_upper'] = self.get_analysis(data, 'upper')[-1]
+            self.value['bb_middle'] = self.get_analysis(data, 'middle')[-1]
+            self.value['bb_lower'] = self.get_analysis(data, 'lower')[-1]
+            self.value['bb_bandwidth'] = self.get_analysis(data, 'bandwidth')[-1]
+            self.value['bb_range'] = self.get_analysis(data, 'range')[-1]
+            self.value['bb_percent_bandwidth'] = self.get_analysis(data, 'percent_bandwidth')[-1]
+            self.value['bb_percent_b'] = self.get_analysis(data, 'percent_b')[-1]

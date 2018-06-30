@@ -1,4 +1,5 @@
 # NOTE: Indicators with more than one period must be a standalone signal
+from ..ta.volume_change_monitor import VolumeChangeMonitor
 from ..ta.pyti_average_true_range import PytiAverageTrueRange
 from ..ta.pyti_average_true_range_percent import PytiAverageTrueRangePercent
 from ..ta.pyti_rsi import PytiRsi
@@ -67,6 +68,7 @@ from ..signals.base_signal_generator import BaseSignalGenerator
 class TestSignal(BaseSignalGenerator):
     def __init__(self, market, interval, params, strategy):
         super().__init__(market, interval, strategy)
+        self.volume_change = VolumeChangeMonitor(market, interval)
         pyti_params = {
             'market': market,
             'interval': interval,
@@ -155,6 +157,7 @@ class TestSignal(BaseSignalGenerator):
 
     def check_condition(self, new_candle):
         self.strategy.add_message("TestSignal")
+        print('volume_change', self.volume_change.value)
         print('rsi', self.rsi.value)
         print('atr', self.atr.value)
         print('atrp', self.atrp.value)
@@ -209,12 +212,13 @@ class TestSignal(BaseSignalGenerator):
             'low': new_candle[3],
             'close': new_candle[4],
             'volume': new_candle[5],
-            'positions': self.strategy.get_open_position_count(),
-            'quote_balance': self.market.get_wallet_balance(),
-            'base_balance': self.market.base_balance,
-            'exit_balance': self.market.get_wallet_balance()
-                    + (self.market.base_balance *
-                    ((new_candle[2] + new_candle[3])/ 2)),
+            # 'positions': self.strategy.get_open_position_count(),
+            # 'quote_balance': self.market.get_wallet_balance(),
+            # 'base_balance': self.market.base_balance,
+            # 'exit_balance': self.market.get_wallet_balance()
+            #         + (self.market.base_balance *
+            #         ((new_candle[2] + new_candle[3])/ 2)),
+            'volume_change': self.volume_change.value,
             'rsi': self.rsi.value,
             'atr': self.atr.value,
             'atrp': self.atrp.value,
