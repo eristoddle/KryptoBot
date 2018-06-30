@@ -29,7 +29,7 @@ class GenericIndicator(BaseIndicator):
         target_class = getattr(module_object, class_name)
         return target_class
 
-    def prep_talib_data(self, data):
+    def talib_data(self, data):
         if isinstance(data, dict):
             talib_data = {}
             for k, v in data:

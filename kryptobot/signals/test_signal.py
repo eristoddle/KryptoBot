@@ -1,5 +1,4 @@
 # NOTE: Indicators with more than one period must be a standalone signal
-# from ..ta.talib_rsi import TalibRsi
 from ..ta.pyti_average_true_range import PytiAverageTrueRange
 from ..ta.pyti_average_true_range_percent import PytiAverageTrueRangePercent
 from ..ta.pyti_rsi import PytiRsi
@@ -45,13 +44,20 @@ from ..ta.pyti_true_range import PytiTrueRange
 from ..ta.pyti_vertical_horizontal_filter import PytiVerticalHorizontalFilter
 from ..ta.pyti_volatility import PytiVolatility
 from ..ta.pyti_volume_adjusted_moving_average import PytiVolumeAdjustedMovingAverage
+from ..ta.pyti_volume_index import PytiVolumeIndex
+# TODO: Special case with multiple periods
+# from ..ta.pyti_volume_oscillator import PytiVolumeOscillator
+from ..ta.pyti_weighted_moving_average import PytiWeightMovingAverage
+from ..ta.pyti_williams_percent_r import PytiWilliamsPercentR
+# from ..ta.talib_hilbert_transform import TalibHilbertTransform
+from ..ta.talib_kaufman_adaptive_moving_average import TalibKaufmanAdaptiveMovingAverage
+from ..ta.talib_mesa_adaptive_moving_average import TalibMesaAdaptiveMovingAverage
 from ..signals.base_signal_generator import BaseSignalGenerator
 
 
 class TestSignal(BaseSignalGenerator):
     def __init__(self, market, interval, params, strategy):
         super().__init__(market, interval, strategy)
-        # self.rsi = TalibRsi(market, interval, params['rsi_period'], params)
         pyti_params = {
             'market': market,
             'interval': interval,
@@ -117,6 +123,21 @@ class TestSignal(BaseSignalGenerator):
         self.vhf = PytiVerticalHorizontalFilter(**pyti_params)
         self.volatility = PytiVolatility(**pyti_params)
         self.vama = PytiVolumeAdjustedMovingAverage(**pyti_params)
+        self.vi = PytiVolumeIndex(**pyti_params)
+        self.wma = PytiWeightMovingAverage(**pyti_params)
+        self.wpr = PytiWilliamsPercentR(**pyti_params)
+        talib_params = {
+            'market': market,
+            'interval': interval,
+            'periods': params['period'],
+            'params': params
+        }
+        # TODO: Float division by zero
+        # self.ht = TalibHilbertTransform(**talib_params)
+        # TODO: All nans
+        self.kama = TalibKaufmanAdaptiveMovingAverage(**talib_params)
+        # TODO: All nans
+        # self.mama = TalibMesaAdaptiveMovingAverage(**talib_params)
 
     def check_condition(self, new_candle):
         self.strategy.add_message("TestSignal")
@@ -156,6 +177,12 @@ class TestSignal(BaseSignalGenerator):
         print('vhf', self.vhf.value)
         print('volatility', self.volatility.value)
         print('vama', self.vama.value)
+        print('vi', self.vi.value)
+        print('wma', self.wma.value)
+        print('wpr', self.wpr.value)
+        # print('ht', self.ht.value)
+        print('kama', self.kama.value)
+        # print('mama', self.mama.value)
 
         self.strategy.add_message({
             'timestamp': new_candle[0],
@@ -206,6 +233,12 @@ class TestSignal(BaseSignalGenerator):
             'vhf': self.vhf.value,
             'volatility': self.volatility.value,
             'vama': self.vama.value,
+            'vi': self.vi.value,
+            'wma': self.wma.value,
+            'wpr': self.wpr.value,
+            # 'ht': self.ht.value,
+            'kama': self.kama.value,
+            # 'mama': self.mama.value,
         }, 'db')
 
         return False
