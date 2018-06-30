@@ -59,6 +59,8 @@ from ..ta.talib_midpoint import TalibMidpoint
 from ..ta.talib_midprice import TalibMidprice
 from ..ta.talib_sar import TalibSar
 from ..ta.talib_sar_ext import TalibSarExt
+# TODO: Special case with multiple periods
+# from ..ta.talib_absolute_price_oscillator import TalibAbsolutePriceOscillator
 from ..signals.base_signal_generator import BaseSignalGenerator
 
 
