@@ -1,4 +1,5 @@
 # NOTE: Indicators with more than one period must be a standalone signal
+import math
 from ..ta.volume_change_monitor import VolumeChangeMonitor
 from ..ta.pyti_average_true_range import PytiAverageTrueRange
 from ..ta.pyti_average_true_range_percent import PytiAverageTrueRangePercent
@@ -231,14 +232,14 @@ class TestSignal(BaseSignalGenerator):
             'cci': self.cci.value,
             'dpo': self.dpo.value,
             'directional': self.directional.value,
-            'dema': self.dema.value,
+            'dema': self.dema.value if math.isnan(self.dema.value) is False else None,
             # 'dss': self.dss.value,
             'ema': self.ema.value,
-            'hma': self.hma.value,
+            'hma': self.hma.value if math.isnan(self.hma.value) is False else None,
             'lwma': self.lwma.value,
             'momentum': self.momentum.value,
             'mf': self.mf.value,
-            'mfi': self.mfi.value,
+            'mfi': self.mfi.value if math.isnan(self.mfi.value) is False else None,
             'mae': self.mae.value,
             'obv': self.obv.value,
             'pc': self.pc.value,
@@ -248,9 +249,9 @@ class TestSignal(BaseSignalGenerator):
             'sd': self.sd.value,
             'sv': self.sv.value,
             'stoch': self.stoch.value,
-            'stochrsi': self.stochrsi.value,
-            'tma': self.tma.value,
-            'tema': self.tema.value,
+            'stochrsi': self.stochrsi.value if math.isnan(self.stochrsi.value) is False else None,
+            'tma': self.tma.value if math.isnan(self.tma.value) is False else None,
+            'tema': self.tema.value if math.isnan(self.tema.value) is False else None,
             'true_range': self.true_range.value,
             'vhf': self.vhf.value,
             'volatility': self.volatility.value,
@@ -259,7 +260,7 @@ class TestSignal(BaseSignalGenerator):
             'wma': self.wma.value,
             'wpr': self.wpr.value,
             # 'ht': self.ht.value,
-            'kama': self.kama.value,
+            'kama': self.kama.value if math.isnan(self.kama.value) is False else None,
             # 'mama': self.mama.value,
             # 'mid': self.mid.value,
             'midprice': self.midprice.value,

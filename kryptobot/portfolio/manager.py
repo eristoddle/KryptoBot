@@ -1,5 +1,7 @@
 # from celery import uuid
 import pandas as pd
+import matplotlib.pyplot as plt
+from mpl_finance import candlestick_ohlc
 import datetime
 from ..core import Core
 from ..db.models import Portfolio, Strategy, Harvester, Result, Backtest
@@ -108,6 +110,31 @@ class Manager(Core):
             r.data['timestamp'] = self.convert_timestamp_to_date(r.data['timestamp'])
             final.append(r.data)
         return pd.DataFrame(final)
+
+    def get_candle_chart(self, run_key, simulated=True):
+        df = self.get_results(run_key, simulated)
+        candles = df[df.columns['timestamp', 'open', 'high', 'low', 'close', 'volume']]
+        return candles
+        # quotes = quotes[(quotes.index >= date1) & (quotes.index <= date2)]
+        #
+        # fig, ax = plt.subplots()
+        # fig.subplots_adjust(bottom=0.2)
+        # ax.xaxis.set_major_locator(mondays)
+        # ax.xaxis.set_minor_locator(alldays)
+        # ax.xaxis.set_major_formatter(weekFormatter)
+        # # ax.xaxis.set_minor_formatter(dayFormatter)
+        #
+        # # plot_day_summary(ax, quotes, ticksize=3)
+        # candlestick_ohlc(ax, zip(mdates.date2num(quotes.index.to_pydatetime()),
+        #                          quotes['Open'], quotes['High'],
+        #                          quotes['Low'], quotes['Close']),
+        #                  width=0.6)
+        #
+        # ax.xaxis_date()
+        # ax.autoscale_view()
+        # plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
+        #
+        # plt.show()
 
     def convert_timestamp_to_date(self, timestamp):
         value = datetime.datetime.fromtimestamp(float(str(timestamp)[:-3]))

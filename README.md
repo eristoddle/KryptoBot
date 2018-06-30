@@ -94,3 +94,9 @@ in the main directory.
 
 I will be writing more docs once there is more functionality. For now, I have
 embedded a lot of docs and notes in the Jupyter notebooks in the notebooks folder.
+
+SEE https://github.com/eristoddle/KryptoBot/blob/master/notebooks/t2_strategies.ipynb
+for the most current docs.
+
+SEE https://github.com/eristoddle/KryptoBot/blob/master/notebooks/TODO.ipynb
+for my progress, bug and future plans.
