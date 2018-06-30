@@ -35,6 +35,11 @@ from ..ta.pyti_simple_moving_average import PytiSimpleMovingAverage
 from ..ta.pyti_smoothed_moving_average import PytiSmoothedMovingAverage
 from ..ta.pyti_standard_deviation import PytiStandardDeviation
 from ..ta.pyti_standard_variance import PytiStandardVariance
+from ..ta.pyti_stochastic import PytiStochastic
+from ..ta.pyti_stochrsi import PytiStochrsi
+from ..ta.pyti_triangular_moving_average import PytiTriangularMovingAverage
+from ..ta.pyti_triple_exponential_moving_average import PytiTripleExponentialMovingAverage
+from ..ta.pyti_true_range import PytiTrueRange
 from ..signals.base_signal_generator import BaseSignalGenerator
 
 
@@ -49,21 +54,23 @@ class TestSignal(BaseSignalGenerator):
             'params': params
         }
         # TODO: Aroon returning both down results
-        aroon_up_params = params
-        aroon_up_params['aroon_direction'] = 'up'
         self.aroon_up = PytiAroon(
             market,
             interval,
             params['period'],
-            aroon_up_params
+            {
+                'aroon_direction': 'up',
+                'period': params['period']
+            }
         )
-        aroon_down_params = params
-        aroon_down_params['aroon_direction'] = 'down'
         self.aroon_down = PytiAroon(
             market,
             interval,
             params['period'],
-            aroon_down_params
+            {
+                'aroon_direction': 'down',
+                'period': params['period']
+            }
         )
         self.atr = PytiAverageTrueRange(**pyti_params)
         self.atrp = PytiAverageTrueRangePercent(**pyti_params)
@@ -95,6 +102,14 @@ class TestSignal(BaseSignalGenerator):
         self.smma = PytiSmoothedMovingAverage(**pyti_params)
         self.sd = PytiStandardDeviation(**pyti_params)
         self.sv = PytiStandardVariance(**pyti_params)
+        self.stoch = PytiStochastic(**pyti_params)
+        #  TODO: All nans?
+        self.stochrsi = PytiStochrsi(**pyti_params)
+        #  TODO: All nans?
+        self.tma = PytiTriangularMovingAverage(**pyti_params)
+        #  TODO: All nans?
+        self.tema = PytiTripleExponentialMovingAverage(**pyti_params)
+        self.true_range = PytiTrueRange(**pyti_params)
 
     def check_condition(self, new_candle):
         self.strategy.add_message("TestSignal")
@@ -126,6 +141,11 @@ class TestSignal(BaseSignalGenerator):
         print('smma', self.smma.value)
         print('sd', self.sd.value)
         print('sv', self.sv.value)
+        print('stoch', self.stoch.value)
+        print('stochrsi', self.stochrsi.value)
+        print('tma', self.tma.value)
+        print('tema', self.tema.value)
+        print('true_range', self.true_range.value)
 
         self.strategy.add_message({
             'timestamp': new_candle[0],
@@ -168,6 +188,11 @@ class TestSignal(BaseSignalGenerator):
             'smma': self.smma.value,
             'sd': self.sd.value,
             'sv': self.sv.value,
+            'stoch': self.stoch.value,
+            'stochrsi': self.stochrsi.value,
+            'tma': self.tma.value,
+            'tema': self.tema.value,
+            'true_range': self.true_range.value,
         }, 'db')
 
         return False
