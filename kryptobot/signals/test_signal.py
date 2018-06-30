@@ -52,6 +52,9 @@ from ..ta.pyti_williams_percent_r import PytiWilliamsPercentR
 # from ..ta.talib_hilbert_transform import TalibHilbertTransform
 from ..ta.talib_kaufman_adaptive_moving_average import TalibKaufmanAdaptiveMovingAverage
 from ..ta.talib_mesa_adaptive_moving_average import TalibMesaAdaptiveMovingAverage
+# TODO: Special case with multiple periods
+# from ..ta.talib_moving_average_variable_period import TalibMovingAverageVariablePeriod
+from ..ta.talib_midpoint import TalibMidpoint
 from ..signals.base_signal_generator import BaseSignalGenerator
 
 
@@ -138,6 +141,7 @@ class TestSignal(BaseSignalGenerator):
         self.kama = TalibKaufmanAdaptiveMovingAverage(**talib_params)
         # TODO: All nans
         # self.mama = TalibMesaAdaptiveMovingAverage(**talib_params)
+        self.mid = TalibMidpoint(**talib_params)
 
     def check_condition(self, new_candle):
         self.strategy.add_message("TestSignal")
@@ -183,6 +187,7 @@ class TestSignal(BaseSignalGenerator):
         # print('ht', self.ht.value)
         print('kama', self.kama.value)
         # print('mama', self.mama.value)
+        print('mid', self.mid.value)
 
         self.strategy.add_message({
             'timestamp': new_candle[0],
@@ -239,6 +244,7 @@ class TestSignal(BaseSignalGenerator):
             # 'ht': self.ht.value,
             'kama': self.kama.value,
             # 'mama': self.mama.value,
+            'mid': self.mid.value,
         }, 'db')
 
         return False
