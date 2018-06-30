@@ -40,6 +40,11 @@ from ..ta.pyti_stochrsi import PytiStochrsi
 from ..ta.pyti_triangular_moving_average import PytiTriangularMovingAverage
 from ..ta.pyti_triple_exponential_moving_average import PytiTripleExponentialMovingAverage
 from ..ta.pyti_true_range import PytiTrueRange
+# TODO: Special case with multiple periods
+# from ..ta.pyti_ultimate_oscillator import PytiUtlimateOscillator
+from ..ta.pyti_vertical_horizontal_filter import PytiVerticalHorizontalFilter
+from ..ta.pyti_volatility import PytiVolatility
+from ..ta.pyti_volume_adjusted_moving_average import PytiVolumeAdjustedMovingAverage
 from ..signals.base_signal_generator import BaseSignalGenerator
 
 
@@ -53,7 +58,6 @@ class TestSignal(BaseSignalGenerator):
             'periods': params['period'],
             'params': params
         }
-        # TODO: Aroon returning both down results
         self.aroon_up = PytiAroon(
             market,
             interval,
@@ -110,6 +114,9 @@ class TestSignal(BaseSignalGenerator):
         #  TODO: All nans?
         self.tema = PytiTripleExponentialMovingAverage(**pyti_params)
         self.true_range = PytiTrueRange(**pyti_params)
+        self.vhf = PytiVerticalHorizontalFilter(**pyti_params)
+        self.volatility = PytiVolatility(**pyti_params)
+        self.vama = PytiVolumeAdjustedMovingAverage(**pyti_params)
 
     def check_condition(self, new_candle):
         self.strategy.add_message("TestSignal")
@@ -146,6 +153,9 @@ class TestSignal(BaseSignalGenerator):
         print('tma', self.tma.value)
         print('tema', self.tema.value)
         print('true_range', self.true_range.value)
+        print('vhf', self.vhf.value)
+        print('volatility', self.volatility.value)
+        print('vama', self.vama.value)
 
         self.strategy.add_message({
             'timestamp': new_candle[0],
@@ -193,6 +203,9 @@ class TestSignal(BaseSignalGenerator):
             'tma': self.tma.value,
             'tema': self.tema.value,
             'true_range': self.true_range.value,
+            'vhf': self.vhf.value,
+            'volatility': self.volatility.value,
+            'vama': self.vama.value,
         }, 'db')
 
         return False
