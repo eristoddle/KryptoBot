@@ -1,4 +1,3 @@
 jupyterlab
-zipline
 cython
 git+https://github.com/eristoddle/KryptoBot.git

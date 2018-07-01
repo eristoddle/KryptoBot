@@ -35,7 +35,7 @@ celery -A kryptobot.workers beat -S redbeat.RedBeatScheduler
 #
 ###### FLOWER CELERY TASK ADMIN on port 5555
 #
-# celery -A kryptobot.workers flower --broker=redis://redis:6379/0
+celery -A kryptobot.workers flower --broker=redis://redis:6379/0
 #
 ###### WORKER API
 #
