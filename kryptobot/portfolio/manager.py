@@ -9,8 +9,8 @@ from ..db.models import Portfolio, Strategy, Harvester, Result, Backtest
 from ..db.utils import get_or_create
 from ..workers.strategy.tasks import schedule_strategy
 from ..workers.harvester.tasks import schedule_harvester
-from ..workers.catalyst.tasks import schedule_catalyst_strategy
-from ..workers.core.tasks import schedule_core_strategy
+# from ..workers.catalyst.tasks import schedule_catalyst_strategy
+# from ..workers.core.tasks import schedule_core_strategy
 from ..workers.t2.tasks import schedule_t2_strategy, stop_strategy
 
 pd.options.mode.chained_assignment = None
@@ -86,19 +86,19 @@ class Manager(Core):
             )
             params['strategy_id'] = strategy.id
         params['config'] = self.config
-        if params['type'] == 'core':
-            schedule_core_strategy.apply_async(
-                None,
-                {'params': params},
-                task_id=strategy.celery_id
-            )
-        elif params['type'] == 'catalyst':
-            schedule_catalyst_strategy.apply_async(
-                None,
-                {'params': params},
-                task_id=strategy.celery_id
-            )
-        elif params['type'] == 't2':
+        # if params['type'] == 'core':
+        #     schedule_core_strategy.apply_async(
+        #         None,
+        #         {'params': params},
+        #         task_id=strategy.celery_id
+        #     )
+        # elif params['type'] == 'catalyst':
+        #     schedule_catalyst_strategy.apply_async(
+        #         None,
+        #         {'params': params},
+        #         task_id=strategy.celery_id
+        #     )
+        if params['type'] == 't2':
             schedule_t2_strategy.apply_async(
                 None,
                 {'params': params},
@@ -155,7 +155,7 @@ class Manager(Core):
         inds = results[ind_cols]
         inds = inds.dropna(axis='columns')
         inds['timestamp'] = pd.to_datetime(inds['timestamp'])
-        inds.set_index('timestamp',inplace=True)
+        inds.set_index('timestamp', inplace=True)
 
         col_count = len(inds.columns) + 10
         count = 0
