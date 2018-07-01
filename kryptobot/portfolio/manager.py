@@ -1,6 +1,7 @@
 # from celery import uuid
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 from mpl_finance import candlestick_ohlc
 import datetime
 from ..core import Core
@@ -11,6 +12,20 @@ from ..workers.harvester.tasks import schedule_harvester
 from ..workers.catalyst.tasks import schedule_catalyst_strategy
 from ..workers.core.tasks import schedule_core_strategy
 from ..workers.t2.tasks import schedule_t2_strategy, stop_strategy
+
+pd.options.mode.chained_assignment = None
+
+SMALL_SIZE = 12
+MEDIUM_SIZE = 16
+BIGGER_SIZE = 20
+
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 
 class Manager(Core):
@@ -111,13 +126,72 @@ class Manager(Core):
             final.append(r.data)
         return pd.DataFrame(final)
 
-    def get_candle_chart(self, run_key, simulated=True):
+    def show_candle_chart(self, run_key, simulated=True):
         results = self.get_results(run_key, simulated)
-        quotes = results[['timestamp', 'open', 'high', 'low', 'close', 'volume']]
+        ohlc_cols = ['timestamp', 'open', 'high', 'low', 'close']
+        quotes = results[ohlc_cols]
         quotes['timestamp'] = pd.to_datetime(quotes['timestamp'])
-        quotes.set_index('timestamp',inplace=True)
-        return quotes
+        quotes.set_index('timestamp', inplace=True)
+        fig, ax = plt.subplots()
+        candlestick_ohlc(ax, zip(mdates.date2num(quotes.index.to_pydatetime()),
+                                 quotes['open'], quotes['high'],
+                                 quotes['low'], quotes['close']),
+                         width=0.001)
+        ax.xaxis_date()
+        ax.xaxis.set_major_locator(mdates.DayLocator())
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
+        ax.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
+        ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
+        ax.set_ylabel('Price')
+        ax.autoscale_view()
+        plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
+        plt.gcf().set_size_inches(20, 5)
+        plt.show()
+
+    def show_indicator_charts(self, run_key, simulated=True):
+        results = self.get_results(run_key, simulated)
+        excluded = ['open', 'high', 'low', 'close']
+        ind_cols = [c for c in results.columns if c not in excluded]
+        inds = results[ind_cols]
+        inds = inds.dropna(axis='columns')
+        inds['timestamp'] = pd.to_datetime(inds['timestamp'])
+        inds.set_index('timestamp',inplace=True)
+
+        col_count = len(inds.columns) + 10
+        count = 0
+        for key in inds:
+            count = count + 1
+            if(self.is_number(inds[[key]].iloc[0])):
+                ax1 = plt.subplot(col_count, 1, count)
+                inds[[key]].plot(ax=ax1)
+                ax1.set_ylabel(key)
+                ax1.xaxis.set_major_locator(mdates.DayLocator())
+                ax1.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
+                ax1.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
+                ax1.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
+            else:
+                data = inds[key].tolist()
+                df = pd.DataFrame(data)
+                ax1 = plt.subplot(col_count, 1, count)
+                df.plot(ax=ax1)
+                ax1.set_ylabel(key)
+                ax1.xaxis.set_major_locator(mdates.DayLocator())
+                ax1.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
+                ax1.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
+                ax1.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
+
+        plt.gcf().set_size_inches(20, 140)
+        plt.show()
 
     def convert_timestamp_to_date(self, timestamp):
         value = datetime.datetime.fromtimestamp(float(str(timestamp)[:-3]))
         return value.strftime('%Y-%m-%d %H:%M:%S')
+
+    def is_number(self, s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
+        except TypeError:
+            return False
