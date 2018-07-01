@@ -1,4 +1,4 @@
-# from celery import uuid
+from sqlalchemy import distinct
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -72,6 +72,7 @@ class Manager(Core):
             {'params': params},
             task_id=harvester.celery_id
         )
+        return {'harvester_id': harvester.id}
 
     def run_strategy(self, params):
         if self.portfolio is not None:
@@ -110,9 +111,18 @@ class Manager(Core):
                 {'params': params},
                 task_id=strategy.celery_id
             )
+        return {'strategy_id': strategy.id}
 
     def stop_strategy(self, celery_id):
         stop_strategy.delay(celery_id)
+
+    def get_strategy_run_keys(self, strategy_id, simulated=True):
+        if simulated:
+            Model = Backtest
+        else:
+            Model = Result
+        results = self._session.query(Model.run_key).filter(Model.strategy_id == strategy_id).distinct().all()
+        return results
 
     def get_results(self, run_key, simulated=True):
         if simulated:
