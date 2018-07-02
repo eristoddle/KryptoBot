@@ -53,6 +53,12 @@ def schedule_t2_strategy(params):
     return bot.start()
 
 
+# TODO: This does not stop the strategy
+# Market watcher has a stop method
+# using self.running = False
+# Strategy has the same variable
+# maybe emulute in strategy
+# And keep a global list here
 @app.task(base=BaseTask)
 def stop_strategy(id):
-    app.control.revoke(id)
+    app.control.revoke(id, terminate=True)

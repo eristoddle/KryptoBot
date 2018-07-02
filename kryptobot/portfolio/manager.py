@@ -111,7 +111,10 @@ class Manager(Core):
                 {'params': params},
                 task_id=strategy.celery_id
             )
-        return {'strategy_id': strategy.id}
+        return {
+            'strategy_id': strategy.id,
+            'celery_id': strategy.celery_id
+        }
 
     def stop_strategy(self, celery_id):
         stop_strategy.delay(celery_id)

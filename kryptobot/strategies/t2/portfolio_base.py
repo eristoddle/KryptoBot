@@ -1,6 +1,6 @@
 from .base_strategy import BaseStrategy, logger
 from ...db.utils import generate_uuid
-from ...db.models import Backtest, Result
+from ...db.models import Backtest, Result, Portfolio, Strategy
 import simplejson as json
 
 class PortfolioBase(BaseStrategy):
@@ -21,6 +21,13 @@ class PortfolioBase(BaseStrategy):
         self.session = session
         self._session = session()
         self.market.add_session(session)
+        self.init_data()
+
+    def init_data(self):
+        if self.portfolio_id is not None:
+            self.portfolio = self._session.query(Portfolio).filter(Portfolio.id == self.portfolio_id).first()
+        if self.strategy_id is not None:
+            self.strategy = self._session.query(Strategy).filter(Strategy.id == self.strategy_id).first()
 
     def process_limits(self, limits):
         self.capital_base = limits['capital_base']
