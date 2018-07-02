@@ -28,6 +28,7 @@ plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 
+# TODO: strategies and harvesters should both be lists or dicts
 class Manager(Core):
 
     portfolio_name = 'default'
@@ -125,7 +126,7 @@ class Manager(Core):
         else:
             Model = Result
         results = self._session.query(Model.run_key).filter(Model.strategy_id == strategy_id).distinct().all()
-        return results
+        return [r.run_key for r in results]
 
     def get_results(self, run_key, simulated=True):
         if simulated:
@@ -155,6 +156,8 @@ class Manager(Core):
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
         ax.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
         ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
+        ax.grid(color='k', which="major", linestyle='-', linewidth=0.3)
+        ax.grid(color='k', which="minor", linestyle='-', linewidth=0.1)
         ax.set_ylabel('Price')
         ax.autoscale_view()
         plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
@@ -175,23 +178,28 @@ class Manager(Core):
         for key in inds:
             count = count + 1
             if(self.is_number(inds[[key]].iloc[0])):
-                ax1 = plt.subplot(col_count, 1, count)
-                inds[[key]].plot(ax=ax1)
-                ax1.set_ylabel(key)
-                ax1.xaxis.set_major_locator(mdates.DayLocator())
-                ax1.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-                ax1.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
-                ax1.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
+                ax = plt.subplot(col_count, 1, count)
+                inds[[key]].plot(ax=ax)
+                ax.set_ylabel(key)
+                ax.xaxis.set_major_locator(mdates.DayLocator())
+                ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
+                ax.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
+                ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
+                ax.grid(color='k', which="major", linestyle='-', linewidth=0.3)
+                ax.grid(color='k', which="minor", linestyle='-', linewidth=0.1)
             else:
+                # TODO: Add timestamp to these dfs
                 data = inds[key].tolist()
                 df = pd.DataFrame(data)
-                ax1 = plt.subplot(col_count, 1, count)
-                df.plot(ax=ax1)
-                ax1.set_ylabel(key)
-                ax1.xaxis.set_major_locator(mdates.DayLocator())
-                ax1.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-                ax1.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
-                ax1.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
+                ax = plt.subplot(col_count, 1, count)
+                df.plot(ax=ax)
+                ax.set_ylabel(key)
+                ax.xaxis.set_major_locator(mdates.DayLocator())
+                ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
+                ax.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
+                ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
+                ax.grid(color='k', which="major", linestyle='-', linewidth=0.3)
+                ax.grid(color='k', which="minor", linestyle='-', linewidth=0.1)
 
         plt.gcf().set_size_inches(20, 140)
         plt.show()
