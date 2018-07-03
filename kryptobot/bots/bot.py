@@ -28,3 +28,6 @@ class Bot(Core):
 
         finally:
             self.engine.dispose()
+
+    def stop(self):
+        self.strategy.stop()

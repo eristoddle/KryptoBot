@@ -21,8 +21,8 @@ class MarketWatcher:
      Strategies that subscribe to the ticker will be given the new candles"""
     def __init__(self, exchange, base_currency, quote_currency, interval, session, ticker):
         exchange = getattr(ccxt, exchange)
-        ticker = ticker()
-        ticker.subscribe(self.tick, interval)
+        self.ticker = ticker()
+        self.ticker.subscribe(self.tick, interval)
         self.analysis_pair = '{}/{}'.format(base_currency, quote_currency)
         self.exchange = exchange()
         self.interval = interval
@@ -57,6 +57,7 @@ class MarketWatcher:
     def stop(self):
         """Stop listener queue"""
         self.__running = False
+        self.ticker.stop_ticker(self.interval)
 
     def tick(self):
         """Queue a pull of the latest candle"""
@@ -215,6 +216,13 @@ def subscribe(exchange_id, base, quote, interval, callable, session, ticker):
         get_market_watcher(exchange_id, base, quote, interval, session, ticker)
         print("Subscribing to " + topic)
         pub.subscribe(callable, topic)
+
+
+def stop_watcher(exchange_id, base, quote, interval):
+    with lock:
+        watcher = get_market_watcher(exchange_id, base, quote, interval)
+        watcher.stop()
+
 
 def convert_timestamp_to_date(timestamp):
     value = datetime.datetime.fromtimestamp(float(str(timestamp)[:-3]))  #this might only work on bittrex candle timestamps

@@ -5,12 +5,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-tickers = {}
 
 class Ticker:
 
     def __init__(self):
-        pass
+        self.tickers = {}
 
     def subscribe(self, tick_callable, interval):
         self.start_ticker(interval)
@@ -18,8 +17,8 @@ class Ticker:
 
     def start_ticker(self, interval):
         """Start a ticker/timer that notifies market watchers when to pull a new candle"""
-        if interval not in tickers:
-            tickers[interval] = Thread(
+        if interval not in self.tickers:
+            self.tickers[interval] = Thread(
                 target=self.__start_ticker, args=(
                     interval,)).start()
 
@@ -46,3 +45,10 @@ class Ticker:
             return 900
         if interval == "1h":
             return 3600
+
+    # TODO: Killing the ticker kills all the interval tickers?
+    def stop_ticker(self, interval):
+        # if interval not in self.tickers:
+        #     return True
+        # self.tickers[interval]._stop()
+        pass

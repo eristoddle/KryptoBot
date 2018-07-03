@@ -192,3 +192,9 @@ class BaseStrategy:
         print(str("Strategy " + str(self.strategy_id) + ": " + msg))
         logger.info(msg)
         self.ui_messages.put(msg)
+
+    # TODO: Do any clean up involved in shutting down
+    # NOTE: Stops the strategy and watcher but not the ticker
+    def stop(self):
+        market_watcher.stop_watcher(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval)
+        self.running = False

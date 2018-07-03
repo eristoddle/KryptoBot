@@ -2,9 +2,11 @@ from celery.signals import worker_ready
 from .celery import app
 from ..config import core
 from ...bots.bot import Bot
+from ...markets import market_watcher
 from ..base_task import BaseTask
 from ...db.models import Strategy
 import importlib
+import time
 
 
 def title_case(snake_str):
@@ -50,15 +52,15 @@ def schedule_t2_strategy(params):
         ),
         config=params['config']
     )
-    return bot.start()
+    bot.start()
+    # time.sleep(30)
+    # bot.stop()
 
 
-# TODO: This does not stop the strategy
-# Market watcher has a stop method
-# using self.running = False
-# Strategy has the same variable
-# maybe emulute in strategy
-# And keep a global list here
+# TODO: app.control.revoke does not stop the strategy
 @app.task(base=BaseTask)
 def stop_strategy(id):
-    app.control.revoke(id, terminate=True)
+    # app.control.revoke(id, terminate=True)
+    watcher = market_watcher.get_market_watcher('bittrex', 'LTC', 'BTC', '5m')
+    # watcher = market_watcher.get_market_watcher(exchange_id, base, quote, interval)
+    watcher.stop()
