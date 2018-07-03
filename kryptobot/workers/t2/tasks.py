@@ -58,9 +58,8 @@ def schedule_t2_strategy(params):
 
 
 # TODO: app.control.revoke does not stop the strategy
+# Also stop_watcher doesn't work
 @app.task(base=BaseTask)
 def stop_strategy(id):
     # app.control.revoke(id, terminate=True)
-    watcher = market_watcher.get_market_watcher('bittrex', 'LTC', 'BTC', '5m')
-    # watcher = market_watcher.get_market_watcher(exchange_id, base, quote, interval)
-    watcher.stop()
+    market_watcher.stop_watcher('bittrex', 'LTC', 'BTC', '5m')

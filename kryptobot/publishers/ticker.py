@@ -10,6 +10,7 @@ class Ticker:
 
     def __init__(self):
         self.tickers = {}
+        self.running = False
 
     def subscribe(self, tick_callable, interval):
         self.start_ticker(interval)
@@ -26,7 +27,8 @@ class Ticker:
         """Start a ticker own its own thread, will use pypubsub to send a message each time interval"""
         logger.info(interval + " ticker running...")
         live_tick_count = 0
-        while True:
+        self.running = True
+        while self.running:
             """Running this 'ticker' from the main loop to trigger listeners to pull candles every 5 minutes"""
             logger.info("Live Tick: {}".format(str(live_tick_count)))
             print(interval + " tick")
@@ -48,7 +50,4 @@ class Ticker:
 
     # TODO: Killing the ticker kills all the interval tickers?
     def stop_ticker(self, interval):
-        # if interval not in self.tickers:
-        #     return True
-        # self.tickers[interval]._stop()
-        pass
+        self.running = False

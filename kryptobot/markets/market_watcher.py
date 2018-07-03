@@ -221,7 +221,8 @@ def subscribe(exchange_id, base, quote, interval, callable, session, ticker):
 def stop_watcher(exchange_id, base, quote, interval):
     with lock:
         watcher = get_market_watcher(exchange_id, base, quote, interval)
-        watcher.stop()
+        if watcher is not None:
+            watcher.stop()
 
 
 def convert_timestamp_to_date(timestamp):

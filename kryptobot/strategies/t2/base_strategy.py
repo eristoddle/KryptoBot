@@ -7,10 +7,6 @@ from ...markets import market
 from ...markets import position
 from ...publishers.ticker import Ticker
 
-# TODO Replace Queue with generic queue to plug in rq
-# Problems: https://github.com/rq/rq/issues/189
-# https://stackoverflow.com/questions/25955919/how-to-present-a-class-as-a-function
-
 strategies = []
 logger = logging.getLogger(__name__)
 
