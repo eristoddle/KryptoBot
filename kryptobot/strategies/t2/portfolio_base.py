@@ -1,14 +1,20 @@
-from .base_strategy import BaseStrategy, logger
-from ...db.utils import generate_uuid
-from ...db.models import Backtest, Result, Portfolio, Strategy
+from threading import Thread
+from queue import Queue
 import simplejson as json
 from datetime import date, datetime
 import re
+from .base_strategy import BaseStrategy, logger
+from ...markets import market_watcher
+from ...db.utils import generate_uuid
+from ...db.models import Backtest, Result, Portfolio, Strategy
+
 
 class PortfolioBase(BaseStrategy):
 
     def __init__(self, default, limits, portfolio, portfolio_id=None, strategy_id=None):
         super().__init__(default, limits, portfolio_id, strategy_id)
+        self.__thread = Thread(target=self.__run)
+        self.__jobs = Queue()
         self.name = portfolio['name']
         self.start_date = None
         self.end_date = None
@@ -50,6 +56,17 @@ class PortfolioBase(BaseStrategy):
         self.profit_target_percentage = limits['profit_target_percentage']
         self.fixed_stoploss_percentage = limits['fixed_stoploss_percentage']
         self.trailing_stoploss_percentage = limits['trailing_stoploss_percentage']
+
+    def start(self):
+        """Start thread and subscribe to candle updates"""
+        self.__jobs.put(lambda: market_watcher.subscribe(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.__update, self.session, self.ticker))
+        self.__thread.start()
+
+    def run_simulation(self):
+        """Queue simulation when market data has been synced"""
+        if self.is_simulated:
+            market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency,
+                                            self.market.quote_currency, self.interval, self.__run_simulation, self.session, self.ticker)
 
     def check_if_restarted(self):
         # TODO: If not simulated append to results and sync positions
@@ -93,7 +110,8 @@ class PortfolioBase(BaseStrategy):
                 candle_set = self.candle_set
             if candle_set is None:
                 candle_set = self.market.get_historical_candles(self.interval, self.candle_limit)
-                print('candle_set', len(candle_set))
+                print('candle_limit', self.candle_limit)
+                print('candle_set length', len(candle_set))
             self.simulating = True
             # NOTE: This is where backtesting get evaluated?
             for entry in candle_set:
@@ -112,6 +130,25 @@ class PortfolioBase(BaseStrategy):
             self.add_message("Simulation BTC balance: " + str(self.market.get_wallet_balance()))
         self.__jobs.put(lambda: update(candle))
 
+    def __update_positions(self):
+        """Loop through all positions opened by the strategy"""
+        for p in self.positions:
+            if p.is_open:
+                p.update()
+
+    def __run(self):
+        """Start the strategy thread waiting for commands"""
+        self.add_message("Starting strategy " + str(self.strategy_id))
+        self.running = True
+        while self.running:
+            if not self.__jobs.empty():
+                job = self.__jobs.get()
+                try:
+                    job()
+                except Exception as e:
+                    print(e)
+                    logger.error(job.__name__ + " threw error:\n" + str(e))
+
     def add_message(self, msg, type='print'):
         if type == 'both' or type == 'print':
             # if isinstance(msg, dict):
@@ -129,3 +166,9 @@ class PortfolioBase(BaseStrategy):
             )
             self._session.add(data)
             self._session.commit()
+
+    # TODO: Do any clean up involved in shutting down
+    # NOTE: Stops the strategy and watcher but not the ticker
+    def stop(self):
+        market_watcher.stop_watcher(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval)
+        self.running = False
