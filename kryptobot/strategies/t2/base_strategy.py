@@ -109,7 +109,7 @@ class BaseStrategy:
     def __update(self, candle):
         """Run updates on all markets/indicators/signal generators running in strategy"""
         def update(candle):
-            print("Updating strategy")
+            # print("Updating strategy")
             self.add_message("Received new candle")
             self.market.update(self.interval, candle)
             self.__update_positions()

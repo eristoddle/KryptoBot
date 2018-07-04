@@ -2,6 +2,8 @@ from .base_strategy import BaseStrategy, logger
 from ...db.utils import generate_uuid
 from ...db.models import Backtest, Result, Portfolio, Strategy
 import simplejson as json
+from datetime import date, datetime
+import re
 
 class PortfolioBase(BaseStrategy):
 
@@ -50,11 +52,23 @@ class PortfolioBase(BaseStrategy):
         self.trailing_stoploss_percentage = limits['trailing_stoploss_percentage']
 
     def check_if_restarted(self):
-        # TODO: If not simulated sync results and positions
+        # TODO: If not simulated append to results and sync positions
         pass
 
     def set_candle_limit(self):
-        pass
+        candles_per_day = None
+        match = re.match(r"([0-9]+)([a-z]+)", self.interval, re.I)
+        if match:
+            items = match.groups()
+            if items[1] == 'm':
+                candles_per_day = 1440 / int(items[0])
+            elif items[1] == 'h':
+                candles_per_day = 24 / int(items[0])
+            if candles_per_day is not None:
+                d0 = datetime.strptime(self.start_date, '%Y-%m-%d').date()
+                d1 = date.today()
+                delta = d1 - d0
+                self.candle_limit = int(delta.days * candles_per_day)
 
     def run_backtest(self):
         if self.start_date is None:
@@ -65,7 +79,7 @@ class PortfolioBase(BaseStrategy):
             self.run_simulation()
         else:
             self.candle_set = self.market.get_candle_date_range(
-                self.inteval,
+                self.interval,
                 self.start_date,
                 self.end_date
             )
@@ -79,20 +93,34 @@ class PortfolioBase(BaseStrategy):
                 candle_set = self.candle_set
             if candle_set is None:
                 candle_set = self.market.get_historical_candles(self.interval, self.candle_limit)
+                print('candle_set', len(candle_set))
             self.simulating = True
+            # NOTE: This is where backtesting get evaluated?
             for entry in candle_set:
                 self.__update(candle=entry)
             self.simulating = False
         self.__jobs.put(lambda: run_simulation(candle_set))
 
+    def __update(self, candle):
+        """Run updates on all markets/indicators/signal generators running in strategy"""
+        def update(candle):
+            # print("Updating strategy")
+            self.add_message("Received new candle")
+            self.market.update(self.interval, candle)
+            self.__update_positions()
+            self.on_data(candle)
+            self.add_message("Simulation BTC balance: " + str(self.market.get_wallet_balance()))
+        self.__jobs.put(lambda: update(candle))
+
     def add_message(self, msg, type='print'):
         if type == 'both' or type == 'print':
-            if isinstance(msg, dict):
-                str_msg = json.dumps(msg)
-            else:
-                str_msg = str(msg)
-            print(str("Strategy " + str(self.strategy_id) + ": " + str_msg))
-            logger.info(str_msg)
+            # if isinstance(msg, dict):
+            #     str_msg = json.dumps(msg)
+            # else:
+            #     str_msg = str(msg)
+            # print(str("Strategy " + str(self.strategy_id) + ": " + str_msg))
+            # logger.info(str_msg)
+            pass
         if type == 'both' or type == 'db':
             data = self.model(
                 strategy_id=self.strategy_id,
