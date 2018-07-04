@@ -88,28 +88,11 @@ class BaseStrategy:
         self.__jobs.put(lambda: market_watcher.subscribe(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.__update, self.session, self.ticker))
         self.__thread.start()
 
-    def warmup(self):
-        """Queue warmup when market data has been synced"""
-        market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency,
-                                            self.market.quote_currency, self.interval, self.__warmup, self.session, self.ticker)
-
     def run_simulation(self):
         """Queue simulation when market data has been synced"""
         if self.is_simulated:
             market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency,
                                             self.market.quote_currency, self.interval, self.__run_simulation, self.session, self.ticker)
-
-    def __warmup(self, periods=None):
-        """Update TA indicators on specified number of historical periods"""
-        def warmup(periods):
-            self.add_message("Warming up strategy")
-            if periods is None:
-                historical_data = self.market.get_historical_candles(self.interval)
-            else:
-                historical_data = self.market.get_historical_candles(self.interval, periods)
-            for candle in historical_data:
-                self.market.update(self.interval, candle)
-        self.__jobs.put(warmup(periods))
 
     def __run_simulation(self, candle_set=None):
         """Start a simulation on historical candles (runs update method on historical candles)"""
