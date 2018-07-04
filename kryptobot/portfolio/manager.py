@@ -175,12 +175,12 @@ class Manager(Core):
 
     def show_indicator_charts(self, run_key, simulated=True):
         results = self.get_results(run_key, simulated)
-        timestamps = results['timestamp']
         excluded = ['open', 'high', 'low', 'close']
         ind_cols = [c for c in results.columns if c not in excluded]
         inds = results[ind_cols]
         inds = inds.dropna(axis='columns')
         inds['timestamp'] = pd.to_datetime(inds['timestamp'])
+        timestamps = inds['timestamp']
         inds.set_index('timestamp', inplace=True)
         result_count = len(inds)
 
@@ -200,10 +200,9 @@ class Manager(Core):
                 ax.grid(color='k', which="major", linestyle='-', linewidth=0.3)
                 ax.grid(color='k', which="minor", linestyle='-', linewidth=0.1)
             else:
-                # TODO: Add timestamp to these dfs
                 data = inds[key].tolist()
                 df = pd.DataFrame(data)
-                df = pd.concat([df, timestamps], axis=1)
+                df['timestamp'] = timestamps
                 df.set_index('timestamp', inplace=True)
                 ax = plt.subplot(col_count, 1, count)
                 df.plot(ax=ax)
