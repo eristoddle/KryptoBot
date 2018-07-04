@@ -117,8 +117,9 @@ class Manager(Core):
             'celery_id': strategy.celery_id
         }
 
-    # paused, exited, archived
+    # active, paused, exited, archived
     # exited will go back to the quote currency
+    # before setting to archived and stopping
     # archived will store for historical data reference
     def stop_strategy(self, id, status="paused"):
         strategy = self._session.query(Strategy).filter(

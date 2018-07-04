@@ -33,6 +33,7 @@ class PortfolioBase(BaseStrategy):
         self._session = session()
         self.market.add_session(session)
         self.init_data()
+        self.check_if_restarted()
 
     def init_data(self):
         if self.portfolio_id is not None:
@@ -47,6 +48,10 @@ class PortfolioBase(BaseStrategy):
         self.profit_target_percentage = limits['profit_target_percentage']
         self.fixed_stoploss_percentage = limits['fixed_stoploss_percentage']
         self.trailing_stoploss_percentage = limits['trailing_stoploss_percentage']
+
+    def check_if_restarted(self):
+        # TODO: If not simulated sync results and positions
+        pass
 
     def set_candle_limit(self):
         pass

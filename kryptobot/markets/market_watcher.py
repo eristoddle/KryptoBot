@@ -86,7 +86,12 @@ class MarketWatcher:
             logger.info("Market data already available for pair, returning ID for lookups")
         return pair.id
 
+    def normalize_candle_timestamps(self, candle_set):
+        # TODO: For cryptopia and others who give to the minute timestamps
+        pass
+
     def get_candle_date_range(self, start_date, end_date):
+        # TODO: Write check in db anc call to api
         pass
 
     def sync_historical(self):
@@ -101,6 +106,9 @@ class MarketWatcher:
         ).all()
         return [(d.timestamp_raw, d.open, d.high, d.low, d.close, d.volume) for d in data]
 
+    # TODO: Modify this to check the Backtest and Results tables to be able to
+    # append to the same dataset, but may not be necessary. It will be necessary
+    # to sync open positions, etc, for a live strategy
     def __sync_historical(self):
         """Load all missing historical candles to database"""
         logger.info('Syncing market candles with DB...')
