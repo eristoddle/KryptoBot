@@ -8,11 +8,17 @@ class PortfolioBase(BaseStrategy):
     def __init__(self, default, limits, portfolio, portfolio_id=None, strategy_id=None):
         super().__init__(default, limits, portfolio_id, strategy_id)
         self.name = portfolio['name']
+        self.start_date = None
+        self.end_date = None
         self.run_key = generate_uuid()
         if self.is_simulated:
             self.model = Backtest
         else:
             self.model = Result
+        if 'start' in default:
+            self.start_date = default['start']
+        if 'end' in default:
+            self.end_date = default['end']
 
     def __del__(self):
         self._session.close()
@@ -36,6 +42,9 @@ class PortfolioBase(BaseStrategy):
         self.profit_target_percentage = limits['profit_target_percentage']
         self.fixed_stoploss_percentage = limits['fixed_stoploss_percentage']
         self.trailing_stoploss_percentage = limits['trailing_stoploss_percentage']
+
+    def run_backtest(self):
+        pass
 
     def __run_simulation(self, candle_set=None):
         """Start a simulation on historical candles (runs update method on historical candles)"""
