@@ -11,6 +11,8 @@ class PortfolioBase(BaseStrategy):
         self.start_date = None
         self.end_date = None
         self.run_key = generate_uuid()
+        self.candle_limit = 1000
+        self.candle_set = None
         if self.is_simulated:
             self.model = Backtest
         else:
@@ -43,15 +45,29 @@ class PortfolioBase(BaseStrategy):
         self.fixed_stoploss_percentage = limits['fixed_stoploss_percentage']
         self.trailing_stoploss_percentage = limits['trailing_stoploss_percentage']
 
-    def run_backtest(self):
+    def set_candle_limit(self):
         pass
+
+    def run_backtest(self):
+        if self.start_date is None:
+            print('backtest needs parameters')
+            return None
+        if self.end_date is None:
+            self.set_candle_limit()
+            self.run_simulation()
+        else:
+            # TODO: add get_candle_date_range to market and market_watcher
+            self.candle_set = None
+            self.run_simulation()
 
     def __run_simulation(self, candle_set=None):
         """Start a simulation on historical candles (runs update method on historical candles)"""
         def run_simulation(candle_set):
             self.add_message("Simulating strategy for market " + self.market.exchange.id + " " + self.market.analysis_pair)
+            if self.candle_set is not None:
+                candle_set = self.candle_set
             if candle_set is None:
-                candle_set = self.market.get_historical_candles(self.interval, 1000)
+                candle_set = self.market.get_historical_candles(self.interval, self.candle_limit)
             self.simulating = True
             for entry in candle_set:
                 self.__update(candle=entry)
