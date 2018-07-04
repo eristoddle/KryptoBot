@@ -16,7 +16,10 @@ class Bot(Core):
         self.strategy.add_session(self.session)
         self.strategy.add_keys(self.config['apis'])
         self.strategy.add_ticker(Ticker)
-        self.strategy.run_simulation()
+        if self.strategy.backtest is True:
+            self.strategy.run_backtest()
+        else:
+            self.strategy.run_simulation()
         self.strategy.start()
 
     def start(self):

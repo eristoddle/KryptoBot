@@ -86,6 +86,9 @@ class MarketWatcher:
             logger.info("Market data already available for pair, returning ID for lookups")
         return pair.id
 
+    def get_candle_date_range(self, start_date, end_date):
+        pass
+
     def sync_historical(self):
         """Queue loading of historical candles"""
         self._jobs.put(lambda: self.__sync_historical())

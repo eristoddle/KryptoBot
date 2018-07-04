@@ -163,7 +163,7 @@ class Manager(Core):
         ax.xaxis.set_major_locator(mdates.DayLocator())
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
         ax.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
-        if result_count < 1001:
+        if result_count < 1200:
             ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
         ax.grid(color='k', which="major", linestyle='-', linewidth=0.3)
         ax.grid(color='k', which="minor", linestyle='-', linewidth=0.1)
@@ -195,7 +195,7 @@ class Manager(Core):
                 ax.xaxis.set_major_locator(mdates.DayLocator())
                 ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
                 ax.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
-                if result_count < 1001:
+                if result_count < 1200:
                     ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
                 ax.grid(color='k', which="major", linestyle='-', linewidth=0.3)
                 ax.grid(color='k', which="minor", linestyle='-', linewidth=0.1)
@@ -210,7 +210,7 @@ class Manager(Core):
                 ax.xaxis.set_major_locator(mdates.DayLocator())
                 ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
                 ax.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
-                if result_count < 1001:
+                if result_count < 1200:
                     ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
                 ax.grid(color='k', which="major", linestyle='-', linewidth=0.3)
                 ax.grid(color='k', which="minor", linestyle='-', linewidth=0.1)

@@ -13,6 +13,9 @@ class PortfolioBase(BaseStrategy):
         self.run_key = generate_uuid()
         self.candle_limit = 1000
         self.candle_set = None
+        self.backtest = False
+        if 'backtest' in default and default['backtest'] is True:
+            self.backtest = True
         if self.is_simulated:
             self.model = Backtest
         else:
@@ -56,8 +59,11 @@ class PortfolioBase(BaseStrategy):
             self.set_candle_limit()
             self.run_simulation()
         else:
-            # TODO: add get_candle_date_range to market and market_watcher
-            self.candle_set = None
+            self.candle_set = self.market.get_candle_date_range(
+                self.inteval,
+                self.start_date,
+                self.end_date
+            )
             self.run_simulation()
 
     def __run_simulation(self, candle_set=None):

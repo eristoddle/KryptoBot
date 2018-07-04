@@ -106,3 +106,15 @@ class Market:
             return self.candles[interval]
         else:
             return self.candles[interval][-candle_limit:]
+
+    def get_candle_date_range(self, interval, start_date, end_date):
+        self.candles[interval] = market_watcher.get_market_watcher(
+            self.exchange.id,
+            self.base_currency,
+            self.quote_currency,
+            interval
+        ).get_candle_date_range(
+            start_date,
+            end_date
+        )
+        return self.candles[interval]
