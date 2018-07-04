@@ -11,7 +11,7 @@ from ..workers.strategy.tasks import schedule_strategy
 from ..workers.harvester.tasks import schedule_harvester
 # from ..workers.catalyst.tasks import schedule_catalyst_strategy
 # from ..workers.core.tasks import schedule_core_strategy
-from ..workers.t2.tasks import schedule_t2_strategy, stop_strategy
+from ..workers.t2.tasks import schedule_t2_strategy
 
 pd.options.mode.chained_assignment = None
 
@@ -117,8 +117,15 @@ class Manager(Core):
             'celery_id': strategy.celery_id
         }
 
-    def stop_strategy(self, celery_id):
-        stop_strategy.delay(celery_id)
+    # paused, exited, archived
+    # exited will go back to the quote currency
+    # archived will store for historical data reference
+    def stop_strategy(self, id, status="paused"):
+        strategy = self._session.query(Strategy).filter(
+            Strategy.id == id).first()
+        strategy.status = status
+        self._session.add(strategy)
+        self._session.commit()
 
     def get_strategy_run_keys(self, strategy_id, simulated=True):
         if simulated:
@@ -144,6 +151,7 @@ class Manager(Core):
         results = self.get_results(run_key, simulated)
         ohlc_cols = ['timestamp', 'open', 'high', 'low', 'close']
         quotes = results[ohlc_cols]
+        result_count = len(quotes)
         quotes['timestamp'] = pd.to_datetime(quotes['timestamp'])
         quotes.set_index('timestamp', inplace=True)
         fig, ax = plt.subplots()
@@ -155,7 +163,8 @@ class Manager(Core):
         ax.xaxis.set_major_locator(mdates.DayLocator())
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
         ax.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
-        ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
+        if result_count < 1001:
+            ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
         ax.grid(color='k', which="major", linestyle='-', linewidth=0.3)
         ax.grid(color='k', which="minor", linestyle='-', linewidth=0.1)
         ax.set_ylabel('Price')
@@ -166,12 +175,14 @@ class Manager(Core):
 
     def show_indicator_charts(self, run_key, simulated=True):
         results = self.get_results(run_key, simulated)
+        timestamps = results['timestamp']
         excluded = ['open', 'high', 'low', 'close']
         ind_cols = [c for c in results.columns if c not in excluded]
         inds = results[ind_cols]
         inds = inds.dropna(axis='columns')
         inds['timestamp'] = pd.to_datetime(inds['timestamp'])
         inds.set_index('timestamp', inplace=True)
+        result_count = len(inds)
 
         col_count = len(inds.columns) + 10
         count = 0
@@ -184,20 +195,24 @@ class Manager(Core):
                 ax.xaxis.set_major_locator(mdates.DayLocator())
                 ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
                 ax.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
-                ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
+                if result_count < 1001:
+                    ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
                 ax.grid(color='k', which="major", linestyle='-', linewidth=0.3)
                 ax.grid(color='k', which="minor", linestyle='-', linewidth=0.1)
             else:
                 # TODO: Add timestamp to these dfs
                 data = inds[key].tolist()
                 df = pd.DataFrame(data)
+                df = pd.concat([df, timestamps], axis=1)
+                df.set_index('timestamp', inplace=True)
                 ax = plt.subplot(col_count, 1, count)
                 df.plot(ax=ax)
                 ax.set_ylabel(key)
                 ax.xaxis.set_major_locator(mdates.DayLocator())
                 ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
                 ax.xaxis.set_minor_locator(mdates.HourLocator(interval=2))
-                ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
+                if result_count < 1001:
+                    ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H'))
                 ax.grid(color='k', which="major", linestyle='-', linewidth=0.3)
                 ax.grid(color='k', which="minor", linestyle='-', linewidth=0.1)
 

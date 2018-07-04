@@ -37,6 +37,18 @@ class PortfolioBase(BaseStrategy):
         self.fixed_stoploss_percentage = limits['fixed_stoploss_percentage']
         self.trailing_stoploss_percentage = limits['trailing_stoploss_percentage']
 
+    def __run_simulation(self, candle_set=None):
+        """Start a simulation on historical candles (runs update method on historical candles)"""
+        def run_simulation(candle_set):
+            self.add_message("Simulating strategy for market " + self.market.exchange.id + " " + self.market.analysis_pair)
+            if candle_set is None:
+                candle_set = self.market.get_historical_candles(self.interval, 1000)
+            self.simulating = True
+            for entry in candle_set:
+                self.__update(candle=entry)
+            self.simulating = False
+        self.__jobs.put(lambda: run_simulation(candle_set))
+
     def add_message(self, msg, type='print'):
         if type == 'both' or type == 'print':
             if isinstance(msg, dict):
