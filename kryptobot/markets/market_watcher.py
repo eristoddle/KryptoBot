@@ -7,6 +7,7 @@ import datetime
 from pubsub import pub
 from threading import Lock
 from ..db.models import Ohlcv, TradingPair
+from ..db.timescale import get_candle_gaps
 from .market import ccxt
 
 lock = Lock()
@@ -91,8 +92,42 @@ class MarketWatcher:
         pass
 
     def get_candle_date_range(self, start_date, end_date):
-        # TODO: Write check in db anc call to api
-        pass
+        gaps = self.check_candle_date_range(start_date, end_date)
+        if gaps is True:
+            print('gaps', gaps)
+            # TODO: Replace this with a date range query
+            return self.query_candle_date_range(start_date, end_date)
+        else:
+            self.fill_candle_gaps(gaps)
+
+    # NOTE: This will only work with timescaledb and postgres
+    def check_candle_date_range(self, start_date, end_date):
+        gaps = get_candle_gaps(
+            self.session,
+            start_date,
+            end_date,
+            self.interval,
+            self.exchange,
+            self.analysis_pair
+        )
+        if len(gaps) == 0:
+            return True
+        else:
+            return gaps
+
+    # NOTE: This will only work with timescaledb and postgres
+    def fill_candle_gaps(self, gaps):
+        print('gaps', gaps)
+
+    def query_candle_date_range(self, start_date, end_date):
+        data = self.session.query(Ohlcv).filter(
+            Ohlcv.exchange == self.exchange.id,
+            Ohlcv.pair_id == self.pair_id,
+            Ohlcv.interval == self.interval,
+            Ohlcv.timestamp > start_date,
+            Ohlcv.timestamp < end_date
+        ).all()
+        return [(d.timestamp_raw, d.open, d.high, d.low, d.close, d.volume) for d in data]
 
     def sync_historical(self):
         """Queue loading of historical candles"""

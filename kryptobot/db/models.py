@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Numeric, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, Numeric, String, Float, ForeignKey, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID
 import datetime
@@ -13,7 +13,7 @@ class Ohlcv(Base):
     id = Column('id', Integer, primary_key=True)
     exchange = Column('exchange', String)
     pair = Column('pair', String)
-    timestamp = Column('timestamp', String)
+    timestamp = Column('timestamp', DateTime)
     open = Column('open', Float)
     high = Column('high', Float)
     low = Column('low', Float)
@@ -40,7 +40,7 @@ class TradingOrder(Base):
     order_id = Column('order_id', Integer, primary_key=True)
     strategy_id = Column('strategy_id', Integer)
     # strategy_id = Column('strategy_id', Integer, ForeignKey('strategies.id'))
-    timestamp = Column('timestamp', String, default=datetime.datetime.utcnow)
+    timestamp = Column('timestamp', DateTime, default=datetime.datetime.utcnow)
     exchange = Column('exchange', String)
     pair = Column('pair', String)
     position = Column('position', String)
@@ -86,7 +86,7 @@ class Result(Base):
     id = Column('id', Integer, primary_key=True)
     strategy_id = Column('strategy_id', Integer, ForeignKey('strategies.id'))
     run_key = Column('run_key', UUID, nullable=False)
-    timestamp = Column('timestamp', String, default=datetime.datetime.utcnow)
+    timestamp = Column('timestamp', DateTime, default=datetime.datetime.utcnow)
     data = Column('data', JsonValue)
 
 
@@ -96,5 +96,5 @@ class Backtest(Base):
     id = Column('id', Integer, primary_key=True)
     strategy_id = Column('strategy_id', Integer, ForeignKey('strategies.id'))
     run_key = Column('run_key', UUID, nullable=False)
-    timestamp = Column('timestamp', String, default=datetime.datetime.utcnow)
+    timestamp = Column('timestamp', DateTime, default=datetime.datetime.utcnow)
     data = Column('data', JsonValue)

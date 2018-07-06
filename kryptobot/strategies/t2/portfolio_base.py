@@ -92,6 +92,7 @@ class PortfolioBase(BaseStrategy):
             print('backtest needs parameters')
             return None
         if self.end_date is None:
+            # TODO: this kind of works but switch to date range
             self.set_candle_limit()
             self.run_simulation()
         else:
@@ -110,10 +111,11 @@ class PortfolioBase(BaseStrategy):
                 candle_set = self.candle_set
             if candle_set is None:
                 candle_set = self.market.get_historical_candles(self.interval, self.candle_limit)
+                # TODO: Just grabs everything, doesn't check if it has the count
+                # But I can use the apis params to fetch by count instead of date range
                 print('candle_limit', self.candle_limit)
                 print('candle_set length', len(candle_set))
             self.simulating = True
-            # NOTE: This is where backtesting get evaluated?
             for entry in candle_set:
                 self.__update(candle=entry)
             self.simulating = False
