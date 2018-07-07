@@ -15,28 +15,9 @@ services:
         volumes:
             - ./timescale_data:/var/lib/postgresql/data
 
-
-    # market_worker:
+    # t2_worker:
     #     build: ./kryptobot/workers
-    #     command: bash -c "pip install -e . && celery -A kryptobot.workers.market worker -l info"
-    #     working_dir: /usr/src/app
-    #     volumes:
-    #         - ./:/usr/src/app
-    #     networks:
-    #         - cryptobox
-
-    # catalyst_worker:
-    #     build: ./kryptobot/workers
-    #     command: bash -c "pip install -e . && celery -A kryptobot.workers.catalyst worker -l info"
-    #     working_dir: /usr/src/app
-    #     volumes:
-    #         - ./:/usr/src/app
-    #     networks:
-    #         - cryptobox
-
-    # strategy_worker:
-    #     build: ./kryptobot/workers
-    #     command: bash -c "pip install -e . && celery -A kryptobot.workers.strategy worker -l info"
+    #     command: bash -c "pip install -e . && celery -A kryptobot.workers.t2 worker -l info"
     #     working_dir: /usr/src/app
     #     volumes:
     #         - ./:/usr/src/app
@@ -129,18 +110,6 @@ services:
         networks:
             - cryptobox
 
-    # source:
-    #     build:
-    #         context: .
-    #         dockerfile: Dockerfile.volume
-    #     command:
-    #         - /bin/true
-    #     volumes:
-    #         - app:/usr/src/app
-
 networks:
     cryptobox:
         driver: bridge
-
-# volumes:
-#     app:

@@ -72,23 +72,6 @@ class PortfolioBase(BaseStrategy):
         # TODO: If not simulated append to results and sync positions
         pass
 
-    # NOTE: Older method unused, kind of works
-    # Uses date range now and today if there is no end date
-    def set_candle_limit(self):
-        candles_per_day = None
-        match = re.match(r"([0-9]+)([a-z]+)", self.interval, re.I)
-        if match:
-            items = match.groups()
-            if items[1] == 'm':
-                candles_per_day = 1440 / int(items[0])
-            elif items[1] == 'h':
-                candles_per_day = 24 / int(items[0])
-            if candles_per_day is not None:
-                d0 = datetime.strptime(self.start_date, '%Y-%m-%d').date()
-                d1 = date.now()
-                delta = d1 - d0
-                self.candle_limit = int(delta.days * candles_per_day)
-
     def run_backtest(self):
         """Queue simulation when market data has been synced"""
         if self.backtest:
@@ -110,6 +93,9 @@ class PortfolioBase(BaseStrategy):
             )
             for entry in candle_set:
                 self.__update(candle=entry)
+            # NOTE: Stop own self when backtesting
+            # Good idea but think it breaks things
+            # self.stop()
         self.__jobs.put(lambda: run_backtest())
 
     def __run_simulation(self, candle_set=None):
@@ -135,6 +121,7 @@ class PortfolioBase(BaseStrategy):
             self.__update_positions()
             self.on_data(candle)
             self.add_message("Simulation BTC balance: " + str(self.market.get_wallet_balance()))
+            # TODO: Check db for signal to stop here
         self.__jobs.put(lambda: update(candle))
 
     def __update_positions(self):
@@ -175,7 +162,6 @@ class PortfolioBase(BaseStrategy):
             self._session.commit()
 
     # TODO: Do any clean up involved in shutting down
-    # NOTE: Stops the strategy and watcher but not the ticker
     def stop(self):
         market_watcher.stop_watcher(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval)
         self.running = False

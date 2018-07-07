@@ -125,12 +125,15 @@ class MarketWatcher:
             latest_date = convert_timestamp_to_date(gaps[-1])
             print('filling gaps in candles', len(gaps))
             print('date range:', earliest_date, latest_date)
+            # TODO: Clean this and other stupid parts up
+            if earliest_date == latest_date:
+                break
             candles = self.query_ccxt(earliest_date, step)
             good_count, gaps, next_start = self.merge_candles(candles, gaps)
             next_start = datetime.strptime(next_start, '%Y-%m-%d %H:%M:%S')
             latest_date = datetime.strptime(latest_date, '%Y-%m-%d %H:%M:%S')
-            if next_start > latest_date or next_start > datetime.now():
-                gaps = []
+            if next_start >= latest_date or next_start >= datetime.now():
+                break
             if good_count == step or retries == retry_limit:
                 gaps = [g for g in gaps if g >= convert_date_to_timestamp(next_start)]
                 retries = 0
