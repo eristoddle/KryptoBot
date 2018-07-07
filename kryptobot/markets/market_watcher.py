@@ -3,7 +3,7 @@ from threading import Thread
 from queue import Queue
 import logging
 import time
-import datetime
+from datetime import datetime
 from pubsub import pub
 from threading import Lock
 from ..db.models import Ohlcv, TradingPair
@@ -94,10 +94,8 @@ class MarketWatcher:
     def get_candle_date_range(self, start_date, end_date):
         gaps = self.check_candle_date_range(start_date, end_date)
         if gaps is True:
-            print('no gaps')
             return self.query_candle_date_range(start_date, end_date)
         else:
-            print('gaps')
             self.fill_candle_gaps(gaps)
             return self.query_candle_date_range(start_date, end_date)
 
@@ -117,9 +115,57 @@ class MarketWatcher:
             return gaps
 
     # NOTE: This will only work with timescaledb and postgres
-    # TODO: This does not target gaps but may not need to, uses shotgun
+    # since = timestamp
+    # limit = count
     def fill_candle_gaps(self, gaps):
-        print('filling gaps in candles', gaps)
+        print('filling gaps in candles', len(gaps))
+        earliest_date = gaps[0]
+        latest_date = gaps[-1]
+        print('date range:', earliest_date, latest_date)
+        candles = self.query_ccxt(earliest_date)
+        gaps = self.merge_candles(candles, gaps)
+        print('remaining gaps', len(gaps))
+
+    def query_ccxt(self, start_date):
+        print('start_date', start_date)
+        since = start_date.timestamp()
+        print('since', since)
+        return self.exchange.fetch_ohlcv(
+            self.analysis_pair,
+            timeframe=self.interval,
+            since=since,
+            limit=1000
+        )
+
+    # TODO: Get this to work for exchange data that is simply missing
+    # Always dynamic, never stored
+    def interpolate_missing_candles(self, candles):
+        for c in candles:
+            print(c)
+
+    def merge_candles(self, candles, gaps):
+        print('merge_candles', )
+        for entry in candles:
+            ts = convert_timestamp_to_date(entry[0])
+            if ts in gaps:
+                gaps.remove(ts)
+                ohlcv = Ohlcv(
+                    exchange=self.exchange.id,
+                    pair=self.analysis_pair,
+                    interval=self.interval,
+                    pair_id=self.pair_id,
+                    timestamp=ts,
+                    timestamp_raw=entry[0],
+                    open=entry[1],
+                    high=entry[2],
+                    low=entry[3],
+                    close=entry[4],
+                    volume=entry[5]
+                )
+                self.session.add(ohlcv)
+                print('Writing candle ' + str(entry[0]) + ' to database')
+        self.session.commit()
+        return gaps
 
     def query_candle_date_range(self, start_date, end_date):
         data = self.session.query(Ohlcv).filter(
@@ -283,5 +329,5 @@ def stop_watcher(exchange_id, base, quote, interval):
 
 
 def convert_timestamp_to_date(timestamp):
-    value = datetime.datetime.fromtimestamp(float(str(timestamp)[:-3]))  #this might only work on bittrex candle timestamps
+    value = datetime.fromtimestamp(float(str(timestamp)[:-3]))  #this might only work on bittrex candle timestamps
     return value.strftime('%Y-%m-%d %H:%M:%S')

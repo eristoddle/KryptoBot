@@ -42,6 +42,8 @@ def get_candle_gaps(session, start_date, end_date, interval, exchange, pair):
         pair=pair
     )
 
-    return session.execute(
+    data = session.execute(
         formatted_query
     ).fetchall()
+
+    return [r[0] for r in data]
