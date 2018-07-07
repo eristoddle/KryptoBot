@@ -126,15 +126,13 @@ class MarketWatcher:
         gaps = self.merge_candles(candles, gaps)
         print('remaining gaps', len(gaps))
 
-    def query_ccxt(self, start_date):
-        print('start_date', start_date)
-        since = start_date.timestamp()
-        print('since', since)
+    def query_ccxt(self, start_date, limit=1000):
+        since = int(str(int(start_date.timestamp())) + '000')
         return self.exchange.fetch_ohlcv(
             self.analysis_pair,
             timeframe=self.interval,
             since=since,
-            limit=1000
+            limit=limit
         )
 
     # TODO: Get this to work for exchange data that is simply missing
@@ -142,9 +140,10 @@ class MarketWatcher:
     def interpolate_missing_candles(self, candles):
         for c in candles:
             print(c)
+        return candles
 
     def merge_candles(self, candles, gaps):
-        print('merge_candles', )
+        print('merge_candles', convert_timestamp_to_date(candles[0][0]), convert_timestamp_to_date(candles[-1][0]))
         for entry in candles:
             ts = convert_timestamp_to_date(entry[0])
             if ts in gaps:
