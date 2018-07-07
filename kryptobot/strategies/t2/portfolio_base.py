@@ -109,6 +109,7 @@ class PortfolioBase(BaseStrategy):
                     self.start_date,
                     self.end_date
                 )
+                print('backtest result count', len(candle_set))
                 for entry in candle_set:
                     self.__update(candle=entry)
         self.__jobs.put(lambda: run_backtest())
@@ -121,12 +122,6 @@ class PortfolioBase(BaseStrategy):
                 candle_set = self.candle_set
             if candle_set is None:
                 candle_set = self.market.get_historical_candles(self.interval, self.candle_limit)
-                # TODO: Just grabs everything, doesn't check if it has the count
-                # But I can use the apis params to fetch by count instead of date range
-                # Also if there is gaps in the candles, it doesn't know and
-                # Just grabs a longer date range to match the length
-                print('candle_limit', self.candle_limit)
-                print('candle_set length', len(candle_set))
             self.simulating = True
             for entry in candle_set:
                 self.__update(candle=entry)

@@ -13,34 +13,35 @@ def ccxt_to_series_interval(interval):
 
 def get_candle_gaps(session, start_date, end_date, interval, exchange, pair):
     series_interval = ccxt_to_series_interval(interval)
+
     query = '''SELECT
           date
         FROM
          generate_series(
-            ':start'::timestamp,
-            ':end', ':series_interval') AS date
+            '{start_date}'::timestamp,
+            '{end_date}', '{series_interval}') AS date
         LEFT OUTER JOIN
           (SELECT
              ohlcv.timestamp as ts
            FROM ohlcv
            WHERE
-             timestamp >= ':start'
-             and timestamp < ':end'
-             and exchange = ':exchange'
-             and pair = ':pair'
-             and interval = ':interval') results
+             timestamp >= '{start_date}'
+             and timestamp < '{end_date}'
+             and exchange = '{exchange}'
+             and pair = '{pair}'
+             and interval = '{interval}') results
         ON (date = results.ts)
         where results.ts is null'''
 
-    result = session.execute(
-        query,
-        {
-            "start": start_date,
-            "end": end_date,
-            "series_interval": series_interval,
-            "interval": interval,
-            "exchange": exchange,
-            "pair": pair,
-        }
+    formatted_query = query.format(
+        start_date=start_date,
+        end_date=end_date,
+        series_interval=series_interval,
+        interval=interval,
+        exchange=exchange,
+        pair=pair
     )
-    return result
+
+    return session.execute(
+        formatted_query
+    ).fetchall()

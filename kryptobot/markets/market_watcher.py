@@ -20,10 +20,9 @@ class MarketWatcher:
      It then subscribes to the ticker of that interval and calls for candles each time period
      It is responsible for syncing data with the DB and adding new candles
      Strategies that subscribe to the ticker will be given the new candles"""
-    def __init__(self, exchange, base_currency, quote_currency, interval, session, ticker, backtest=False):
+    def __init__(self, exchange, base_currency, quote_currency, interval, session, ticker):
         exchange = getattr(ccxt, exchange)
         self.ticker = ticker()
-        self.backtest = backtest
         self.ticker.subscribe(self.tick, interval)
         self.analysis_pair = '{}/{}'.format(base_currency, quote_currency)
         self.exchange = exchange()
@@ -43,12 +42,10 @@ class MarketWatcher:
     def __del__(self):
         self.session.close()
 
-    # TODO: Handle backtest here
     def __run(self):
         """Start listener queue waiting for ticks"""
         self.__running = True
-        if self.backtest is False:
-            self.sync_historical()
+        self.sync_historical()
         while self.__running:
             if not self._jobs.empty():
                 job = self._jobs.get()
@@ -95,13 +92,14 @@ class MarketWatcher:
         pass
 
     def get_candle_date_range(self, start_date, end_date):
-        return self.query_candle_date_range(start_date, end_date)
-        # gaps = self.check_candle_date_range(start_date, end_date)
-        # if gaps is True:
-        #     return self.query_candle_date_range(start_date, end_date)
-        # else:
-        #     print('gaps', gaps)
-        #     self.fill_candle_gaps(gaps)
+        gaps = self.check_candle_date_range(start_date, end_date)
+        if gaps is True:
+            print('no gaps')
+            return self.query_candle_date_range(start_date, end_date)
+        else:
+            print('gaps')
+            self.fill_candle_gaps(gaps)
+            return self.query_candle_date_range(start_date, end_date)
 
     # NOTE: This will only work with timescaledb and postgres
     def check_candle_date_range(self, start_date, end_date):
@@ -110,7 +108,7 @@ class MarketWatcher:
             start_date,
             end_date,
             self.interval,
-            self.exchange,
+            self.exchange.id,
             self.analysis_pair
         )
         if len(gaps) == 0:
@@ -119,8 +117,9 @@ class MarketWatcher:
             return gaps
 
     # NOTE: This will only work with timescaledb and postgres
+    # TODO: This does not target gaps but may not need to, uses shotgun
     def fill_candle_gaps(self, gaps):
-        print('gaps', gaps)
+        print('filling gaps in candles', gaps)
 
     def query_candle_date_range(self, start_date, end_date):
         data = self.session.query(Ohlcv).filter(
@@ -191,6 +190,12 @@ class MarketWatcher:
                     print('Writing missing candle ' + str(entry[0]) + ' to database')
         self.session.commit()
         self.historical_synced = True
+        # TODO: Seperate these
+        # historical preps on launch
+        # backtest currently launches, needlessly syncs historical
+        # then the strategy resquests the date range and this watcher then
+        # catches the data up
+        pub.sendMessage(self.topic + "backtest")
         pub.sendMessage(self.topic + "historical")
         logger.info('Market data has been synced.')
 
@@ -233,11 +238,11 @@ class MarketWatcher:
 lookup_list = defaultdict(MarketWatcher)
 
 
-def get_market_watcher(exchange_id, base, quote, interval, session=None, ticker=None, backtest=None):
+def get_market_watcher(exchange_id, base, quote, interval, session=None, ticker=None):
     """Return or create market watcher for the given analysis market"""
     topic = str(exchange_id + base + "/" + quote + interval)
     if topic not in lookup_list:
-        lookup_list[topic] = MarketWatcher(exchange_id, base, quote, interval, session, ticker, backtest)
+        lookup_list[topic] = MarketWatcher(exchange_id, base, quote, interval, session, ticker)
     return lookup_list[topic]
 
 
@@ -253,7 +258,7 @@ def subscribe_backtest(exchange_id, base, quote, interval, callable, session, ti
     pub.subscribe(callable, topic)
 
 
-def subscribe(exchange_id, base, quote, interval, callable, session, ticker, backtest=False):
+def subscribe(exchange_id, base, quote, interval, callable, session, ticker):
     """
     Enroll strategy to recieve new candles from a market
     :param exchange_id: string representing exchange i.e. 'bittrex'
@@ -265,7 +270,7 @@ def subscribe(exchange_id, base, quote, interval, callable, session, ticker, bac
     """
     with lock:
         topic = str(exchange_id + base + "/" + quote + interval)
-        get_market_watcher(exchange_id, base, quote, interval, session, ticker, backtest)
+        get_market_watcher(exchange_id, base, quote, interval, session, ticker)
         print("Subscribing to " + topic)
         pub.subscribe(callable, topic)
 
