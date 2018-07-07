@@ -115,45 +115,59 @@ class MarketWatcher:
             return gaps
 
     # NOTE: This will only work with timescaledb and postgres
-    # since = timestamp
-    # limit = count
     def fill_candle_gaps(self, gaps):
-        print('filling gaps in candles', len(gaps))
-        earliest_date = gaps[0]
-        latest_date = gaps[-1]
-        print('date range:', earliest_date, latest_date)
-        candles = self.query_ccxt(earliest_date)
-        gaps = self.merge_candles(candles, gaps)
-        print('remaining gaps', len(gaps))
+        step = 1000
+        retry_limit = 3
+        retries = 0
+        gaps = [convert_date_to_timestamp(g) for g in gaps]
+        while len(gaps) > 0:
+            earliest_date = convert_timestamp_to_date(gaps[0])
+            latest_date = convert_timestamp_to_date(gaps[-1])
+            print('filling gaps in candles', len(gaps))
+            print('date range:', earliest_date, latest_date)
+            candles = self.query_ccxt(earliest_date, step)
+            good_count, gaps, next_start = self.merge_candles(candles, gaps)
+            next_start = datetime.strptime(next_start, '%Y-%m-%d %H:%M:%S')
+            latest_date = datetime.strptime(latest_date, '%Y-%m-%d %H:%M:%S')
+            if next_start > latest_date or next_start > datetime.now():
+                gaps = []
+            if good_count == step or retries == retry_limit:
+                gaps = [g for g in gaps if g >= convert_date_to_timestamp(next_start)]
+                retries = 0
+            else:
+                retries = retries + 1
+            time.sleep(self.exchange.rateLimit / 1000)
 
     def query_ccxt(self, start_date, limit=1000):
-        since = int(str(int(start_date.timestamp())) + '000')
         return self.exchange.fetch_ohlcv(
             self.analysis_pair,
             timeframe=self.interval,
-            since=since,
+            since=convert_date_to_timestamp(start_date),
             limit=limit
         )
 
     # TODO: Get this to work for exchange data that is simply missing
-    # Always dynamic, never stored
+    # Always dynamic, never stored, so must wrap final db call
+    # possible make optional with a flag
     def interpolate_missing_candles(self, candles):
         for c in candles:
             print(c)
         return candles
 
     def merge_candles(self, candles, gaps):
-        print('merge_candles', convert_timestamp_to_date(candles[0][0]), convert_timestamp_to_date(candles[-1][0]))
+        end_date = convert_timestamp_to_date(candles[-1][0])
+        good_count = 0
         for entry in candles:
-            ts = convert_timestamp_to_date(entry[0])
-            if ts in gaps:
-                gaps.remove(ts)
+            if entry[0] > gaps[0] and entry[0] < gaps[-1]:
+                good_count = good_count + 1
+            if entry[0] in gaps:
+                gaps.remove(entry[0])
                 ohlcv = Ohlcv(
                     exchange=self.exchange.id,
                     pair=self.analysis_pair,
                     interval=self.interval,
                     pair_id=self.pair_id,
-                    timestamp=ts,
+                    timestamp=convert_timestamp_to_date(entry[0]),
                     timestamp_raw=entry[0],
                     open=entry[1],
                     high=entry[2],
@@ -164,7 +178,7 @@ class MarketWatcher:
                 self.session.add(ohlcv)
                 print('Writing candle ' + str(entry[0]) + ' to database')
         self.session.commit()
-        return gaps
+        return good_count, gaps, end_date
 
     def query_candle_date_range(self, start_date, end_date):
         data = self.session.query(Ohlcv).filter(
@@ -328,5 +342,11 @@ def stop_watcher(exchange_id, base, quote, interval):
 
 
 def convert_timestamp_to_date(timestamp):
-    value = datetime.fromtimestamp(float(str(timestamp)[:-3]))  #this might only work on bittrex candle timestamps
+    value = datetime.fromtimestamp(float(str(timestamp)[:-3]))
     return value.strftime('%Y-%m-%d %H:%M:%S')
+
+
+def convert_date_to_timestamp(date):
+    if isinstance(date, str):
+        date = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+    return int(str(int(date.timestamp())) + '000')

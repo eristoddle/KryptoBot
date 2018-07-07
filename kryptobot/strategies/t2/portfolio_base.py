@@ -85,7 +85,7 @@ class PortfolioBase(BaseStrategy):
                 candles_per_day = 24 / int(items[0])
             if candles_per_day is not None:
                 d0 = datetime.strptime(self.start_date, '%Y-%m-%d').date()
-                d1 = date.today()
+                d1 = date.now()
                 delta = d1 - d0
                 self.candle_limit = int(delta.days * candles_per_day)
 
@@ -101,17 +101,15 @@ class PortfolioBase(BaseStrategy):
                 print('backtest needs parameters')
                 return None
             if self.end_date is None:
-                today = datetime.date.today()
+                today = datetime.now()
                 self.end_date = today.strftime('%Y-%m-%d')
-            else:
-                candle_set = self.market.get_candle_date_range(
-                    self.interval,
-                    self.start_date,
-                    self.end_date
-                )
-                print('backtest result count', len(candle_set))
-                for entry in candle_set:
-                    self.__update(candle=entry)
+            candle_set = self.market.get_candle_date_range(
+                self.interval,
+                self.start_date,
+                self.end_date
+            )
+            for entry in candle_set:
+                self.__update(candle=entry)
         self.__jobs.put(lambda: run_backtest())
 
     def __run_simulation(self, candle_set=None):
