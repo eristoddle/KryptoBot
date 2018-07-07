@@ -128,6 +128,7 @@ class Manager(Core):
         self._session.add(strategy)
         self._session.commit()
 
+    # TODO: This does not order in any specific way
     def get_strategy_run_keys(self, strategy_id, simulated=True):
         if simulated:
             Model = Backtest
@@ -135,6 +136,19 @@ class Manager(Core):
             Model = Result
         results = self._session.query(Model.run_key).filter(Model.strategy_id == strategy_id).distinct().all()
         return [r.run_key for r in results]
+
+    def show_last_strategy_results(self, strategy_id, simulated=True):
+        if simulated:
+            Model = Backtest
+        else:
+            Model = Result
+        result = self._session.query(
+            Model.run_key
+        ).filter(
+            Model.strategy_id == strategy_id
+        ).order_by(Model.timestamp.desc()).limit(1).first()
+        self.show_candle_chart(result.run_key, simulated)
+        self.show_indicator_charts(result.run_key, simulated)
 
     def get_results(self, run_key, simulated=True):
         if simulated:

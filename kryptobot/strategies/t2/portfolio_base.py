@@ -72,6 +72,8 @@ class PortfolioBase(BaseStrategy):
         # TODO: If not simulated append to results and sync positions
         pass
 
+    # NOTE: Older method unused, kind of works
+    # Uses date range now and today if there is no end date
     def set_candle_limit(self):
         candles_per_day = None
         match = re.match(r"([0-9]+)([a-z]+)", self.interval, re.I)
@@ -88,20 +90,28 @@ class PortfolioBase(BaseStrategy):
                 self.candle_limit = int(delta.days * candles_per_day)
 
     def run_backtest(self):
-        if self.start_date is None:
-            print('backtest needs parameters')
-            return None
-        if self.end_date is None:
-            # TODO: this kind of works but switch to date range
-            self.set_candle_limit()
-            self.run_simulation()
-        else:
-            self.candle_set = self.market.get_candle_date_range(
-                self.interval,
-                self.start_date,
-                self.end_date
-            )
-            self.run_simulation()
+        """Queue simulation when market data has been synced"""
+        if self.backtest:
+            market_watcher.subscribe_backtest(self.market.exchange.id, self.market.base_currency,
+                                            self.market.quote_currency, self.interval, self.__run_backtest, self.session, self.ticker)
+
+    def __run_backtest(self):
+        def run_backtest():
+            if self.start_date is None:
+                print('backtest needs parameters')
+                return None
+            if self.end_date is None:
+                today = datetime.date.today()
+                self.end_date = today.strftime('%Y-%m-%d')
+            else:
+                candle_set = self.market.get_candle_date_range(
+                    self.interval,
+                    self.start_date,
+                    self.end_date
+                )
+                for entry in candle_set:
+                    self.__update(candle=entry)
+        self.__jobs.put(lambda: run_backtest())
 
     def __run_simulation(self, candle_set=None):
         """Start a simulation on historical candles (runs update method on historical candles)"""
@@ -113,6 +123,8 @@ class PortfolioBase(BaseStrategy):
                 candle_set = self.market.get_historical_candles(self.interval, self.candle_limit)
                 # TODO: Just grabs everything, doesn't check if it has the count
                 # But I can use the apis params to fetch by count instead of date range
+                # Also if there is gaps in the candles, it doesn't know and
+                # Just grabs a longer date range to match the length
                 print('candle_limit', self.candle_limit)
                 print('candle_set length', len(candle_set))
             self.simulating = True
