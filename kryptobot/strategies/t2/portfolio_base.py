@@ -91,12 +91,17 @@ class PortfolioBase(BaseStrategy):
                 self.start_date,
                 self.end_date
             )
+            self.backtesting = True
             for entry in candle_set:
                 self.__update(candle=entry)
-            # NOTE: Stop own self when backtesting
-            # Good idea but think it breaks things
-            # self.stop()
+            self.backtesting = False
+
+        # TODO: This stops before updating data but something has to work
+        # def stop():
+        #     self.stop()
+
         self.__jobs.put(lambda: run_backtest())
+        # self.__jobs.put(lambda: stop())
 
     def __run_simulation(self, candle_set=None):
         """Start a simulation on historical candles (runs update method on historical candles)"""
