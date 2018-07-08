@@ -18,8 +18,6 @@ from ..ta.pyti_double_exponential_moving_average import PytiDema
 from ..ta.pyti_exponential_moving_average import PytiEma
 from ..ta.pyti_hull_moving_average import PytiHullMovingAverage
 # TODO: Special case with multiple periods
-# from ..ta.pyti_ichimoku_cloud import PytiIchimokuCloud
-# TODO: Special case with multiple periods
 # from ..ta.pyti_keltner_bands import PytiIKeitnerBands
 from ..ta.pyti_linear_weighted_moving_average import PytiLwma
 from ..ta.pyti_momentum import PytiMomentum

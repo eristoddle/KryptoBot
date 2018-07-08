@@ -97,6 +97,7 @@ class PortfolioBase(BaseStrategy):
             self.backtesting = False
 
         # TODO: This stops before updating data but something has to work
+        # It needs to stop itself
         # def stop():
         #     self.stop()
 
