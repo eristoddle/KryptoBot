@@ -6,7 +6,7 @@ from mpl_finance import candlestick_ohlc
 import datetime
 from ..core import Core
 from ..db.models import Portfolio, Strategy, Harvester, Result, Backtest
-from ..db.utils import get_or_create
+from ..db.utils import get_or_create, sort_dict
 from ..workers.strategy.tasks import schedule_strategy
 from ..workers.harvester.tasks import schedule_harvester
 # from ..workers.catalyst.tasks import schedule_catalyst_strategy
@@ -49,14 +49,18 @@ class Manager(Core):
         self._session.close()
 
     def add_record(self, model, **kwargs):
+        defaults = {
+            'status': kwargs.pop('status', None)
+        }
         return get_or_create(
             self._session,
             model,
-            {},
+            defaults,
             **kwargs
         )
 
     def run_harvester(self, params):
+        params = sort_dict(params)
         if self.portfolio is not None:
             params['portfolio_id'] = self.portfolio.id
             harvester = self.add_record(
@@ -76,6 +80,7 @@ class Manager(Core):
         return {'harvester_id': harvester.id}
 
     def run_strategy(self, params):
+        params = sort_dict(params)
         if self.portfolio is not None:
             params['portfolio_id'] = self.portfolio.id
             strategy = self.add_record(
