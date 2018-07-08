@@ -88,6 +88,8 @@ class Manager(Core):
             )
             params['strategy_id'] = strategy.id
         params['config'] = self.config
+        strategy.status = 'active'
+        self._session.commit()
         # if params['type'] == 'core':
         #     schedule_core_strategy.apply_async(
         #         None,

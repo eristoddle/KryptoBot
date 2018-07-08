@@ -120,13 +120,22 @@ class PortfolioBase(BaseStrategy):
     def __update(self, candle):
         """Run updates on all markets/indicators/signal generators running in strategy"""
         def update(candle):
-            # print("Updating strategy")
             self.add_message("Received new candle")
             self.market.update(self.interval, candle)
             self.__update_positions()
             self.on_data(candle)
             self.add_message("Simulation BTC balance: " + str(self.market.get_wallet_balance()))
-            # TODO: Check db for signal to stop here
+            self.strategy = self._session.query(Strategy).filter(Strategy.id == self.strategy_id).first()
+            if self.strategy.status == 'paused':
+                print('strategy received signal to stop. ID:', self.strategy_id)
+                self.stop()
+            # TODO: These should do what they say they do
+            if self.strategy.status == 'exited':
+                print('exiting strategy before archiving. ID:', self.strategy_id)
+                self.stop()
+            if self.strategy.status == 'archived':
+                print('setting strategy to archived and stopping. ID:', self.strategy_id)
+                self.stop()
         self.__jobs.put(lambda: update(candle))
 
     def __update_positions(self):
