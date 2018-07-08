@@ -12,13 +12,20 @@
             "key": "key",
             "secret": "secret"
         },
+        "bittrex": {
+            "key": "key",
+            "secret": "secret"
+        },
         "hitbtc": {
             "key": "key",
             "secret": "secret"
         },
-        "bittrex": {
+        "binance": {
             "key": "key",
             "secret": "secret"
         }
-    }
+    },
+    "portfolio": {
+         "name": "default"
+     }
 }

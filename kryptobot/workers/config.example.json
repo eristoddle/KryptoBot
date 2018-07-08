@@ -1,0 +1,16 @@
+{
+    "db": {
+        "engine": "postgresql",
+        "name": "postgres",
+        "user": "postgres",
+        "pass": "password",
+        "host": "timescale",
+        "port": "5432"
+    },
+    "celery": {
+        "encryption_key": "WgFNqB8eokKER0aFxEmfnK7qyZmGhGmxxOqccW3oZoM=",
+        "broker": "redis://redis:6379/0",
+        "backend": "redis://redis:6379/1",
+        "redbeat_redis_url": "redis://redis:6379/2"
+    }
+}
