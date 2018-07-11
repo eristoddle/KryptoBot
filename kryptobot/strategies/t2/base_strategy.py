@@ -48,7 +48,7 @@ class BaseStrategy:
         if self.is_simulated:
             self.market = market_simulator.MarketSimulator(
                 self.exchange,
-                self.base_currency ,
+                self.base_currency,
                 self.quote_currency,
                 self.capital_base,
                 self
@@ -56,7 +56,7 @@ class BaseStrategy:
         else:
             self.market = market.Market(
                 self.exchange,
-                self.base_currency ,
+                self.base_currency,
                 self.quote_currency,
                 self
             )

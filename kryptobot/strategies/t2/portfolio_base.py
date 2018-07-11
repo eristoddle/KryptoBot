@@ -1,10 +1,10 @@
 from threading import Thread
 from queue import Queue
-import simplejson as json
-from datetime import date, datetime
-import re
+# import simplejson as json
+from datetime import datetime
+# import re
 from .base_strategy import BaseStrategy, logger
-from ...markets import market_watcher
+from ...markets import market_watcher, market_simulator, position
 from ...db.utils import generate_uuid
 from ...db.models import Backtest, Result, Portfolio, Strategy
 
@@ -144,6 +144,30 @@ class PortfolioBase(BaseStrategy):
         for p in self.positions:
             if p.is_open:
                 p.update()
+
+    # New execute method to handle both buy and sell signals
+    def execute(self, order_quantity, fixed_stoploss_percent, trailing_stoploss_percent, profit_target_percent, action):
+        if action == 'buy':
+            """Open long position"""
+            if self.is_simulated:
+                """Open simulated long position"""
+                self.add_message("Going long on " + self.market.analysis_pair)
+                self.positions.append(market_simulator.open_long_position_simulation(self.market, order_quantity,
+                                                                                     self.market.latest_candle[
+                                                                                         self.interval][3],
+                                                                                     fixed_stoploss_percent,
+                                                                                     trailing_stoploss_percent,
+                                                                                     profit_target_percent))
+            else:
+                """LIVE long position"""
+                self.add_message("Going long on " + self.market.analysis_pair)
+                self.positions.append(position.open_long_position(self.market, order_quantity,
+                                                              self.market.get_best_ask(),
+                                                              fixed_stoploss_percent,
+                                                              trailing_stoploss_percent,
+                                                              profit_target_percent))
+        elif action == 'sell':
+            pass
 
     def __run(self):
         """Start the strategy thread waiting for commands"""

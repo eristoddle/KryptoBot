@@ -123,6 +123,7 @@ class LongPositionSimulator(position.LongPosition):
     def __init__(self, market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent):
         super().__init__(market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent)
 
+        # TODO: 5m interval is hard coded here
     def liquidate_position(self):
         """Will use this method to actually create the order that liquidates the position"""
         logger.info("Closing simulated long position")

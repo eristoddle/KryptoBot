@@ -18,11 +18,14 @@ class Macd(PortfolioBase):
         )
 
     def on_data(self, candle):
-        condition = self.signal.check_condition(candle)
-        if condition == 'sell':
-            # self.short()
+        action = self.signal.check_condition(candle)
+        if self.get_open_position_count() >= self.position_limit:
             pass
-        elif self.get_open_position_count() >= self.position_limit:
-            pass
-        elif condition == 'buy':
-            self.long(self.order_quantity, self.fixed_stoploss_percentage, self.trailing_stoploss_percentage, self.profit_target_percentage)
+        else:
+            self.execute(
+                self.order_quantity,
+                self.fixed_stoploss_percentage,
+                self.trailing_stoploss_percentage,
+                self.profit_target_percentage,
+                action
+            )
