@@ -22,6 +22,7 @@ class PortfolioBase(BaseStrategy):
         self.candle_limit = 1000
         self.candle_set = None
         self.backtest = False
+        self.action = 'hold'
         if 'backtest' in default and default['backtest'] is True:
             self.backtest = True
         if self.is_simulated:
@@ -141,12 +142,16 @@ class PortfolioBase(BaseStrategy):
 
     def __update_positions(self):
         """Loop through all positions opened by the strategy"""
+        sell = False
+        if self.action == 'sell':
+            sell = True
         for p in self.positions:
             if p.is_open:
-                p.update()
+                p.update(sell)
 
     # New execute method to handle both buy and sell signals
     def execute(self, order_quantity, fixed_stoploss_percent, trailing_stoploss_percent, profit_target_percent, action):
+        self.action = action
         if action == 'buy':
             """Open long position"""
             if self.is_simulated:
@@ -166,8 +171,6 @@ class PortfolioBase(BaseStrategy):
                                                               fixed_stoploss_percent,
                                                               trailing_stoploss_percent,
                                                               profit_target_percent))
-        elif action == 'sell':
-            pass
 
     def __run(self):
         """Start the strategy thread waiting for commands"""

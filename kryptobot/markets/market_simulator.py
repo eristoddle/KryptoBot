@@ -117,7 +117,7 @@ def open_short_position_simulation(market, amount, price):
     position.open()
     return position
 
-
+# TODO: %m interval also hardcoded here, search the project for 5m
 class LongPositionSimulator(position.LongPosition):
     """Simulated long position. Overrides the functionality of creating an actual order to use the MarketSimulators balance and calculations"""
     def __init__(self, market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent):
@@ -134,12 +134,13 @@ class LongPositionSimulator(position.LongPosition):
         self.market.limit_buy(self.amount, self.price)
         self.is_open = True
 
-    def update(self):
+    def update(self, sell=False):
         """Use this method to trigger position to check if profit target has been met, and re-set trailiing stop loss"""
         # logger.info("UPDATING LONG POSITION")
-        if self.market.latest_candle['5m'][3] < self.trailing_stoploss or\
-            self.market.latest_candle['5m'][3] < self.fixed_stoploss or\
-            self.market.latest_candle['5m'][3] >= self.profit_target:  # check price against last calculated trailing stoploss
+        if self.market.latest_candle['5m'][3] < self.trailing_stoploss or \
+            self.market.latest_candle['5m'][3] < self.fixed_stoploss or \
+            self.market.latest_candle['5m'][3] >= self.profit_target or \
+            sell is True:  # check price against last calculated trailing stoploss
                 self.liquidate_position()
         # re-calculate trailing stoploss
         self.trailing_stoploss = self.calculate_trailing_stoploss()

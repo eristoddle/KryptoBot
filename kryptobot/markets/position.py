@@ -31,13 +31,14 @@ class LongPosition(Position):
         self.initial_order = self.market.limit_buy(self.amount, self.price)
         self.is_open = True
 
-    def update(self):
+    def update(self, sell=False):
         """Use this method to trigger position to check if profit target has been met, and re-set trailiing stop loss"""
         if not self.is_open:
             pass
         elif self.market.get_best_bid() < self.trailing_stoploss or \
                 self.market.get_best_bid() < self.fixed_stoploss or \
-                self.market.get_best_bid() >= self.profit_target:  # check price against last calculated trailing stoploss
+                self.market.get_best_bid() >= self.profit_target or \
+                sell is True:  # check price against last calculated trailing stoploss
             self.liquidate_position()
         # re-calculate trailing stoploss
         self.trailing_stoploss = self.calculate_trailing_stoploss()
