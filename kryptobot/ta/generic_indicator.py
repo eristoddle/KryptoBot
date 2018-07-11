@@ -21,6 +21,12 @@ class GenericIndicator(BaseIndicator):
             elif lib == 'talib':
                 self.indicator = abstract.Function(indicator)
         self.params = params
+        # For pyti period parameter and get_analysis method
+        # So you don't have to copy and paste an extra parameter on each call
+        if self.params is None:
+            self.params = {}
+        if 'period' not in self.params:
+            self.params['period'] = periods
         # Set this up to be the type you need when inherited
         self.value = None
 
@@ -38,8 +44,6 @@ class GenericIndicator(BaseIndicator):
         return np.asarray(data, dtype=float)
 
     def get_datawindow(self):
-        # import sys
-        # sys.exit()
         dataset = self.market.candles[self.interval]
         if self.periods is None:
             print('periods is None in GenericIndicator.get_datawindow')

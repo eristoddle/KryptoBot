@@ -11,4 +11,4 @@ class PytiEma(GenericIndicator):
 
     def next_calculation(self, candle):
         if self.get_datawindow() is not None:
-            self.value = indicator(self.get_close(), self.params['period'])[-1]
+            self.value = indicator(self.get_close(), self.periods)[-1]
