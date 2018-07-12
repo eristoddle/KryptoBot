@@ -27,6 +27,8 @@ class MarketSimulator(Market):
             self.base_balance = self.base_balance + quantity
             order = TradingOrder(
                 exchange=self.exchange.id,
+                strategy_id= self.strategy.strategy_id,
+                run_key=self.strategy.run_key,
                 pair=self.analysis_pair,
                 position='buy',
                 amount=quantity,
@@ -47,6 +49,8 @@ class MarketSimulator(Market):
             self.quote_balance = self.quote_balance + quantity * price
             order = TradingOrder(
                 exchange=self.exchange.id,
+                strategy_id= self.strategy.strategy_id,
+                run_key=self.strategy.run_key,
                 pair=self.analysis_pair,
                 position='sell',
                 amount=quantity,

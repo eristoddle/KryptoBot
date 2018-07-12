@@ -6,7 +6,7 @@ from datetime import datetime
 from .base_strategy import BaseStrategy, logger
 from ...markets import market_watcher, market_simulator, position
 from ...db.utils import generate_uuid
-from ...db.models import Backtest, Result, Portfolio, Strategy
+from ...db.models import Result, Portfolio, Strategy
 
 
 class PortfolioBase(BaseStrategy):
@@ -23,12 +23,6 @@ class PortfolioBase(BaseStrategy):
         self.candle_set = None
         self.backtest = False
         self.action = 'hold'
-        if 'backtest' in default and default['backtest'] is True:
-            self.backtest = True
-        if self.is_simulated:
-            self.model = Backtest
-        else:
-            self.model = Result
         if 'start' in default:
             self.start_date = default['start']
         if 'end' in default:
@@ -195,7 +189,7 @@ class PortfolioBase(BaseStrategy):
             # logger.info(str_msg)
             pass
         if type == 'both' or type == 'db':
-            data = self.model(
+            data = Result(
                 strategy_id=self.strategy_id,
                 run_key=self.run_key,
                 data=msg

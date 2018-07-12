@@ -4,7 +4,7 @@ import matplotlib.dates as mdates
 from mpl_finance import candlestick_ohlc
 import datetime
 from ..core import Core
-from ..db.models import Portfolio, Strategy, Harvester, Result, Backtest
+from ..db.models import Portfolio, Strategy, Harvester, Result
 from ..db.utils import get_or_create, sort_dict
 from ..workers.strategy.tasks import schedule_strategy
 from ..workers.harvester.tasks import schedule_harvester
@@ -136,32 +136,20 @@ class Manager(Core):
 
     # TODO: This does not order in any specific way
     def get_strategy_run_keys(self, strategy_id, simulated=True):
-        if simulated:
-            Model = Backtest
-        else:
-            Model = Result
-        results = self._session.query(Model.run_key).filter(Model.strategy_id == strategy_id).distinct().all()
+        results = self._session.query(Result.run_key).filter(Result.strategy_id == strategy_id).distinct().all()
         return [r.run_key for r in results]
 
     def show_last_strategy_results(self, strategy_id, simulated=True):
-        if simulated:
-            Model = Backtest
-        else:
-            Model = Result
         result = self._session.query(
-            Model.run_key
+            Result.run_key
         ).filter(
-            Model.strategy_id == strategy_id
-        ).order_by(Model.timestamp.desc()).limit(1).first()
+            Result.strategy_id == strategy_id
+        ).order_by(Result.timestamp.desc()).limit(1).first()
         self.show_candle_chart(result.run_key, simulated)
         self.show_indicator_charts(result.run_key, simulated)
 
     def get_results(self, run_key, simulated=True):
-        if simulated:
-            Model = Backtest
-        else:
-            Model = Result
-        results = self._session.query(Model).filter(Model.run_key == run_key).all()
+        results = self._session.query(Result).filter(Result.run_key == run_key).all()
         final = []
         for r in results:
             r.data['timestamp'] = self.convert_timestamp_to_date(r.data['timestamp'])

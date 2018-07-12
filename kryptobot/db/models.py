@@ -38,8 +38,9 @@ class TradingOrder(Base):
     __tablename__ = 'trading_orders'
 
     order_id = Column('order_id', Integer, primary_key=True)
-    strategy_id = Column('strategy_id', Integer)
-    # strategy_id = Column('strategy_id', Integer, ForeignKey('strategies.id'))
+    run_key = Column('run_key', UUID)
+    # run_key = Column('run_key', UUID, ForeignKey('results.run_key'))
+    strategy_id = Column('strategy_id', Integer, ForeignKey('strategies.id'))
     timestamp = Column('timestamp', DateTime, default=datetime.datetime.utcnow)
     exchange = Column('exchange', String)
     pair = Column('pair', String)
@@ -82,16 +83,6 @@ class Portfolio(Base):
 
 class Result(Base):
     __tablename__ = 'results'
-
-    id = Column('id', Integer, primary_key=True)
-    strategy_id = Column('strategy_id', Integer, ForeignKey('strategies.id'))
-    run_key = Column('run_key', UUID, nullable=False)
-    timestamp = Column('timestamp', DateTime, default=datetime.datetime.utcnow)
-    data = Column('data', JsonValue)
-
-
-class Backtest(Base):
-    __tablename__ = 'backtest'
 
     id = Column('id', Integer, primary_key=True)
     strategy_id = Column('strategy_id', Integer, ForeignKey('strategies.id'))

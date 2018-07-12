@@ -26,6 +26,8 @@ class Order:
                 self.__order_receipt = self.market.exchange.create_limit_buy_order(self.market.analysis_pair, self.amount, self.price)
                 order = TradingOrder(
                     exchange=self.market.exchange.id,
+                    strategy_id=self.market.strategy.strategy_id,
+                    run_key=self.market.strategy.run_key,
                     pair=self.market.analysis_pair,
                     position='long',
                     amount=self.amount,
@@ -39,6 +41,8 @@ class Order:
                 self.__order_receipt = self.market.exchange.create_limit_sell_order(self.market.analysis_pair, self.amount, self.price)
                 order = TradingOrder(
                     exchange=self.market.exchange.id,
+                    strategy_id=self.market.strategy.strategy_id,
+                    run_key=self.market.strategy.run_key,
                     pair=self.market.analysis_pair,
                     position='short',
                     amount=self.amount,
