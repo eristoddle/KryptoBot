@@ -34,10 +34,10 @@ class PytiMacdSignal(BaseSignalGenerator):
 
     def check_condition(self, new_candle):
         macd = self.macd.value
-        macd.update({
+        ema = {
             'ema_short': self.ema_short.value,
             'ema_long': self.ema_long.value
-        })
+        }
 
         # print('macd', macd)
 
@@ -49,6 +49,7 @@ class PytiMacdSignal(BaseSignalGenerator):
             'close': new_candle[4],
             'volume': new_candle[5],
             'macd': macd,
+            'ema': ema,
             'positions': self.strategy.get_open_position_count(),
             'quote_balance': self.market.get_wallet_balance(),
             'base_balance': self.market.base_balance,
