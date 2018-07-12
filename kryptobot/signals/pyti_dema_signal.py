@@ -1,19 +1,16 @@
 from ..signals.base_signal_generator import BaseSignalGenerator
 from ..ta.pyti_exponential_moving_average import PytiEma
-from ..ta.pyti_macd import PytiMacd
 
 
-class PytiMacdSignal(BaseSignalGenerator):
+class PytiDemaSignal(BaseSignalGenerator):
 
     def __init__(self, market, interval, params, strategy):
         super().__init__(market, interval, strategy)
         short = params.pop('short_window', 12)
         long = params.pop('long_window', 26)
-        signal = params.pop('signal_window', 9)
         self.last_signal = None
         self.repeat_count = 0
         self.repeat_limit = 0
-        # TODO: Don't actually need these two ema's for the signal
         self.ema_short = PytiEma(
             market,
             interval,
@@ -24,24 +21,12 @@ class PytiMacdSignal(BaseSignalGenerator):
             interval,
             long
         )
-        self.macd = PytiMacd(
-            market,
-            interval,
-            long,
-            {
-                'short_window': short,
-                'signal_window': signal
-            }
-        )
 
     def check_condition(self, new_candle):
-        macd = self.macd.value
         ema = {
-            'ema_short': self.ema_short.value,
-            'ema_long': self.ema_long.value
+            'short': self.ema_short.value,
+            'long': self.ema_long.value
         }
-
-        # print('macd', macd)
 
         self.strategy.add_message({
             'timestamp': new_candle[0],
@@ -50,7 +35,6 @@ class PytiMacdSignal(BaseSignalGenerator):
             'low': new_candle[3],
             'close': new_candle[4],
             'volume': new_candle[5],
-            'macd': macd,
             'ema': ema,
             'positions': self.strategy.get_open_position_count(),
             'quote_balance': self.market.get_wallet_balance(),
@@ -59,11 +43,12 @@ class PytiMacdSignal(BaseSignalGenerator):
                 + (self.market.base_balance * ((new_candle[2] + new_candle[3])/ 2))
         }, 'db')
 
-        if macd['crossover'] > 0:
+        if ema['short'] > ema['long']:
             signal = 'buy'
-
-        if macd['crossover'] < 0:
+        else:
             signal = 'sell'
+            # NOTE: does seem to work better with a sell crossover
+            # signal = 'hold'
 
         # NOTE: This does seem to work better than buying all the way up
         # Also it seems better to up the limit and only buy on the first signal
