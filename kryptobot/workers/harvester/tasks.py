@@ -1,22 +1,11 @@
-# from celery.schedules import crontab
 from .celery import app
+from ..config import get_config
 from ..base_task import BaseTask
-from ...harvesters.arbitrage_harvester import ArbitrageHarvester
-from ...harvesters.cmc_new_coin_harvester import CmcNewCoinHarvester
+import importlib
+import re
 
 
-# TODO: Find a way to load configs for celery jobs
-# Also api keys on this side multitenant
-# config = getcwd() + '/config.json'
-config = {
-        "db": {
-            "engine": "sqlite",
-            "name": "core.db",
-            "username": "",
-            "password": "",
-            "host": ""
-        }
-    }
+config = get_config()
 
 # TODO: get this to work instead of depending on naming conventions and/or importing everything
 # def import_harvester(class_name):
@@ -27,14 +16,22 @@ config = {
 #     return getattr(harvesters, class_name)
 
 
-def to_camel_case(snake_str):
+def title_case(snake_str):
     components = snake_str.split('_')
-    return components[0] + ''.join(x.title() for x in components[1:])
+    return ''.join(x.title() for x in components)
 
 
-def import_harvester(harvester):
-    harvester = to_camel_case(harvester)
-    return globals()[harvester]
+def title_to_snake(s):
+    _underscorer1 = re.compile(r'(.)([A-Z][a-z]+)')
+    _underscorer2 = re.compile('([a-z0-9])([A-Z])')
+    subbed = _underscorer1.sub(r'\1_\2', s)
+    return _underscorer2.sub(r'\1_\2', subbed).lower()
+
+
+def dynamic_import(abs_module_path, class_name):
+    module_object = importlib.import_module(abs_module_path)
+    target_class = getattr(module_object, class_name)
+    return target_class
 
 
 @app.on_after_configure.connect
@@ -49,14 +46,20 @@ def load_open_periodic_harvesters(sender, **kwargs):
 
 @app.task(base=BaseTask)
 def launch_harvester(classname, params):
-    Harvester = import_harvester(classname)
+    Harvester = dynamic_import(
+        'kryptobot.harvesters.' + title_to_snake(classname),
+        classname
+    )
     harvester = Harvester(**params)
     return harvester.get_data()
 
 
 @app.task(base=BaseTask)
 def schedule_harvester(params):
-    Harvester = import_harvester(params['harvester'])
+    Harvester = dynamic_import(
+        'kryptobot.harvesters.' + params['harvester'],
+        title_case(params['harvester'])
+    )
     params.pop('harvester', None)
     harvester = Harvester(**params)
     return harvester.create_schedule(app)

@@ -6,7 +6,6 @@ from ...markets import market_watcher
 from ..base_task import BaseTask
 from ...db.models import Strategy
 import importlib
-import time
 
 
 def title_case(snake_str):
@@ -53,8 +52,6 @@ def schedule_t2_strategy(params):
         config=params['config']
     )
     bot.start()
-    # time.sleep(30)
-    # bot.stop()
 
 
 # TODO: app.control.revoke does not stop the strategy
