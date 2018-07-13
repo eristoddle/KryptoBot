@@ -135,20 +135,28 @@ class Manager(Core):
         self._session.commit()
 
     # TODO: This does not order in any specific way
-    def get_strategy_run_keys(self, strategy_id, simulated=True):
+    def get_strategy_run_keys(self, strategy_id):
         results = self._session.query(Result.run_key).filter(Result.strategy_id == strategy_id).distinct().all()
         return [r.run_key for r in results]
 
-    def show_last_strategy_results(self, strategy_id, simulated=True):
+    def get_last_strategy_results(self, strategy_id):
         result = self._session.query(
             Result.run_key
         ).filter(
             Result.strategy_id == strategy_id
         ).order_by(Result.timestamp.desc()).limit(1).first()
-        self.show_candle_chart(result.run_key, simulated)
-        self.show_indicator_charts(result.run_key, simulated)
+        return self.get_results(result.run_key)
 
-    def get_results(self, run_key, simulated=True):
+    def show_last_strategy_results(self, strategy_id):
+        result = self._session.query(
+            Result.run_key
+        ).filter(
+            Result.strategy_id == strategy_id
+        ).order_by(Result.timestamp.desc()).limit(1).first()
+        self.show_candle_chart(result.run_key)
+        self.show_indicator_charts(result.run_key)
+
+    def get_results(self, run_key):
         results = self._session.query(Result).filter(Result.run_key == run_key).all()
         final = []
         for r in results:
@@ -156,8 +164,8 @@ class Manager(Core):
             final.append(r.data)
         return pd.DataFrame(final)
 
-    def show_candle_chart(self, run_key, simulated=True):
-        results = self.get_results(run_key, simulated)
+    def show_candle_chart(self, run_key):
+        results = self.get_results(run_key)
         ohlc_cols = ['timestamp', 'open', 'high', 'low', 'close']
         quotes = results[ohlc_cols]
         result_count = len(quotes)
@@ -182,8 +190,8 @@ class Manager(Core):
         plt.gcf().set_size_inches(20, 5)
         plt.show()
 
-    def show_indicator_charts(self, run_key, simulated=True):
-        results = self.get_results(run_key, simulated)
+    def show_indicator_charts(self, run_key):
+        results = self.get_results(run_key)
         excluded = ['open', 'high', 'low', 'close']
         ind_cols = [c for c in results.columns if c not in excluded]
         inds = results[ind_cols]

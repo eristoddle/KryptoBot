@@ -8,6 +8,7 @@ setuptools.setup(
     name="kryptobot",
     packages=[
         'kryptobot',
+        'kryptobot.batches',
         'kryptobot.bots',
         'kryptobot.catalyst_extensions',
         'kryptobot.catalyst_extensions.bundles',
@@ -15,6 +16,7 @@ setuptools.setup(
         'kryptobot.ccxt_shim',
         'kryptobot.db',
         'kryptobot.harvesters',
+        'kryptobot.learners',
         'kryptobot.listeners',
         'kryptobot.markets',
         'kryptobot.notifiers',
@@ -30,7 +32,9 @@ setuptools.setup(
         'kryptobot.workers',
         'kryptobot.workers.catalyst',
         'kryptobot.workers.core',
+        'kryptobot.workers.batch',
         'kryptobot.workers.harvester',
+        'kryptobot.workers.learner',
         'kryptobot.workers.strategy',
         'kryptobot.workers.t2',
     ],
@@ -69,7 +73,9 @@ setuptools.setup(
           'tenacity',
           'slackweb',
           'webcord',
-          'simplejson'
+          'simplejson',
+          'plotly',
+          'cufflinks'
     ],
     entry_points={
         'console_scripts': [
