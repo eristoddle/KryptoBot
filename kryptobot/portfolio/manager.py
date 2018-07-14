@@ -164,13 +164,25 @@ class Manager(Core):
             final.append(r.data)
         return pd.DataFrame(final)
 
-    def show_candle_chart(self, run_key):
-        results = self.get_results(run_key)
+    def get_candles_from_results(self, results):
         ohlc_cols = ['timestamp', 'open', 'high', 'low', 'close']
         quotes = results[ohlc_cols]
-        result_count = len(quotes)
         quotes['timestamp'] = pd.to_datetime(quotes['timestamp'])
         quotes.set_index('timestamp', inplace=True)
+        return quotes
+
+    def get_indicators_from_results(self, results):
+        excluded = ['open', 'high', 'low', 'close']
+        ind_cols = [c for c in results.columns if c not in excluded]
+        inds = results[ind_cols]
+        inds = inds.dropna(axis='columns')
+        inds['timestamp'] = pd.to_datetime(inds['timestamp'])
+        inds.set_index('timestamp', inplace=True)
+        return inds
+
+    def show_candle_chart(self, run_key):
+        quotes = self.get_candles_from_results(self.get_results(run_key))
+        result_count = len(quotes)
         fig, ax = plt.subplots()
         candlestick_ohlc(ax, zip(mdates.date2num(quotes.index.to_pydatetime()),
                                  quotes['open'], quotes['high'],
@@ -192,13 +204,8 @@ class Manager(Core):
 
     def show_indicator_charts(self, run_key):
         results = self.get_results(run_key)
-        excluded = ['open', 'high', 'low', 'close']
-        ind_cols = [c for c in results.columns if c not in excluded]
-        inds = results[ind_cols]
-        inds = inds.dropna(axis='columns')
-        inds['timestamp'] = pd.to_datetime(inds['timestamp'])
+        inds = self.get_indicators_from_results(results)
         timestamps = inds['timestamp']
-        inds.set_index('timestamp', inplace=True)
         result_count = len(inds)
 
         col_count = len(inds.columns) + 10

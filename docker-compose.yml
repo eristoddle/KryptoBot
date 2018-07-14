@@ -93,7 +93,7 @@ services:
 
     jupyter:
         build: .
-        command: jupyter lab --ip=0.0.0.0 --allow-root
+        command: jupyter notebook --ip=0.0.0.0 --allow-root
         ports:
             - "8888:8888"
             - "5000:5000"

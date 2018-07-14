@@ -75,7 +75,9 @@ setuptools.setup(
           'webcord',
           'simplejson',
           'plotly',
-          'cufflinks'
+          'cufflinks',
+          'pivottablejs',
+          'bokeh'
     ],
     entry_points={
         'console_scripts': [
