@@ -8,6 +8,8 @@ app.conf.update(
        'kryptobot.workers.strategy.tasks',
        # 'kryptobot.workers.core.tasks',
        'kryptobot.workers.t2.tasks',
+       'kryptobot.workers.batch.tasks',
+       'kryptobot.workers.learner.tasks',
        'kryptobot.workers.tasks'
        ],
 )
