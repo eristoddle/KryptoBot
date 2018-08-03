@@ -1,6 +1,8 @@
 from .celery import app
 from ..config import core
+from ..base_task import BaseTask
 import importlib
+
 
 def title_case(snake_str):
     components = snake_str.split('_')
@@ -11,3 +13,13 @@ def dynamic_import(abs_module_path, class_name):
     module_object = importlib.import_module(abs_module_path)
     target_class = getattr(module_object, class_name)
     return target_class
+
+
+@app.task(base=BaseTask)
+def schedule_batch(params):
+    Batch = dynamic_import(
+        'kryptobot.batches.' + params['class_name'],
+        title_case(params['class_name'])
+    )
+    batch = Batch(**params)
+    batch.run()

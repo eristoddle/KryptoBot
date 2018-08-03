@@ -1,5 +1,6 @@
 from .celery import app
 from ..config import core
+from ..base_task import BaseTask
 import importlib
 
 def title_case(snake_str):

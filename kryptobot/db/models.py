@@ -56,6 +56,7 @@ class Strategy(Base):
     id = Column('id', Integer, primary_key=True)
     type = Column('type', String, default='default')
     porfolio_id = Column('porfolio_id', Integer, ForeignKey('portfolios.id'))
+    batch_id = Column('batch_id', Integer, ForeignKey('batch.id'))
     harvester_id = Column('harvester_id', Integer, ForeignKey('harvesters.id'))
     class_name = Column('class_name', String)
     params = Column('params', JsonValue)
@@ -88,4 +89,13 @@ class Result(Base):
     strategy_id = Column('strategy_id', Integer, ForeignKey('strategies.id'))
     run_key = Column('run_key', UUID, nullable=False)
     timestamp = Column('timestamp', DateTime, default=datetime.datetime.utcnow)
+    data = Column('data', JsonValue)
+
+
+class Batch(Base):
+    __tablename__ = 'batches'
+
+    id = Column('id', Integer, primary_key=True)
+    class_name = Column('class_name', String)
+    params = Column('params', JsonValue)
     data = Column('data', JsonValue)

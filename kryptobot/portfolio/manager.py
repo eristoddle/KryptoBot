@@ -4,13 +4,14 @@ import matplotlib.dates as mdates
 from mpl_finance import candlestick_ohlc
 import datetime
 from ..core import Core
-from ..db.models import Portfolio, Strategy, Harvester, Result
+from ..db.models import Portfolio, Strategy, Harvester, Result, Batch
 from ..db.utils import get_or_create, sort_dict
 from ..workers.strategy.tasks import schedule_strategy
 from ..workers.harvester.tasks import schedule_harvester
 # from ..workers.catalyst.tasks import schedule_catalyst_strategy
 # from ..workers.core.tasks import schedule_core_strategy
 from ..workers.t2.tasks import schedule_t2_strategy
+from ..workers.batch.tasks import schedule_batch
 
 pd.options.mode.chained_assignment = None
 
@@ -57,6 +58,26 @@ class Manager(Core):
             defaults,
             **kwargs
         )
+
+    def run_batch(self, params):
+        params = sort_dict(params)
+        if self.portfolio is not None:
+            params['portfolio_id'] = self.portfolio.id
+            batch = self.add_record(
+                Batch,
+                porfolio_id=self.portfolio.id,
+                class_name=params['batch'],
+                params=params,
+            )
+            params['batch_id'] = batch.id
+        params['config'] = self.config
+        schedule_batch.apply_async(
+            None,
+            {'params': params},
+            task_id=batch.celery_id
+        )
+        return {'batch_id': batch.id}
+
 
     def run_harvester(self, params):
         params = sort_dict(params)
