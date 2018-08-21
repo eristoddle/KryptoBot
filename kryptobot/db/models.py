@@ -96,6 +96,8 @@ class Batch(Base):
     __tablename__ = 'batches'
 
     id = Column('id', Integer, primary_key=True)
+    porfolio_id = Column('porfolio_id', Integer, ForeignKey('portfolios.id'))
+    celery_id = Column('celery_id', UUID, unique=True, nullable=False, default=generate_uuid)
     class_name = Column('class_name', String)
     params = Column('params', JsonValue)
     data = Column('data', JsonValue)

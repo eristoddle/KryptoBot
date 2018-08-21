@@ -49,9 +49,12 @@ class Manager(Core):
         self._session.close()
 
     def add_record(self, model, **kwargs):
-        defaults = {
-            'status': kwargs.pop('status', None)
-        }
+        if model is not Batch:
+            defaults = {
+                'status': kwargs.pop('status', None)
+            }
+        else:
+            defaults = {}
         return get_or_create(
             self._session,
             model,

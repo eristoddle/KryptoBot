@@ -77,7 +77,8 @@ setuptools.setup(
           'plotly',
           'cufflinks',
           'pivottablejs',
-          'bokeh'
+          'bokeh',
+          'pydash'
     ],
     entry_points={
         'console_scripts': [

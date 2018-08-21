@@ -2,6 +2,8 @@ from .base import Base
 from ..db.utils import get_or_create, sort_dict
 from ..workers.t2.tasks import schedule_t2_strategy
 from ..db.models import Strategy
+# from pydash.numerical import min_
+import numpy as np
 
 
 class Params(dict):
@@ -13,11 +15,12 @@ class Params(dict):
 
 class ParameterTester(Base):
 
-    def __init__(self, batch_id, portfolio, strategy, exchange, pair, interval, params):
-        super().__init__(batch_id, portfolio)
+    def __init__(self, batch_id, portfolio_id, strategy, exchange, pair, interval, params):
+        super().__init__(batch_id, portfolio_id)
         self.strategy = strategy
         base, quote = pair.split('/')
         self.params = params
+        self.scheme = params.pop('scheme', None)
         self.strategy_params = Params({
             'type': 't2',
             'strategy': strategy,
@@ -76,5 +79,30 @@ class ParameterTester(Base):
             task_id=strategy.celery_id
         )
 
+    def generate_by_ratio(self):
+        params_list = []
+        start_params = {key: value[0] for (key, value) in self.params.items()}
+        params_list.append(start_params)
+
+        min_tuple = min(start_params.items(), key=lambda x: x[1])
+        min_key = min_tuple[0]
+        max_min = min_tuple[1]
+        min_range = np.arange(self.params[min_key][1], max_min, self.scheme.step)
+        other_keys = [key for (key) in self.params.items()].remove(min_key)
+
+        for min_val in min_range:
+            new_params = {min_key: min_val}
+            for k in other_keys:
+                if self.scheme.param_type == 'integer':
+                    new_params[k] = np.round((self.params[key][1] / max_min) * min_val)
+                else:
+                    new_params[k] = (self.params[key][1] / max_min) * min_val
+
+        for p in params_list:
+            self.schedule_strategy(p)
+
+
     def run(self):
-        pass
+        if 'relation' in self.scheme:
+            if self.scheme['relation'] == 'ratio':
+                self.generate_by_ratio()
