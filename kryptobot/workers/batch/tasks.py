@@ -17,12 +17,15 @@ def dynamic_import(abs_module_path, class_name):
 
 @app.task(base=BaseTask)
 def schedule_batch(params):
-    print('params', params)
+    # print('params', params)
     class_name = params.pop('batch', None)
     batch_params = params.pop('params', None)
     batch_params['batch_id'] = params['batch_id']
     batch_params['portfolio_id'] = params['portfolio_id']
-    params.pop('config', None)
+    batch_params['core'] = core
+    # TODO: Can I make this less convoluted
+    config = params.pop('config', None)
+    batch_params['core'].config['apis'] = config['apis']
     Batch = dynamic_import(
         'kryptobot.batches.' + class_name,
         title_case(class_name)

@@ -56,7 +56,7 @@ class Strategy(Base):
     id = Column('id', Integer, primary_key=True)
     type = Column('type', String, default='default')
     porfolio_id = Column('porfolio_id', Integer, ForeignKey('portfolios.id'))
-    batch_id = Column('batch_id', Integer, ForeignKey('batch.id'))
+    batch_id = Column('batch_id', Integer, ForeignKey('batches.id'))
     harvester_id = Column('harvester_id', Integer, ForeignKey('harvesters.id'))
     class_name = Column('class_name', String)
     params = Column('params', JsonValue)

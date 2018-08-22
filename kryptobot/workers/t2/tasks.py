@@ -59,4 +59,5 @@ def schedule_t2_strategy(params):
 @app.task(base=BaseTask)
 def stop_strategy(id):
     # app.control.revoke(id, terminate=True)
+    # TODO: These are hardcoded
     market_watcher.stop_watcher('bittrex', 'LTC', 'BTC', '5m')

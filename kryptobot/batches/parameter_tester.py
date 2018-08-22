@@ -2,7 +2,6 @@ from .base import Base
 from ..db.utils import get_or_create, sort_dict
 from ..workers.t2.tasks import schedule_t2_strategy
 from ..db.models import Strategy
-# from pydash.numerical import min_
 import numpy as np
 
 
@@ -15,8 +14,8 @@ class Params(dict):
 
 class ParameterTester(Base):
 
-    def __init__(self, batch_id, portfolio_id, strategy, exchange, pair, interval, params):
-        super().__init__(batch_id, portfolio_id)
+    def __init__(self, batch_id, portfolio_id, core, strategy, exchange, pair, interval, params):
+        super().__init__(batch_id, portfolio_id, core)
         self.strategy = strategy
         base, quote = pair.split('/')
         self.params = params
@@ -37,7 +36,10 @@ class ParameterTester(Base):
                 'exchange': exchange,
                 'base_currency': base,
                 'quote_currency': quote,
-                'is_simulated': True
+                'is_simulated': True,
+                # 'backtest': True,
+                # 'start': '2018-07-04',
+                # 'end': '2018-07-11',
             },
             'portfolio': {
                 'name': self.portfolio.name
@@ -56,6 +58,7 @@ class ParameterTester(Base):
         )
 
     def schedule_strategy(self, custom_params):
+        custom_params.pop('session', None)
         params = self.strategy_params.update({
             'custom': custom_params
         })
@@ -64,6 +67,7 @@ class ParameterTester(Base):
         strategy = self.add_record(
             Strategy,
             porfolio_id=self.portfolio.id,
+            batch_id=self.batch_id,
             type=params['type'],
             class_name=params['strategy'],
             params=params,
@@ -71,7 +75,6 @@ class ParameterTester(Base):
         )
         params['strategy_id'] = strategy.id
         params['config'] = self.config
-        strategy.status = 'active'
         self._session.commit()
         schedule_t2_strategy.apply_async(
             None,
@@ -82,21 +85,24 @@ class ParameterTester(Base):
     def generate_by_ratio(self):
         params_list = []
         start_params = {key: value[0] for (key, value) in self.params.items()}
-        params_list.append(start_params)
 
         min_tuple = min(start_params.items(), key=lambda x: x[1])
         min_key = min_tuple[0]
         max_min = min_tuple[1]
-        min_range = np.arange(self.params[min_key][1], max_min, self.scheme.step)
-        other_keys = [key for (key) in self.params.items()].remove(min_key)
+        min_range = np.arange(self.params[min_key][1], max_min, self.scheme['step'])
+        other_keys = [key[0] for (key) in self.params.items()]
+        other_keys.remove(min_key)
 
         for min_val in min_range:
-            new_params = {min_key: min_val}
+            new_params = {min_key: int(min_val)}
             for k in other_keys:
-                if self.scheme.param_type == 'integer':
-                    new_params[k] = np.round((self.params[key][1] / max_min) * min_val)
+                if self.scheme['param_type'] == 'integer':
+                    num = np.round((self.params[k][0] / max_min) * min_val)
+                    new_params[k] = int(num)
                 else:
-                    new_params[k] = (self.params[key][1] / max_min) * min_val
+                    new_params[k] = (self.params[k][0] / max_min) * min_val
+            params_list.append(new_params)
+        params_list.append(start_params)
 
         for p in params_list:
             self.schedule_strategy(p)

@@ -13,6 +13,8 @@ from ..workers.harvester.tasks import schedule_harvester
 from ..workers.t2.tasks import schedule_t2_strategy
 from ..workers.batch.tasks import schedule_batch
 
+# TODO: Break this up into more classes
+
 pd.options.mode.chained_assignment = None
 
 SMALL_SIZE = 12
