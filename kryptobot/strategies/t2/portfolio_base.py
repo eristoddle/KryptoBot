@@ -33,16 +33,17 @@ class PortfolioBase(BaseStrategy):
 
     def add_session(self, session):
         self.session = session
-        self._session = session()
         self.market.add_session(session)
         self.init_data()
         self.check_if_restarted()
 
     def init_data(self):
+        self._session = self.session()
         if self.portfolio_id is not None:
             self.portfolio = self._session.query(Portfolio).filter(Portfolio.id == self.portfolio_id).first()
         if self.strategy_id is not None:
             self.strategy = self._session.query(Strategy).filter(Strategy.id == self.strategy_id).first()
+        self._session.close()
 
     def process_limits(self, limits):
         self.capital_base = limits['capital_base']
@@ -121,7 +122,9 @@ class PortfolioBase(BaseStrategy):
             self.__update_positions()
             self.on_data(candle)
             self.add_message("Simulation BTC balance: " + str(self.market.get_wallet_balance()))
+            self._session = self.session()
             self.strategy = self._session.query(Strategy).filter(Strategy.id == self.strategy_id).first()
+            self._session.close()
             if self.strategy.status == 'paused':
                 print('strategy received signal to stop. ID:', self.strategy_id)
                 self.stop()
@@ -194,8 +197,10 @@ class PortfolioBase(BaseStrategy):
                 run_key=self.run_key,
                 data=msg
             )
+            self._session = self.session()
             self._session.add(data)
             self._session.commit()
+            self._session.close()
 
     # TODO: Do any clean up involved in shutting down
     def stop(self):

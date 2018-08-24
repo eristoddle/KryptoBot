@@ -58,7 +58,6 @@ class ParameterTester(Base):
         )
 
     def schedule_strategy(self, custom_params):
-        custom_params.pop('session', None)
         params = self.strategy_params.update({
             'custom': custom_params
         })
