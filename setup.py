@@ -63,8 +63,7 @@ setuptools.setup(
           'pandas',
           # This breaks, pymarketcap requires cython to be installed first
           'cython',
-          # 'pymarketcap',
-          'pandas',
+          'pymarketcap',
           'ta-lib',
           'matplotlib',
           'mpl-finance',
